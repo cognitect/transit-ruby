@@ -1,0 +1,9 @@
+* make distinction between arrays and lists
+may need a List type
+* need a char type
+* means of registering encoders
+* more rigorous testing of BigDecimal encoding/decoding
+* wrap encoder fns in json and msgpack-specific types ?
+* support DateTime objects ?
+* Need to look at the encoding of numbers, especially around magitudes.
+* Deal with caching of keys/identifiers
