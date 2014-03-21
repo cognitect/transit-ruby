@@ -6,5 +6,5 @@ may need a List type
 * wrap encoder fns in json and msgpack-specific types ?
 * support DateTime objects ?
 * Need to look at the encoding of numbers, especially around magitudes.
-* Deal with caching of keys/identifiers
+* Integrate caching of keys/identifiers into transit.
 * Deal with reading unrecognized extensions; these are *not* errors.
