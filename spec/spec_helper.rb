@@ -26,8 +26,12 @@ def random_alphanum
 end
 
 def random_string(max_length=10)
-  l = rand(max_length-1) + 1
+  l = rand(max_length) + 1
   (Array.new(l).map {|x| random_alphanum}).join
+end
+
+def random_strings(max_length=10, n=100)
+  Array.new(n).map {random_string(max_length)}
 end
 
 def random_symbol(max_length=10)
