@@ -7,3 +7,4 @@ may need a List type
 * support DateTime objects ?
 * Need to look at the encoding of numbers, especially around magitudes.
 * Deal with caching of keys/identifiers
+* Deal with reading unrecognized extensions; these are *not* errors.
