@@ -106,41 +106,52 @@ module Transit
     end
 
     describe 'registration' do
-      it 'supports override of default string decoders' do
-        decoder = Decoder.new
-        decoder.register_decoder("~r") {|s| s[2..-1]}
-        assert { decoder.decode("~rhttp://foo.com") == "http://foo.com" }
-      end
-
-      it 'supports custom string decoders' do
-        decoder = Decoder.new
-        decoder.register_decoder("~D") {|s| Date.parse(s[2..-1])}
-        assert { decoder.decode("~D2014-03-15") == Date.new(2014,3,15) }
-      end
-
       it 'requires a 1-arg lambda' do
-        assert { rescuing { Decoder.new.register_decoder("~D") {|s,t|} }.
+        assert { rescuing { Decoder.new.register("~D") {|s,t|} }.
           message =~ /arity/ }
       end
-    end
 
-    describe 'custom extensions' do
-      it 'supports hash based extensions' do
-        decoder = Decoder.new
-        decoder.register_decoder("~#Xdouble") {|h| h.values.first * 2}
-        assert { decoder.decode({"~#Xdouble" => 44}) == 88 }
+      describe 'overrides' do
+        it 'supports override of default string decoders' do
+          decoder = Decoder.new
+          decoder.register("~r") {|s| s[2..-1]}
+          assert { decoder.decode("~rhttp://foo.com") == "http://foo.com" }
+        end
+
+        it 'supports override of default hash decoders' do
+          my_uuid_class = Class.new(String)
+          decoder = Decoder.new
+          my_uuid = my_uuid_class.new(UUID.new.to_s)
+
+          decoder.register("~#u") {|h| my_uuid_class.new(h.values.first)}
+          assert { decoder.decode({"~#u" => my_uuid.to_s}) == my_uuid }
+        end
       end
 
-      it 'supports hash based extensions that return nil'  do
-        decoder = Decoder.new
-        decoder.register_decoder("~#Xmynil") {|_| nil}
-        assert { decoder.decode({"~#Xmynil" => :anything }) == nil }
-      end
+      describe 'extensions' do
+        it 'supports string-based extensions' do
+          decoder = Decoder.new
+          decoder.register("~D") {|s| Date.parse(s[2..-1])}
+          assert { decoder.decode("~D2014-03-15") == Date.new(2014,3,15) }
+        end
 
-      it 'supports hash based extensions that return false' do
-        decoder = Decoder.new
-        decoder.register_decoder("~#Xmyfalse") {|_| false}
-        assert { decoder.decode({"~#Xmyfalse" => :anything }) == false }
+        it 'supports hash based extensions' do
+          decoder = Decoder.new
+          decoder.register("~#Xdouble") {|h| h.values.first * 2}
+          assert { decoder.decode({"~#Xdouble" => 44}) == 88 }
+        end
+
+        it 'supports hash based extensions that return nil'  do
+          decoder = Decoder.new
+          decoder.register("~#Xmynil") {|_| nil}
+          assert { decoder.decode({"~#Xmynil" => :anything }) == nil }
+        end
+
+        it 'supports hash based extensions that return false' do
+          decoder = Decoder.new
+          decoder.register("~#Xmyfalse") {|_| false}
+          assert { decoder.decode({"~#Xmyfalse" => :anything }) == false }
+        end
       end
     end
   end

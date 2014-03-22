@@ -105,11 +105,51 @@ module Transit
       end
     end
 
-    describe 'one-time use of custom encoder' do
-      it 'supports override of default encoders' do
-        encoder = Encoder.new
-        encoder.register_encoder(URI) {|s| "URI:#{s.to_s}"}
-        assert { encoder.encode(URI("http://foo.com")) == "URI:http://foo.com" }
+    describe 'registration' do
+      it 'requires a 1-arg lambda' do
+        assert { rescuing { Encoder.new.register(Date) {|s,t|} }.
+          message =~ /arity/ }
+      end
+
+      describe 'overrides' do
+        it 'supports override of default string encoders' do
+          encoder = Encoder.new
+          encoder.register(Float) {|f| "~fFLOAT#{f}"}
+          assert { encoder.encode(12.3) == "~fFLOAT12.3" }
+        end
+
+        it 'supports override of default hash encoders' do
+          encoder = Encoder.new
+          encoder.register(UUID) {|n| {"~#u" => n.to_s.reverse} }
+          u = UUID.new
+          assert { encoder.encode(u)["~#u"] == u.to_s.reverse }
+        end
+      end
+
+      describe 'extensions' do
+        it 'supports string-based extensions' do
+          encoder = Encoder.new
+          encoder.register(Date) {|d| "~D#{d}" }
+          assert { encoder.encode(Date.parse("2014-03-15")) == "~D2014-03-15" }
+        end
+
+        it 'supports hash based extensions' do
+          encoder = Encoder.new
+          encoder.register(Date) {|d| {"~#D" => d.to_s}}
+          assert { encoder.encode(Date.parse("2014-03-15")) == {"~#D" => "2014-03-15"} }
+        end
+
+        it 'supports hash based extensions that return nil'  do
+          encoder = Encoder.new
+          encoder.register(NilClass) {|_| {"~#N" => nil}}
+          assert { encoder.encode(nil)["~#N"] == nil }
+        end
+
+        it 'supports hash based extensions that return false' do
+          encoder = Encoder.new
+          encoder.register(FalseClass) {|_| {"~#F" => false}}
+          assert { encoder.encode(false)["~#F"] == false }
+        end
       end
     end
   end

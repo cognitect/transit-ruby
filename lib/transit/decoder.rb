@@ -78,7 +78,7 @@ module Transit
       Time.parse(m.values.first).utc
     end
 
-    def register_decoder(k, &b)
+    def register(k, &b)
       raise ArgumentError.new(DECODER_ARITY_MESSAGE) unless b.arity == 1
       @decoders[k] = b
     end
