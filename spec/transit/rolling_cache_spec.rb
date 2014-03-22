@@ -27,8 +27,8 @@ module Transit
         assert {rc.size == 3}
       end
 
-      it 'has a default CACHE_SIZE of 96' do
-        assert { RollingCache::CACHE_SIZE == 96 }
+      it 'has a default CACHE_SIZE of 94' do
+        assert { RollingCache::CACHE_SIZE == 94 }
       end
 
       it 'can handle CACHE_SIZE different values' do

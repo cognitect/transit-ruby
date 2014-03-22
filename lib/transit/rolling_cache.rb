@@ -1,7 +1,7 @@
 module Transit
   class RollingCache
     FIRST_ORD = 33
-    CACHE_SIZE = 96
+    CACHE_SIZE = 94
 
     def initialize
       clear
