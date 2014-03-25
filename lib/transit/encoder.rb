@@ -81,8 +81,14 @@ module Transit
       "~r#{node}"
     end
 
-    def register_encoder(k, &b)
+    def register(k, &b)
+      raise ArgumentError.new(ENCODER_ARITY_MESSAGE) unless b.arity == 1
       @encoders[k] = b
     end
+
+    ENCODER_ARITY_MESSAGE = <<-MSG
+Encoder functions require arity 1
+- the object to encode
+MSG
   end
 end
