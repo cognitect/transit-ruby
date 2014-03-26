@@ -2,93 +2,75 @@ require 'uri'
 require 'set'
 
 module Transit
+  class ClassHash
+    extend Forwardable
+
+    def_delegators :@values, :[]=, :size, :each
+
+    def initialize
+      @values = {}
+    end
+
+    def [](clazz)
+      return nil unless clazz
+      value = @values[clazz]
+      value ? value : self[clazz.superclass]
+    end
+  end
+
+
   class Encoder
     IDENTITY = ->(v){v}
 
-    def initialize(options={})
-      options = default_options.merge(options)
-      @encoders = options[:encoders]
-      @uuid = options[:uuid]
-      @time = options[:time]
+    def initialize
+      @encoders = ClassHash.new
+      init_default_encoders
     end
 
-    def default_options
-      default_encoders = {
-        Symbol        => ->(n){"~:#{n}"},
-        ClojureSymbol => ->(n){"~'#{n}"},
-        Array         => ->(n){n.map {|x| encode(x)}},
-        Set           => ->(n){{'~#s' => n.map {|x| encode(x)}}},
-        BigDecimal    => ->(n){"~f#{n.to_f}"},
-        ByteArray     => ->(n){"~b#{n.to_base64}"},
-        UUID          => method(:encode_uuid),
-        Hash          => method(:encode_hash),
-        Numeric       => method(:encode_numeric),
-        Time          => method(:encode_time),
-        String        => method(:encode_string),
-        URI           => method(:encode_uri),
-        Object        => IDENTITY
-      }
-
-      {encoders: default_encoders, uuid: :string , time: :string}
+    def encode(obj)
+      @encoders[obj.class].call(obj)
     end
 
-    def encode(node)
-      node.class.ancestors.each do |a|
-        return @encoders[a].call(node) if @encoders[a]
-      end
+    def encode_as_key(obj)
+      encode(obj)  # TBD need to do special stuff for keys
     end
 
-    def encode_uuid(node)
-      case @uuid
-      when :string
-        "~u#{node.to_s}"
-      when :hash
-        {'~#u' => node.to_s}
-      else
-        raise "Don't understand #{@uuid} as a uuid encoding."
-      end
+    def register(clazz, &block)
+      raise "Register requires a one argument block." unless block.arity == 1
+      @encoders[clazz] = block
     end
 
-    def encode_hash(node)
-      node.reduce({}) {|h,kv| h.store(encode(kv[0]), encode(kv[1])); h}
-    end
+    private
 
-    def encode_numeric(node)
-      case node
-      when Bignum
-        {'#i' => node}
-      else
-        node
-      end
+    def init_default_encoders
+      register(Symbol) {|s| "~:#{s}"}
+      register(TransitSymbol) {|s| "~'#{s}"}
+      register(String) {|s| s.sub(/^~/, '~~')}
+      register(Fixnum, &IDENTITY)
+      register(NilClass, &IDENTITY)
+      register(TrueClass, &IDENTITY)
+      register(FalseClass, &IDENTITY)
+      register(Float, &IDENTITY)
+      register(Bignum) {|n| {'#i' => n}}
+      register(BigDecimal) {|n| "~f#{n.to_f}"}
+      register(ByteArray) {|ba| "~b#{ba.to_base64}"}
+      register(URI) {|uri| "~r#{uri}"}
     end
+  end
 
-    def encode_time(node)
-      case @time
-      when :string
-        "~t#{node.strftime("%FT%H:%M:%S.%LZ")}"
-      when :hash
-        {'~#t' => node.strftime("%FT%H:%M:%S.%LZ") }
-      else
-        raise "Don't understand #{@time} as a time encoding."
-      end
+  class JsonEncoder < Encoder
+    def initialize
+      super
+      register(Time) {|t| "~t#{t.strftime("%FT%H:%M:%S.%LZ")}" }
+      register(UUID) {|uuid| "~u#{uuid.to_s}"}
     end
+  end
 
-    def encode_string(s)
-      /^\~/ =~ s ? "~#{s}" : s
+  class MessagePackEncoder < Encoder
+    def initialize
+      super
+      register(Time) {|t| {'~#t' => t.strftime("%FT%H:%M:%S.%LZ")}}
+      register(UUID) {|uuid| {'~#u' => uuid.to_s}}
     end
-
-    def encode_uri(node)
-      "~r#{node}"
-    end
-
-    def register(k, &b)
-      raise ArgumentError.new(ENCODER_ARITY_MESSAGE) unless b.arity == 1
-      @encoders[k] = b
-    end
-
-    ENCODER_ARITY_MESSAGE = <<-MSG
-Encoder functions require arity 1
-- the object to encode
-MSG
   end
 end

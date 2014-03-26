@@ -23,7 +23,7 @@ module Transit
     end
   end
 
-  class ClojureSymbol < Wrapper
+  class TransitSymbol < Wrapper
     def initialize(sym)
       super sym.to_sym
     end

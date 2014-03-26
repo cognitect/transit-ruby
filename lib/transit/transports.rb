@@ -3,48 +3,53 @@ require 'msgpack'
 require 'uri'
 
 module Transit
-  module Transports
-    TRANSPORT = :json
-
-    class Json
-      def read(source, decoder=nil)
-        decoder ||= ::Transit::Decoder.new
-        encoded = Oj.load(source)
-        decoder.decode(encoded)
-      end
-
-      def write(obj, io=nil, encoder=nil)
-        encoder ||= ::Transit::Encoder.new(time: :string, uuid: :string)
-        encoded = encoder.encode(obj)
-        json = Oj.dump(encoded)
-
-        if io
-          io.write(json)
-          io.flush
-          return nil
-        end
-        json
-      end
+  class Json
+    def self.write(obj, io)
+      writer = JsonWriter.new(io)
+      writer.write(obj)
     end
 
-    class MsgPack
-      def read(source, decoder=nil)
-        decoder ||= ::Transit::Decoder.new(time: :hash, uuid: :hash)
-        encoded = MessagePack.load(source)
-        decoder.decode(encoded)
-      end
-
-      def write(obj, io=nil, encoder=nil)
-        encoder ||= ::Transit::Encoder.new(time: :string, uuid: :string)
-        encoded = encoder.encode(obj)
-
-        if io
-          MessagePack.dump(encoded, io)
-          io.flush
-          return nil
-        end
-        MessagePack.dump(encoded)
-      end
+    def self.read(io)
+      raise "TBD"
     end
   end
+
+  class JsonWriter
+    def initialize(io, encoder=JsonEncoder.new)
+      @oj = Oj::StreamWriter.new(io)
+      @encoder = encoder
+    end
+
+    def write(obj, name=nil)
+      case obj
+      when Array
+        write_array(obj, name)
+      when Hash
+        write_hash(obj, name)
+      else
+        write_encoded(@encoder.encode(obj), name)
+      end
+    end
+
+    def write_array(obj, name=nil)
+      name ? @oj.push_array(name) : @oj.push_array
+      obj.each {|item| write(item)}
+      @oj.pop
+    end
+
+    def write_hash(obj, name=nil)
+      name ? @oj.push_object(name) : @oj.push_object
+      obj.each do |k, v|
+        encoded_key = @encoder.encode_key(k)
+        write(v, encoded_key)
+      end
+      @oj.pop
+    end
+
+    def write_encoded(encoded_obj, name)
+      name ? @oj.push_value(encoded_obj, name) : @oj.push_value(encoded_obj)
+    end
+  end
+
+  # TBD MessgePack transport
 end

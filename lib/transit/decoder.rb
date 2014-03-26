@@ -22,7 +22,7 @@ module Transit
         "~d"  => ->(s){Float(s[2..-1])},
         "~f"  => ->(s){BigDecimal.new(s[2..-1])},
         "~c"  => ->(s){s[2..-1]},                        # char
-        "~'"  => ->(s){ClojureSymbol.new(s[2..-1])},
+        "~'"  => ->(s){TransitSymbol.new(s[2..-1])},
         "~t"  => ->(s){Time.parse(s[2..-1]).utc},
         "~u"  => ->(s){UUID.new(s[2..-1])},
         "~r"  => ->(s){URI(s[2..-1])},

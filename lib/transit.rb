@@ -1,5 +1,5 @@
 require 'transit/version'
-require 'transit/clojure_types'
+require 'transit/transit_types'
 require 'transit/encoder'
 require 'transit/decoder'
 require 'transit/transports'
