@@ -28,7 +28,7 @@ module Transit
     class InstantHandler
       def tag(t) "t" end
       def rep(t) t.strftime("%FT%H:%M:%S.%LZ") end
-      def string_rep(t) nil end
+      def string_rep(t) rep(t) end
     end
 
     class IntHandler
@@ -68,6 +68,17 @@ module Transit
       k ? @oj.push_value(v, k) : @oj.push_value(v)
     end
 
+    def encode_string(obj, as_map_key)
+      handler = @handlers[obj]
+      tag = handler.tag(obj)
+      str_rep = handler.string_rep(obj)
+      if as_map_key
+        escape(str_rep)
+      else
+        "#{ESC}#{tag}#{escape(str_rep)}"
+      end
+    end
+
     def emit_string(prefix, tag, string, as_map_key, map_key, _cache_)
       push_value("#{prefix}#{tag}#{string}", map_key)
     end
@@ -82,10 +93,10 @@ module Transit
       @oj.pop
     end
 
-    def emit_map(a, as_map_key, map_key, _cache_)
+    def emit_map(a, _, map_key, _cache_)
       @oj.push_object
       a.each do |k,v|
-        marshal(v, false, escape(k), _cache_)
+        marshal(v, false, encode_string(k, true), _cache_)
       end
       @oj.pop
     end
@@ -166,15 +177,24 @@ module Transit
       assert { io.string == "[1,\"2\",[3,[\"~~4\"]]]" }
     end
 
-
     it "marshals a map w/ string keys" do
       writer.write({"a" => 1, "b" => "c"})
       assert { io.string == "{\"a\":1,\"b\":\"c\"}" }
     end
 
+    it "marshals a map w/ time keys" do
+      t = Time.new(2014,1,2,3,4,5)
+      writer.write({t => "ignore"})
+      assert { io.string == "{\"2014-01-02T03:04:05.000Z\":\"ignore\"}" }
+    end
+
     it "marshals a map w/ string keys and values that require escaping" do
       writer.write({"~a" => 1, "~b" => "~c"})
       assert { io.string == "{\"~~a\":1,\"~~b\":\"~~c\"}" }
+    end
+
+    it "raises for non-stringable map keys" do
+      assert { rescuing { writer.write({[1,2] => "ignore"}).message =~ /Can not push/ } }
     end
   end
 end
