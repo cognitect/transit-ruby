@@ -79,52 +79,52 @@ module Transit
       end
     end
 
-    def emit_string(prefix, tag, string, as_map_key, map_key, _cache_)
+    def emit_string(prefix, tag, string, map_key, _cache_)
       push_value("#{prefix}#{tag}#{string}", map_key)
     end
 
-    def emit_int(i, as_map_key, map_key, _cache_)
+    def emit_int(i, map_key, _cache_)
       push_value(i, map_key)
     end
 
-    def emit_array(a, as_map_key, map_key, _cache_)
+    def emit_array(a, map_key, _cache_)
       @oj.push_array
-      a.each {|e| marshal(e, as_map_key, map_key, _cache_)}
+      a.each {|e| marshal(e, map_key, _cache_)}
       @oj.pop
     end
 
-    def emit_map(a, _, map_key, _cache_)
+    def emit_map(a, map_key, _cache_)
       @oj.push_object
       a.each do |k,v|
-        marshal(v, false, encode_string(k, true), _cache_)
+        marshal(v, encode_string(k, true), _cache_)
       end
       @oj.pop
     end
 
-    def marshal(obj, as_map_key, map_key, _cache_)
+    def marshal(obj, map_key, _cache_)
       handler = @handlers[obj]
       tag = handler.tag(obj)
       rep = handler.rep(obj)
       case tag
       when "s"
-        emit_string(nil, nil, escape(rep), as_map_key, map_key, _cache_)
+        emit_string(nil, nil, escape(rep), map_key, _cache_)
       when "i"
-        emit_int(rep, as_map_key, map_key, _cache_)
+        emit_int(rep, map_key, _cache_)
       when :array
-        emit_array(rep, as_map_key, map_key, _cache_)
+        emit_array(rep, map_key, _cache_)
       when :map
-        emit_map(rep, as_map_key, map_key, _cache_)
+        emit_map(rep, map_key, _cache_)
       else
-        emit_encoded(tag, obj, as_map_key, map_key, _cache_)
+        emit_encoded(tag, obj, map_key, _cache_)
       end
     end
 
-    def emit_encoded(tag, obj, as_map_key, map_key, _cache_)
+    def emit_encoded(tag, obj, map_key, _cache_)
       if tag
         handler = @handlers[obj]
         rep = handler.rep(obj)
         if String === rep
-          emit_string(ESC, tag, rep, as_map_key, map_key, _cache_)
+          emit_string(ESC, tag, rep, map_key, _cache_)
         end
       end
     end
@@ -136,7 +136,7 @@ module Transit
     end
 
     def write(obj)
-      @marshaler.marshal(obj, false, nil, nil)
+      @marshaler.marshal(obj, nil, nil)
     end
   end
 end
