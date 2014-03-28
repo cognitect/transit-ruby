@@ -12,12 +12,12 @@ module Transit
     end
 
     def [](clazz)
-      return nil unless clazz
-      value = @values[clazz]
-      value ? value : self[clazz.superclass]
+      clazz.ancestors.each do |a|
+        return @values[a] if @values[a]
+      end
+      nil
     end
   end
-
 
   class Encoder
     IDENTITY = ->(v){v}
