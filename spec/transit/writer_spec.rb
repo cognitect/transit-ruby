@@ -107,13 +107,13 @@ module Transit
     end
 
     def emit_array(a, map_key, _cache_)
-      @oj.push_array
-      a.each {|e| marshal(e, map_key, _cache_)}
+      @oj.push_array(map_key)
+      a.each {|e| marshal(e, nil, _cache_)}
       @oj.pop
     end
 
     def emit_map(a, map_key, _cache_)
-      @oj.push_object
+      @oj.push_object(map_key)
       a.each do |k,v|
         marshal(v, encode_string(k, true), _cache_)
       end
@@ -222,14 +222,24 @@ module Transit
       assert { io.string == "{\"~t2014-01-02T03:04:05.000Z\":\"ignore\"}" }
     end
 
-    it "marshals a nested map", :pending => "Need a json lib that supports streaming nested maps" do
+    it "marshals a nested map" do
       t = Time.new(2014,1,2,3,4,5)
       writer.write({:a => { t => :ignore }})
-      assert { io.string == "{\"~:a\":{\"~t2014-01-02T03:04:05.000Z\":\"ignore\"}}" }
+      assert { io.string == "{\"~:a\":{\"~t2014-01-02T03:04:05.000Z\":\"~:ignore\"}}" }
     end
 
     it "raises for non-stringable map keys" do
       assert { rescuing { writer.write({[1,2] => "ignore"}).message =~ /Can not push/ } }
+    end
+
+    it "marshals a nested data structure within a map" do
+      writer.write({a: [1, [{b: "~c"}]]})
+      assert { io.string == "{\"~:a\":[1,[{\"~:b\":\"~~c\"}]]}" }
+    end
+
+    it "marshals a nested data structure within an array" do
+      writer.write([37, {a: [1, [{b: "~c"}]]}])
+      assert { io.string == "[37,{\"~:a\":[1,[{\"~:b\":\"~~c\"}]]}]" }
     end
   end
 end
