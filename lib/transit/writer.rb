@@ -12,10 +12,38 @@ module Transit
       @handlers[Array] = ArrayHandler.new
       @handlers[Hash] = MapHandler.new
       @handlers[Symbol] = SymbolHandler.new
+      @handlers[TransitSymbol] = SymbolHandler.new
+      @handlers[NilClass] = NilHandler.new
+      @handlers[TrueClass] = TrueHandler.new
+      @handlers[FalseClass] = FalseHandler.new
     end
+
+    # Float
+    # Bignum
+    # BigDecimal
+    # ByteArray
+    # URI
 
     def [](obj)
       @handlers[obj.class]
+    end
+
+    class NilHandler
+      def tag(_) "_" end
+      def rep(_) nil end
+      def string_rep(n) nil end
+    end
+
+    class FalseHandler
+      def tag(_) "?" end
+      def rep(_) false end
+      def string_rep(_) "f" end
+    end
+
+    class TrueHandler
+      def tag(_) "?" end
+      def rep(_) true end
+      def string_rep(_) "t" end
     end
 
     class StringHandler
@@ -53,20 +81,6 @@ module Transit
       def rep(s) s.to_s end
       def string_rep(s) rep(s) end
     end
-
-    # TransitSymbol
-    # Keyword (sep from symbol because it might be namespaced - not supported in ruby)
-    # String
-    # Fixnum
-    # NilClass
-    # TrueClass
-    # FalseClass
-    # Float
-    # Bignum
-    # BigDecimal
-    # ByteArray
-    # URI
-
   end
 
   class JsonMarshaler
@@ -80,7 +94,8 @@ module Transit
     end
 
     def escape(s)
-      [ESC, SUB, RESERVED].include?(s[0]) ? "#{ESC}#{s}" : s
+      return s if [nil, true, false].include? s
+      (s && [ESC, SUB, RESERVED].include?(s[0])) ? "#{ESC}#{s}" : s
     end
 
     def push_value(v, k)
@@ -90,9 +105,17 @@ module Transit
     def encode_string(obj, as_map_key)
       handler = @handlers[obj]
       if tag = handler.tag(obj)
-        str_rep = handler.string_rep(obj)
-        String === obj ? escape(str_rep) : "#{ESC}#{tag}#{escape(str_rep)}"
+        str_rep = escape(handler.string_rep(obj))
+        String === obj ? str_rep : "#{ESC}#{tag}#{str_rep}"
       end
+    end
+
+    def emit_nil(_, map_key, _cache_)
+      push_value(nil, map_key)
+    end
+
+    def emit_boolean(b, map_key, _cache_)
+      push_value(b, map_key)
     end
 
     def emit_string(prefix, tag, string, map_key, _cache_)
@@ -136,6 +159,10 @@ module Transit
         emit_string(nil, nil, rep, map_key, _cache_)
       when "i"
         emit_int(rep, map_key, _cache_)
+      when "_"
+        emit_nil(rep, map_key, _cache_)
+      when "?"
+        emit_boolean(rep, map_key, _cache_)
       when :array
         emit_array(rep, map_key, _cache_)
       when :map

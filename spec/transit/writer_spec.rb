@@ -6,6 +6,21 @@ module Transit
     let(:writer) { Writer.new(io, :json) }
 
     describe "leaf nodes" do
+      it "marshals nil" do
+        writer.write(nil)
+        assert { io.string == "null" }
+      end
+
+      it "marshals false" do
+        writer.write(false)
+        assert { io.string == "false" }
+      end
+
+      it "marshals true" do
+        writer.write(true)
+        assert { io.string == "true" }
+      end
+
       it "marshals a string" do
         writer.write("this")
         assert { io.string == "\"this\"" }
@@ -39,6 +54,11 @@ module Transit
 
       it "marshals a namespaced Ruby Symbol" do
         writer.write(:"namespace/name")
+        assert { io.string == "\"~:namespace/name\"" }
+      end
+
+      it "marshals a namespaced Ruby Symbol" do
+        writer.write(TransitSymbol.new("namespace/name"))
         assert { io.string == "\"~:namespace/name\"" }
       end
     end
@@ -88,6 +108,21 @@ module Transit
       it "marshals a nested data structure within an array" do
         writer.write([37, {a: [1, [{b: "~c"}]]}])
         assert { io.string == "[37,{\"~:a\":[1,[{\"~:b\":\"~~c\"}]]}]" }
+      end
+
+      it "marshals nil as a key" do
+        writer.write({nil => :val})
+        assert { io.string == "{\"~_\":\"~:val\"}" }
+      end
+
+      it "marshals false as a key" do
+        writer.write({false => :val})
+        assert { io.string == "{\"~?f\":\"~:val\"}" }
+      end
+
+      it "marshals true as a key" do
+        writer.write({true => :val})
+        assert { io.string == "{\"~?t\":\"~:val\"}" }
       end
     end
   end
