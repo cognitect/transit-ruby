@@ -9,6 +9,7 @@ module Transit
       @handlers[String] = StringHandler.new
       @handlers[Time] = InstantHandler.new
       @handlers[Fixnum] = IntHandler.new
+      @handlers[Float] = FloatHandler.new
       @handlers[Array] = ArrayHandler.new
       @handlers[Hash] = MapHandler.new
       @handlers[Symbol] = SymbolHandler.new
@@ -16,13 +17,13 @@ module Transit
       @handlers[NilClass] = NilHandler.new
       @handlers[TrueClass] = TrueHandler.new
       @handlers[FalseClass] = FalseHandler.new
+      @handlers[URI] = UriHandler.new
+      @handlers[BigDecimal] = BigDecimalHandler.new
+      @handlers[ByteArray] = ByteArrayHandler.new
     end
 
-    # Float
     # Bignum
-    # BigDecimal
     # ByteArray
-    # URI
 
     def [](obj)
       @handlers[obj.class]
@@ -64,6 +65,18 @@ module Transit
       def string_rep(i) i.to_s end
     end
 
+    class FloatHandler
+      def tag(f) "d" end
+      def rep(f) f end
+      def string_rep(f) f.to_s end
+    end
+
+    class BigDecimalHandler
+      def tag(f) "f" end
+      def rep(f) f.to_s("f") end
+      def string_rep(f) rep(f) end
+    end
+
     class ArrayHandler
       def tag(a) :array end
       def rep(a) a end
@@ -80,6 +93,18 @@ module Transit
       def tag(s) ":" end
       def rep(s) s.to_s end
       def string_rep(s) rep(s) end
+    end
+
+    class UriHandler
+      def tag(u) "r" end
+      def rep(u) u.to_s end
+      def string_rep(u) rep(u) end
+    end
+
+    class ByteArrayHandler
+      def tag(b) "b" end
+      def rep(b) b.to_base64 end
+      def string_rep(b) rep(b) end
     end
   end
 
@@ -122,7 +147,7 @@ module Transit
       push_value("#{prefix}#{tag}#{escape(string)}", map_key)
     end
 
-    def emit_int(i, map_key, _cache_)
+    def emit_number(i, map_key, _cache_)
       push_value(i, map_key)
     end
 
@@ -143,8 +168,7 @@ module Transit
     def emit_encoded(tag, obj, map_key, _cache_)
       if tag
         handler = @handlers[obj]
-        rep = handler.rep(obj)
-        if String === rep
+        if String === rep = handler.rep(obj)
           emit_string(ESC, tag, rep, map_key, _cache_)
         end
       end
@@ -157,8 +181,8 @@ module Transit
       case tag
       when "s"
         emit_string(nil, nil, rep, map_key, _cache_)
-      when "i"
-        emit_int(rep, map_key, _cache_)
+      when "i", "d"
+        emit_number(rep, map_key, _cache_)
       when "_"
         emit_nil(rep, map_key, _cache_)
       when "?"

@@ -42,6 +42,16 @@ module Transit
         assert { io.string == "37" }
       end
 
+      it "marshals a float" do
+        writer.write(37.42)
+        assert { io.string == "37.42" }
+      end
+
+      it "marshals a BigDecimal" do
+        writer.write(BigDecimal.new("37.42", 2))
+        assert { io.string == "\"~f37.42\"" }
+      end
+
       it "marshals an array" do
         writer.write([1])
         assert { io.string == "[1]" }
@@ -57,9 +67,21 @@ module Transit
         assert { io.string == "\"~:namespace/name\"" }
       end
 
-      it "marshals a namespaced Ruby Symbol" do
+      it "marshals a TransitSymbol" do
         writer.write(TransitSymbol.new("namespace/name"))
         assert { io.string == "\"~:namespace/name\"" }
+      end
+
+      it "marshals a URI" do
+        writer.write(URI("http://example.com"))
+        assert { io.string == "\"~rhttp://example.com\"" }
+      end
+
+      it "marshals a ByteArray" do
+        # NOTE: this is a round trip example
+        bytes = ByteArray.new("abcdef\n\r\tghij")
+        writer.write(bytes)
+        assert { ByteArray.from_base64(Oj.load(io.string)[2..-1]) == bytes }
       end
     end
 
@@ -74,17 +96,22 @@ module Transit
         assert { io.string == "{\"a\":1,\"b\":\"c\"}" }
       end
 
-      it "marshals a map w/ string keys and values that require escaping" do
+      it "marshals a string that requires escaping as an encoded key" do
         writer.write({"~a" => 1, "~b" => "~c"})
         assert { io.string == "{\"~~a\":1,\"~~b\":\"~~c\"}" }
       end
 
-      it "marshals a map w/ Symbol keys and vals" do
+      it "marshals a Ruby Symbol as an encoded key" do
         writer.write({:a => 1, b: :c})
         assert { io.string == "{\"~:a\":1,\"~:b\":\"~:c\"}" }
       end
 
-      it "marshals a map w/ time keys" do
+      it "marshals a TransitSymbol as an encoded key" do
+        writer.write({TransitSymbol.new(:a) => 1, TransitSymbol.new("b") => :c})
+        assert { io.string == "{\"~:a\":1,\"~:b\":\"~:c\"}" }
+      end
+
+      it "marshals time as an encoded key" do
         t = Time.new(2014,1,2,3,4,5)
         writer.write({t => "ignore"})
         assert { io.string == "{\"~t2014-01-02T03:04:05.000Z\":\"ignore\"}" }
@@ -110,19 +137,29 @@ module Transit
         assert { io.string == "[37,{\"~:a\":[1,[{\"~:b\":\"~~c\"}]]}]" }
       end
 
-      it "marshals nil as a key" do
+      it "marshals nil as an encoded key" do
         writer.write({nil => :val})
         assert { io.string == "{\"~_\":\"~:val\"}" }
       end
 
-      it "marshals false as a key" do
+      it "marshals false as an encoded key" do
         writer.write({false => :val})
         assert { io.string == "{\"~?f\":\"~:val\"}" }
       end
 
-      it "marshals true as a key" do
+      it "marshals true as an encoded key" do
         writer.write({true => :val})
         assert { io.string == "{\"~?t\":\"~:val\"}" }
+      end
+
+      it "marshals a float as an encoded key" do
+        writer.write({37.42 => :val})
+        assert { io.string == "{\"~d37.42\":\"~:val\"}" }
+      end
+
+      it "marshals a BigDecimal as an encoded key" do
+        writer.write({BigDecimal.new("37.42") => :val})
+        assert { io.string == "{\"~f37.42\":\"~:val\"}" }
       end
     end
   end
