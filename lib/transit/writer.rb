@@ -26,6 +26,8 @@ module Transit
       @handlers[Set] = SetHandler.new
       @handlers[TransitList] = ListHandler.new
       @handlers[TypedArray] = TypedArrayHandler.new
+      @handlers[UUID] = UuidHandler.new
+      @handlers[Char] = CharHandler.new
     end
 
     # Bignum
@@ -144,6 +146,18 @@ module Transit
       def tag(a) a.type end
       def rep(a) TaggedMap.new(:array, a.to_a, nil) end
       def string_rep(_) nil end
+    end
+
+    class UuidHandler
+      def tag(_) "u" end
+      def rep(u) string_rep(u) end
+      def string_rep(u) u.to_s end
+    end
+
+    class CharHandler
+      def tag(_) "c" end
+      def rep(c) string_rep(c) end
+      def string_rep(c) c.to_s end
     end
   end
 

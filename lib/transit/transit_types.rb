@@ -73,4 +73,11 @@ module Transit
       @value
     end
   end
+
+  class Char < String
+    def initialize(c)
+      # TODO - enforce size of 1
+      super c
+    end
+  end
 end

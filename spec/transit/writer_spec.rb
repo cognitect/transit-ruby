@@ -84,8 +84,18 @@ module Transit
         assert { ByteArray.from_base64(Oj.load(io.string)[2..-1]) == bytes }
       end
 
-      it "marshals a UUID"
-      it "marshals a char"
+      it "marshals a UUID" do
+        uuid = UUID.new
+        writer.write(uuid)
+        assert { io.string == "\"~u#{uuid}\"" }
+      end
+
+      it "marshals a char" do
+        char = Char.new("a")
+        writer.write(char)
+        assert { io.string == '"~ca"' }
+      end
+
       it "marshals an extension scalar"
       it "marshals an extension struct"
     end
