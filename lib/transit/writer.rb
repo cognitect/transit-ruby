@@ -1,3 +1,5 @@
+require 'oj'
+
 module Transit
   class Handler
     extend Forwardable

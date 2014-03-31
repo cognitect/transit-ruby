@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Transit
-  describe JsonWriter do
+  describe Writer do
     let(:io) { StringIO.new }
     let(:writer) { Writer.new(io, :json) }
 
