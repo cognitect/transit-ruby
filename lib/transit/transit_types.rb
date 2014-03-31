@@ -80,4 +80,15 @@ module Transit
       super c
     end
   end
+
+  class CMap < Wrapper
+    def initialize(m)
+      super m
+    end
+
+    def to_a
+      # TODO benchmark this against @value.to_a.flatten(1)
+      @value.reduce([]) {|a, kv| a.concat(kv)}
+    end
+  end
 end

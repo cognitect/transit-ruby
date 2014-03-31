@@ -28,6 +28,7 @@ module Transit
       @handlers[TypedArray] = TypedArrayHandler.new
       @handlers[UUID] = UuidHandler.new
       @handlers[Char] = CharHandler.new
+      @handlers[CMap] = CMapHandler.new
     end
 
     # Bignum
@@ -159,6 +160,12 @@ module Transit
       def rep(c) string_rep(c) end
       def string_rep(c) c.to_s end
     end
+
+    class CMapHandler
+      def tag(_) "cmap" end
+      def rep(cm) TaggedMap.new(:array, cm.to_a, nil) end
+      def string_rep(_) nil end
+    end
   end
 
   class JsonMarshaler
@@ -248,7 +255,7 @@ module Transit
         emit_array(rep, _cache_)
       when :map
         emit_map(rep, _cache_)
-      when "set", "list", "ints", "longs", "floats", "doubles", "bools"
+      when "set", "list", "ints", "longs", "floats", "doubles", "bools", "cmap"
         emit_tagged_map(tag, rep.rep, _cache_)
       else
         emit_encoded(tag, obj, _cache_)

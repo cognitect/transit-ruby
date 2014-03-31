@@ -141,7 +141,10 @@ module Transit
         assert { io.string == '{"~#bools":[true,false,true]}' }
       end
 
-      it "marshals a cmap"
+      it "marshals a cmap" do
+        writer.write(CMap.new({{a: 1} => :b, [1,"~foo"] => 3, {c: {d: :e}} => :f}))
+        assert { io.string == '{"~#cmap":[{"~:a":1},"~:b",[1,"~~foo"],3,{"~:c":{"~:d":"~:e"}},"~:f"]}' }
+      end
 
       it "marshals a map w/ string keys" do
         writer.write({"a" => 1, "b" => "c"})
