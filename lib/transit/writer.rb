@@ -233,6 +233,8 @@ module Transit
         handler = @handlers[obj]
         if String === rep = handler.rep(obj)
           emit_string(ESC, tag, rep, as_map_key, cache)
+        else
+          emit_tagged_map(tag, rep.rep, false, cache)
         end
       end
     end
@@ -256,8 +258,6 @@ module Transit
         emit_array(rep, as_map_key, cache)
       when :map
         emit_map(rep, as_map_key, cache)
-      when "set", "list", "ints", "longs", "floats", "doubles", "bools", "cmap"
-        emit_tagged_map(tag, rep.rep, as_map_key, cache)
       else
         emit_encoded(tag, obj, as_map_key, cache)
       end
