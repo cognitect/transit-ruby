@@ -36,4 +36,10 @@ module Transit
       end
     end
   end
+
+  describe Char do
+    it 'raises when initialized w/ more than one char' do
+      assert { rescuing { Char.new("foo") }.kind_of? ArgumentError }
+    end
+  end
 end

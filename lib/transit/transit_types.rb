@@ -80,7 +80,7 @@ module Transit
 
   class Char < Wrapper
     def initialize(c)
-      # TODO - enforce size of 1
+      raise ArgumentError.new("Char can only contain one character.") if c.length > 1
       super c
     end
 
