@@ -14,9 +14,7 @@ def round_trip(obj, marshaller_class)
 end
 
 def should_survive_roundtrip(obj)
-  [Transit::Transports::Json, Transit::Transports::MsgPack].each do |marshaller_class|
-    assert { round_trip(obj, marshaller_class) == obj }
-  end
+  raise "IMPLEMENT ME"
 end
 
 ALPHA_NUM = 'abcdefghijklmnopABCDESFHIJKLMNOP_0123456789'

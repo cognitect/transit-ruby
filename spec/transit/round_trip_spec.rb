@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Transit
 =begin
-  describe Transports do
+  describe "roundtrips" do
     shared_examples "round trips" do
       it 'can round trip a simple hash' do
         hash = {'a' => 1, 'b' => 2, 'name' => 'russ'}

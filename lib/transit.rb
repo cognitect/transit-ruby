@@ -1,6 +1,6 @@
 require 'transit/version'
 require 'transit/transit_types'
-require 'transit/encoder'
+require 'transit/class_hash'
 require 'transit/decoder'
 require 'transit/rolling_cache'
 require 'transit/writer'
