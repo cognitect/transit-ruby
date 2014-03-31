@@ -156,8 +156,16 @@ module Transit
         assert { io.string == "{\"~~a\":1,\"~~b\":\"~~c\"}" }
       end
 
-      it "marshals a char as an encoded key"
-      it "marshals an extension scalar"
+      it "marshals a char as an encoded key" do
+        writer.write({Char.new("a") => 1})
+        assert { io.string == '{"~ca":1}' }
+      end
+
+      it "marshals a uuid as an encoded key" do
+        uuid = UUID.new
+        writer.write({uuid => 1})
+        assert { io.string == "{\"~u#{uuid}\":1}" }
+      end
 
       it "marshals a Ruby Symbol as an encoded key" do
         writer.write({:a => 1, b: :c})

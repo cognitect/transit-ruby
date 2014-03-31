@@ -186,7 +186,7 @@ module Transit
       handler = @handlers[obj]
       if tag = handler.tag(obj)
         str_rep = escape(handler.string_rep(obj))
-        String === obj ? str_rep : "#{ESC}#{tag}#{str_rep}"
+        obj.is_a?(String) ? str_rep : "#{ESC}#{tag}#{str_rep}"
       end
     end
 

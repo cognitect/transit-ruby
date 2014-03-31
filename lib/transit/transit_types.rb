@@ -29,9 +29,13 @@ module Transit
     end
   end
 
-  class UUID < String
+  class UUID < Wrapper
     def initialize(uuid=SecureRandom.uuid)
       super uuid
+    end
+
+    def to_s
+      @value
     end
   end
 
@@ -74,10 +78,14 @@ module Transit
     end
   end
 
-  class Char < String
+  class Char < Wrapper
     def initialize(c)
       # TODO - enforce size of 1
       super c
+    end
+
+    def to_s
+      @value
     end
   end
 
