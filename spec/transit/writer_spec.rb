@@ -57,19 +57,19 @@ module Transit
         assert { io.string == "[1]" }
       end
 
-      it "marshals a Ruby Symbol" do
+      it "marshals a Ruby Symbol as a keyword" do
         writer.write(:this)
         assert { io.string == "\"~:this\"" }
       end
 
-      it "marshals a namespaced Ruby Symbol" do
+      it "marshals a namespaced Ruby Symbol as a namespaced keyword" do
         writer.write(:"namespace/name")
         assert { io.string == "\"~:namespace/name\"" }
       end
 
       it "marshals a TransitSymbol" do
-        writer.write(TransitSymbol.new("namespace/name"))
-        assert { io.string == "\"~:namespace/name\"" }
+        writer.write(TransitSymbol.new("abc"))
+        assert { io.string == "\"~$abc\"" }
       end
 
       it "marshals a URI" do
@@ -108,7 +108,7 @@ module Transit
 
       it "marshals a TransitSymbol as an encoded key" do
         writer.write({TransitSymbol.new(:a) => 1, TransitSymbol.new("b") => :c})
-        assert { io.string == "{\"~:a\":1,\"~:b\":\"~:c\"}" }
+        assert { io.string == "{\"~$a\":1,\"~$b\":\"~:c\"}" }
       end
 
       it "marshals time as an encoded key" do

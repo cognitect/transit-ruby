@@ -14,8 +14,8 @@ module Transit
       @handlers[Float] = FloatHandler.new
       @handlers[Array] = ArrayHandler.new
       @handlers[Hash] = MapHandler.new
-      @handlers[Symbol] = SymbolHandler.new
-      @handlers[TransitSymbol] = SymbolHandler.new
+      @handlers[Symbol] = KeywordHandler.new
+      @handlers[TransitSymbol] = TransitSymbolHandler.new
       @handlers[NilClass] = NilHandler.new
       @handlers[TrueClass] = TrueHandler.new
       @handlers[FalseClass] = FalseHandler.new
@@ -91,8 +91,14 @@ module Transit
       def string_rep(_) nil end
     end
 
-    class SymbolHandler
+    class KeywordHandler
       def tag(s) ":" end
+      def rep(s) s.to_s end
+      def string_rep(s) rep(s) end
+    end
+
+    class TransitSymbolHandler
+      def tag(s) "$" end
       def rep(s) s.to_s end
       def string_rep(s) rep(s) end
     end
