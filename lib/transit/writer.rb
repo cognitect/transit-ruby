@@ -1,5 +1,4 @@
 require 'oj'
-require 'debugger'
 
 module Transit
   class Handler

@@ -1,5 +1,6 @@
 require 'rspec'
 require 'wrong/adapters/rspec'
+require 'debugger'
 require 'transit'
 
 RSpec.configure do |c|
