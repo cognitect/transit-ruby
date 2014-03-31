@@ -270,7 +270,7 @@ module Transit
     end
 
     def write(obj)
-      @marshaler.marshal(obj, false, nil)
+      @marshaler.marshal([obj], false, nil)
     end
   end
 end
