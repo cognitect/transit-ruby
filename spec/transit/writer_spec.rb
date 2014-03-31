@@ -83,6 +83,11 @@ module Transit
         writer.write(bytes)
         assert { ByteArray.from_base64(Oj.load(io.string)[2..-1]) == bytes }
       end
+
+      it "marshals a UUID"
+      it "marshals a char"
+      it "marshals an extension scalar"
+      it "marshals an extension struct"
     end
 
     describe "collections" do
@@ -90,6 +95,15 @@ module Transit
         writer.write([1, "2", [3, ["~4"]]])
         assert { io.string == "[1,\"2\",[3,[\"~~4\"]]]" }
       end
+
+      it "marshals a set"
+      it "marshals a list"
+      it "marshals a typed int array"
+      it "marshals a typed long array"
+      it "marshals a typed float array"
+      it "marshals a typed double array"
+      it "marshals a typed bool array"
+      it "marshals a cmap"
 
       it "marshals a map w/ string keys" do
         writer.write({"a" => 1, "b" => "c"})
@@ -100,6 +114,9 @@ module Transit
         writer.write({"~a" => 1, "~b" => "~c"})
         assert { io.string == "{\"~~a\":1,\"~~b\":\"~~c\"}" }
       end
+
+      it "marshals a char as an encoded key"
+      it "marshals an extension scalar"
 
       it "marshals a Ruby Symbol as an encoded key" do
         writer.write({:a => 1, b: :c})
@@ -116,6 +133,8 @@ module Transit
         writer.write({t => "ignore"})
         assert { io.string == "{\"~t2014-01-02T03:04:05.000Z\":\"ignore\"}" }
       end
+
+      it "marshals a UUID as encoded string"
 
       it "marshals a nested map" do
         t = Time.new(2014,1,2,3,4,5)
