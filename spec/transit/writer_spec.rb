@@ -96,13 +96,41 @@ module Transit
         assert { io.string == "[1,\"2\",[3,[\"~~4\"]]]" }
       end
 
-      it "marshals a set"
-      it "marshals a list"
-      it "marshals a typed int array"
-      it "marshals a typed long array"
-      it "marshals a typed float array"
-      it "marshals a typed double array"
-      it "marshals a typed bool array"
+      it "marshals a set" do
+        writer.write(Set.new([1,2,3]))
+        assert { io.string == '{"~#set":[1,2,3]}' }
+      end
+
+      it "marshals a list" do
+        writer.write(TransitList.new([1,2,3]))
+        assert { io.string == '{"~#list":[1,2,3]}' }
+      end
+
+      it "marshals a typed int array" do
+        writer.write(TypedArray.new(:ints, [1,2,3]))
+        assert { io.string == '{"~#ints":[1,2,3]}' }
+      end
+
+      it "marshals a typed long array" do
+        writer.write(TypedArray.new(:longs, [1,2,3]))
+        assert { io.string == '{"~#longs":[1,2,3]}' }
+      end
+
+      it "marshals a typed float array" do
+        writer.write(TypedArray.new(:floats, [1.1,2.2,3.3]))
+        assert { io.string == '{"~#floats":[1.1,2.2,3.3]}' }
+      end
+
+      it "marshals a typed double array" do
+        writer.write(TypedArray.new(:doubles, [1.1,2.2,3.3]))
+        assert { io.string == '{"~#doubles":[1.1,2.2,3.3]}' }
+      end
+
+      it "marshals a typed bool array" do
+        writer.write(TypedArray.new(:bools, [true, false, true]))
+        assert { io.string == '{"~#bools":[true,false,true]}' }
+      end
+
       it "marshals a cmap"
 
       it "marshals a map w/ string keys" do

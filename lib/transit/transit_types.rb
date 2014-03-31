@@ -48,4 +48,29 @@ module Transit
       @value
     end
   end
+
+  class TransitList < Wrapper
+    def initialize(ary)
+      super ary
+    end
+
+    def to_a
+      @value
+    end
+  end
+
+  class TypedArray < Wrapper
+    def initialize(t, ary)
+      @type = t
+      super ary
+    end
+
+    def type
+      @type.to_s
+    end
+
+    def to_a
+      @value
+    end
+  end
 end

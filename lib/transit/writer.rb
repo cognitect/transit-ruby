@@ -1,4 +1,5 @@
 require 'oj'
+require 'debugger'
 
 module Transit
   class Handler
@@ -22,6 +23,9 @@ module Transit
       @handlers[URI] = UriHandler.new
       @handlers[BigDecimal] = BigDecimalHandler.new
       @handlers[ByteArray] = ByteArrayHandler.new
+      @handlers[Set] = SetHandler.new
+      @handlers[TransitList] = ListHandler.new
+      @handlers[TypedArray] = TypedArrayHandler.new
     end
 
     # Bignum
@@ -29,6 +33,15 @@ module Transit
 
     def [](obj)
       @handlers[obj.class]
+    end
+
+    class TaggedMap
+      attr_reader :tag, :rep, :string_rep
+      def initialize(tag, rep, str)
+        @tag = tag
+        @rep = rep
+        @string_rep = str
+      end
     end
 
     class NilHandler
@@ -85,6 +98,18 @@ module Transit
       def string_rep(_) nil end
     end
 
+    class SetHandler
+      def tag(s) "set" end
+      def rep(s) TaggedMap.new(:array, s.to_a, nil) end
+      def string_rep(_) nil end
+    end
+
+    class ListHandler
+      def tag(l) "list" end
+      def rep(l) TaggedMap.new(:array, l.to_a, nil) end
+      def string_rep(_) nil end
+    end
+
     class MapHandler
       def tag(m) :map end
       def rep(m) m end
@@ -113,6 +138,12 @@ module Transit
       def tag(b) "b" end
       def rep(b) b.to_base64 end
       def string_rep(b) rep(b) end
+    end
+
+    class TypedArrayHandler
+      def tag(a) a.type end
+      def rep(a) TaggedMap.new(:array, a.to_a, nil) end
+      def string_rep(_) nil end
     end
   end
 
@@ -161,12 +192,19 @@ module Transit
       @oj.pop
     end
 
-    def emit_map(a, _cache_)
+    def emit_map(m, _cache_)
       @oj.push_object
-      a.each do |k,v|
+      m.each do |k,v|
         @oj.push_key(encode_string(k, true))
         marshal(v, _cache_)
       end
+      @oj.pop
+    end
+
+    def emit_tagged_map(tag, rep, _cache_)
+      @oj.push_object
+      @oj.push_key("~##{tag}")
+      marshal(rep, _cache_)
       @oj.pop
     end
 
@@ -196,6 +234,8 @@ module Transit
         emit_array(rep, _cache_)
       when :map
         emit_map(rep, _cache_)
+      when "set", "list", "ints", "longs", "floats", "doubles", "bools"
+        emit_tagged_map(tag, rep.rep, _cache_)
       else
         emit_encoded(tag, obj, _cache_)
       end
