@@ -123,10 +123,6 @@ module Transit
       (s && [ESC, SUB, RESERVED].include?(s[0])) ? "#{ESC}#{s}" : s
     end
 
-    def push_value(v, k)
-      k ? @oj.push_value(v, k) : @oj.push_value(v)
-    end
-
     def encode_string(obj, as_map_key)
       handler = @handlers[obj]
       if tag = handler.tag(obj)
@@ -135,64 +131,65 @@ module Transit
       end
     end
 
-    def emit_nil(_, map_key, _cache_)
-      push_value(nil, map_key)
+    def emit_nil(_, _cache_)
+      @oj.push_value(nil)
     end
 
-    def emit_boolean(b, map_key, _cache_)
-      push_value(b, map_key)
+    def emit_boolean(b, _cache_)
+      @oj.push_value(b)
     end
 
-    def emit_string(prefix, tag, string, map_key, _cache_)
-      push_value("#{prefix}#{tag}#{escape(string)}", map_key)
+    def emit_string(prefix, tag, string, _cache_)
+      @oj.push_value("#{prefix}#{tag}#{escape(string)}")
     end
 
-    def emit_number(i, map_key, _cache_)
-      push_value(i, map_key)
+    def emit_number(i, _cache_)
+      @oj.push_value(i)
     end
 
-    def emit_array(a, map_key, _cache_)
-      @oj.push_array(map_key)
-      a.each {|e| marshal(e, nil, _cache_)}
+    def emit_array(a, _cache_)
+      @oj.push_array
+      a.each {|e| marshal(e, _cache_)}
       @oj.pop
     end
 
-    def emit_map(a, map_key, _cache_)
-      @oj.push_object(map_key)
+    def emit_map(a, _cache_)
+      @oj.push_object
       a.each do |k,v|
-        marshal(v, encode_string(k, true), _cache_)
+        @oj.push_key(encode_string(k, true))
+        marshal(v, _cache_)
       end
       @oj.pop
     end
 
-    def emit_encoded(tag, obj, map_key, _cache_)
+    def emit_encoded(tag, obj, _cache_)
       if tag
         handler = @handlers[obj]
         if String === rep = handler.rep(obj)
-          emit_string(ESC, tag, rep, map_key, _cache_)
+          emit_string(ESC, tag, rep, _cache_)
         end
       end
     end
 
-    def marshal(obj, map_key, _cache_)
+    def marshal(obj, _cache_)
       handler = @handlers[obj]
       tag = handler.tag(obj)
       rep = handler.rep(obj)
       case tag
       when "s"
-        emit_string(nil, nil, rep, map_key, _cache_)
+        emit_string(nil, nil, rep, _cache_)
       when "i", "d"
-        emit_number(rep, map_key, _cache_)
+        emit_number(rep, _cache_)
       when "_"
-        emit_nil(rep, map_key, _cache_)
+        emit_nil(rep, _cache_)
       when "?"
-        emit_boolean(rep, map_key, _cache_)
+        emit_boolean(rep, _cache_)
       when :array
-        emit_array(rep, map_key, _cache_)
+        emit_array(rep, _cache_)
       when :map
-        emit_map(rep, map_key, _cache_)
+        emit_map(rep, _cache_)
       else
-        emit_encoded(tag, obj, map_key, _cache_)
+        emit_encoded(tag, obj, _cache_)
       end
     end
   end
@@ -203,7 +200,7 @@ module Transit
     end
 
     def write(obj)
-      @marshaler.marshal(obj, nil, nil)
+      @marshaler.marshal(obj, nil)
     end
   end
 end

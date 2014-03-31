@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "msgpack", "~> 0.5.8"
-  spec.add_dependency "oj", "~> 2.6.0"
+  spec.add_dependency "oj", "~> 2.7.1"
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake",    "~> 10.1.1"
   spec.add_development_dependency "rspec",   "3.0.0.beta2"
