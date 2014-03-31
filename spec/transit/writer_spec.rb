@@ -183,8 +183,6 @@ module Transit
         assert { io.string == "{\"~t2014-01-02T03:04:05.000Z\":\"ignore\"}" }
       end
 
-      it "marshals a UUID as encoded string"
-
       it "marshals a nested map" do
         t = Time.new(2014,1,2,3,4,5)
         writer.write({:a => { t => :ignore }})
