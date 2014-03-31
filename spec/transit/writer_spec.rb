@@ -229,6 +229,10 @@ module Transit
         writer.write({BigDecimal.new("37.42") => :val})
         assert { io.string == "{\"~f37.42\":\"~:val\"}" }
       end
+
+      it "raises when using an Array as a key" do
+        assert { rescuing {writer.write({[1,2] => "b"}).is_a? ArgumentError } }
+      end
     end
   end
 end

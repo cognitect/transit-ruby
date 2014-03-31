@@ -182,82 +182,84 @@ module Transit
       (s && [ESC, SUB, RESERVED].include?(s[0])) ? "#{ESC}#{s}" : s
     end
 
-    def encode_string(obj, as_map_key)
-      handler = @handlers[obj]
-      if tag = handler.tag(obj)
-        str_rep = escape(handler.string_rep(obj))
-        obj.is_a?(String) ? str_rep : "#{ESC}#{tag}#{str_rep}"
-      end
+    def push(obj, as_map_key)
+      as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
     end
 
-    def emit_nil(_, _cache_)
-      @oj.push_value(nil)
+    def emit_nil(_, as_map_key, cache)
+      as_map_key ? emit_string(ESC, "_", nil, true, cache) : @oj.push_value(nil)
     end
 
-    def emit_boolean(b, _cache_)
-      @oj.push_value(b)
+    def emit_boolean(b, as_map_key, cache)
+      as_map_key ? emit_string(ESC, "?", b, true, cache) : @oj.push_value(b)
     end
 
-    def emit_string(prefix, tag, string, _cache_)
-      @oj.push_value("#{prefix}#{tag}#{escape(string)}")
+    def emit_string(prefix, tag, string, as_map_key, cache)
+      push("#{prefix}#{tag}#{escape(string)}", as_map_key)
     end
 
-    def emit_number(i, _cache_)
-      @oj.push_value(i)
+    def emit_int(i, as_map_key, cache)
+      push(i, as_map_key)
     end
 
-    def emit_array(a, _cache_)
+    def emit_double(d, as_map_key, cache)
+      as_map_key ? emit_string(ESC, "d", d, true, cache) : @oj.push_value(d)
+    end
+
+    def emit_array(a, _, cache)
       @oj.push_array
-      a.each {|e| marshal(e, _cache_)}
+      a.each {|e| marshal(e, false, cache)}
       @oj.pop
     end
 
-    def emit_map(m, _cache_)
+    def emit_map(m, _, cache)
       @oj.push_object
       m.each do |k,v|
-        @oj.push_key(encode_string(k, true))
-        marshal(v, _cache_)
+        marshal(k, true, cache)
+        marshal(v, false, cache)
       end
       @oj.pop
     end
 
-    def emit_tagged_map(tag, rep, _cache_)
+    def emit_tagged_map(tag, rep, _, cache)
       @oj.push_object
       @oj.push_key("~##{tag}")
-      marshal(rep, _cache_)
+      marshal(rep, false, cache)
       @oj.pop
     end
 
-    def emit_encoded(tag, obj, _cache_)
+    def emit_encoded(tag, obj, as_map_key, cache)
       if tag
         handler = @handlers[obj]
         if String === rep = handler.rep(obj)
-          emit_string(ESC, tag, rep, _cache_)
+          emit_string(ESC, tag, rep, as_map_key, cache)
         end
       end
     end
 
-    def marshal(obj, _cache_)
+    def marshal(obj, as_map_key, cache)
       handler = @handlers[obj]
       tag = handler.tag(obj)
-      rep = handler.rep(obj)
+      rep = as_map_key ? handler.string_rep(obj) : handler.rep(obj)
       case tag
       when "s"
-        emit_string(nil, nil, rep, _cache_)
-      when "i", "d"
-        emit_number(rep, _cache_)
+        emit_string(nil, nil, rep, as_map_key, cache)
+      when "i"
+        emit_int(rep, as_map_key, cache)
+      when "d"
+        emit_double(rep, as_map_key, cache)
       when "_"
-        emit_nil(rep, _cache_)
+        emit_nil(rep, as_map_key, cache)
       when "?"
-        emit_boolean(rep, _cache_)
+        emit_boolean(rep, as_map_key, cache)
       when :array
-        emit_array(rep, _cache_)
+        emit_array(rep, as_map_key, cache)
       when :map
-        emit_map(rep, _cache_)
+        emit_map(rep, as_map_key, cache)
       when "set", "list", "ints", "longs", "floats", "doubles", "bools", "cmap"
-        emit_tagged_map(tag, rep.rep, _cache_)
+        emit_tagged_map(tag, rep.rep, as_map_key, cache)
       else
-        emit_encoded(tag, obj, _cache_)
+        emit_encoded(tag, obj, as_map_key, cache)
       end
     end
   end
@@ -268,7 +270,7 @@ module Transit
     end
 
     def write(obj)
-      @marshaler.marshal(obj, nil)
+      @marshaler.marshal(obj, false, nil)
     end
   end
 end
