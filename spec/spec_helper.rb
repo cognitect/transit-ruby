@@ -9,15 +9,6 @@ RSpec.configure do |c|
   c.run_all_when_everything_filtered = true
 end
 
-def round_trip(obj, marshaller_class)
-  marshalled = marshaller_class.new.write(obj)
-  marshaller_class.new.read(marshalled)
-end
-
-def should_survive_roundtrip(obj)
-  raise "IMPLEMENT ME"
-end
-
 ALPHA_NUM = 'abcdefghijklmnopABCDESFHIJKLMNOP_0123456789'
 
 def random_alphanum
