@@ -39,13 +39,13 @@ module Transit
       assert { Decoder.new.decode([1,2,3,2,4]) == [1,2,3,2,4] }
     end
 
-    describe "encoded hashes" do
+    describe "tagged hashes" do
       it 'decodes sets' do
         assert { Decoder.new.decode({"~#set" => [1,2,3,2,4]}) == Set.new([1,2,3,4]) }
       end
 
       it 'decodes lists' do
-        assert { Decoder.new.decode({"~#list" => [1,2,3,2,4]}) == [1,2,3,2,4] }
+        assert { Decoder.new.decode({"~#list" => [1,2,3,2,4]}) == TransitList.new([1,2,3,2,4]) }
       end
     end
 
@@ -69,11 +69,13 @@ module Transit
       end
 
       it 'decodes instants to Time objects' do
-        assert { Decoder.new.decode("~t1985-04-12T23:20:50.52Z") ==
-          Time.parse("1985-04-12T23:20:50.52Z") }
+        assert { Decoder.new.decode("~t1985-04-12T23:20:50.052Z") ==
+          Time.parse("1985-04-12T23:20:50.052Z") }
 
-        assert { Decoder.new.decode({"~#t" => "1985-04-12T23:20:50.52Z"}) ==
-          Time.parse("1985-04-12T23:20:50.52Z") }
+        assert { Decoder.new.decode("~t1985-04-12T23:20:50.052Z").usec == 52000 }
+
+        assert { Decoder.new.decode({"~#t" => "1985-04-12T23:20:50.052Z"}) ==
+          Time.parse("1985-04-12T23:20:50.052Z") }
       end
 
       it 'decodes uuids' do
@@ -87,7 +89,7 @@ module Transit
       end
 
       it 'decodes chars' do
-        assert {Decoder.new.decode("~ca") == "a"}
+        assert {Decoder.new.decode("~ca") == Char.new("a")}
       end
     end
 

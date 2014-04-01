@@ -8,18 +8,20 @@ module Transit
 
     def_delegators :@value, :hash, :to_sym, :to_s
 
+    attr_reader :value
+
     def initialize(value)
       @value = value
     end
 
     def ==(other)
       return false unless other.is_a?(self.class)
-      to_sym == other.to_sym
+      @value == other.value
     end
 
     def eql?(other)
       return false unless other.is_a?(self.class)
-      to_sym == other.to_sym
+      @value.eql?(other.value)
     end
   end
 

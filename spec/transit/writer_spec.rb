@@ -177,16 +177,16 @@ module Transit
         assert { io.string == '[{"~$a":1,"~$b":"~:c"}]' }
       end
 
-      it "marshals time as an encoded key" do
-        t = Time.new(2014,1,2,3,4,5)
+      it "marshals time as an encoded key (with correct ms)" do
+        t = Time.now
         writer.write({t => "ignore"})
-        assert { io.string == '[{"~t2014-01-02T03:04:05.000Z":"ignore"}]' }
+        assert { io.string == "[{\"~t#{t.strftime("%FT%H:%M:%S.%LZ")}\":\"ignore\"}]" }
       end
 
-      it "marshals a nested map" do
-        t = Time.new(2014,1,2,3,4,5)
+      it "marshals time nested in a map" do
+        t = Time.now
         writer.write({:a => { t => :ignore }})
-        assert { io.string == '[{"~:a":{"~t2014-01-02T03:04:05.000Z":"~:ignore"}}]' }
+        assert { io.string == "[{\"~:a\":{\"~t#{t.strftime("%FT%H:%M:%S.%LZ")}\":\"~:ignore\"}}]" }
       end
 
       it "raises for non-stringable map keys" do
