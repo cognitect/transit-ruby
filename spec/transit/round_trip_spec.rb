@@ -10,8 +10,7 @@ end
 def round_trips(label, obj, type)
   it "round trips #{label}" do
     if Time === obj
-      # Equality on Time objects is broken, e.g.
-      # Time.parse(t.to_s) != t
+      # Our format truncates down to millis, which to_i gives us
       assert { round_trip(obj, type).to_i == obj.to_i }
     else
       assert { round_trip(obj, type) == obj }
