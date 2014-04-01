@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Transit
-=begin
+
   describe Decoder do
     [nil, true, false].each do |element|
       it "decodes #{element.inspect} to itself" do
@@ -41,11 +41,11 @@ module Transit
 
     describe "encoded hashes" do
       it 'decodes sets' do
-        assert { Decoder.new.decode({"~#s" => [1,2,3,2,4]}) == Set.new([1,2,3,4]) }
+        assert { Decoder.new.decode({"~#set" => [1,2,3,2,4]}) == Set.new([1,2,3,4]) }
       end
 
       it 'decodes lists' do
-        assert { Decoder.new.decode({"~#(" => [1,2,3,2,4]}) == [1,2,3,2,4] }
+        assert { Decoder.new.decode({"~#list" => [1,2,3,2,4]}) == [1,2,3,2,4] }
       end
     end
 
@@ -58,8 +58,8 @@ module Transit
         assert { Decoder.new.decode("~~foo") == "~foo" }
       end
 
-      it 'decodes ClojureSymbol into the Ruby version of Clojure symbols' do
-        assert { Decoder.new.decode("~'foo") == ClojureSymbol.new("foo") }
+      it 'decodes TransitSymbol into the Ruby version of Clojure symbols' do
+        assert { Decoder.new.decode("~$foo") == TransitSymbol.new("foo") }
       end
 
       it 'decodes base64 strings into ByteArray' do
@@ -79,7 +79,7 @@ module Transit
       it 'decodes uuids' do
         assert { Decoder.new.decode("~ub54adc00-67f9-11d9-9669-0800200c9a66").is_a? UUID }
         assert { Decoder.new.decode("~ub54adc00-67f9-11d9-9669-0800200c9a66") ==
-          "b54adc00-67f9-11d9-9669-0800200c9a66" }
+          Transit::UUID.new("b54adc00-67f9-11d9-9669-0800200c9a66") }
       end
 
       it 'decodes uris' do
@@ -94,7 +94,7 @@ module Transit
     describe 'nested data' do
       it 'decodes an array of tagged strings' do
         [["~:kw",      :kw],
-         ["~'cs",      ClojureSymbol.new("cs")],
+         ["~$cs",      TransitSymbol.new("cs")],
          ["~f123.456", 123.456],
          ["~d3.14158", 3.14158]].map do |encoded, decoded|
           assert { Decoder.new.decode(encoded) == decoded }
@@ -156,5 +156,5 @@ module Transit
       end
     end
   end
-=end
+
 end
