@@ -31,9 +31,6 @@ module Transit
       @handlers[CMap] = CMapHandler.new
     end
 
-    # Bignum
-    # ByteArray
-
     def [](obj)
       @handlers[obj.class]
     end
@@ -213,13 +210,21 @@ module Transit
       @oj.pop
     end
 
-    def emit_map(m, _, cache)
+    def emit_map_start(m)
       @oj.push_object
+    end
+
+    def emit_map_end(m)
+      @oj.pop
+    end
+
+    def emit_map(m, _, cache)
+      emit_map_start(m)
       m.each do |k,v|
         marshal(k, true, cache)
         marshal(v, false, cache)
       end
-      @oj.pop
+      emit_map_end(m)
     end
 
     def emit_tagged_map(tag, rep, _, cache)
