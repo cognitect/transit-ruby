@@ -93,4 +93,6 @@ module Transit
       @value.reduce([]) {|a, kv| a.concat(kv)}
     end
   end
+
+  class Quote < Wrapper; end
 end

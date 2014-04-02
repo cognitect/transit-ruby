@@ -29,6 +29,7 @@ module Transit
       @handlers[UUID] = UuidHandler.new
       @handlers[Char] = CharHandler.new
       @handlers[CMap] = CMapHandler.new
+      @handlers[Quote] = QuoteHandler.new
     end
 
     def [](obj)
@@ -163,12 +164,19 @@ module Transit
       def rep(cm) TaggedMap.new(:array, cm.to_a, nil) end
       def string_rep(_) nil end
     end
+
+    class QuoteHandler
+      def tag(_) "'" end
+      def rep(q) q.value end
+      def string_rep(s) nil end
+    end
   end
 
   class JsonMarshaler
     ESC = "~"
     SUB = "^"
     RESERVED = "`"
+    ESC_TAG = "~#"
 
     def initialize(io)
       @oj = Oj::StreamWriter.new(io)
@@ -182,6 +190,13 @@ module Transit
 
     def push(obj, as_map_key)
       as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
+    end
+
+    def emit_quoted(o, as_map_key, cache)
+      emit_map_start
+      emit_string(ESC_TAG, "'", nil, true, cache)
+      marshal(o, false, cache)
+      emit_map_end
     end
 
     def emit_nil(_, as_map_key, cache)
@@ -210,21 +225,21 @@ module Transit
       @oj.pop
     end
 
-    def emit_map_start(m)
+    def emit_map_start
       @oj.push_object
     end
 
-    def emit_map_end(m)
+    def emit_map_end
       @oj.pop
     end
 
     def emit_map(m, _, cache)
-      emit_map_start(m)
+      emit_map_start
       m.each do |k,v|
         marshal(k, true, cache)
         marshal(v, false, cache)
       end
-      emit_map_end(m)
+      emit_map_end
     end
 
     def emit_tagged_map(tag, rep, _, cache)
@@ -252,6 +267,8 @@ module Transit
       case tag
       when "s"
         emit_string(nil, nil, rep, as_map_key, cache)
+      when "'"
+        emit_quoted(rep, as_map_key, cache)
       when "i"
         emit_int(rep, as_map_key, cache)
       when "d"
@@ -268,6 +285,13 @@ module Transit
         emit_encoded(tag, obj, as_map_key, cache)
       end
     end
+
+    def marshal_top(obj, cache)
+      handler = @handlers[obj]
+      if tag = handler.tag(obj)
+        marshal(tag.length == 1 ? Quote.new(obj) : obj, false, cache)
+      end
+    end
   end
 
   class Writer
@@ -276,7 +300,7 @@ module Transit
     end
 
     def write(obj)
-      @marshaler.marshal(obj, false, nil)
+      @marshaler.marshal_top(obj, nil)
     end
   end
 end

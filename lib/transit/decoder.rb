@@ -26,6 +26,7 @@ module Transit
         "~t"  => ->(s){Time.parse(s[2..-1])},
         "~u"  => ->(s){UUID.new(s[2..-1])},
         "~r"  => ->(s){URI(s[2..-1])},
+        "~#'" => ->(s){decode(s.values.first)},
         "~#t" => method(:decode_instant),
         "~#set" =>  method(:decode_set),
         "~#list" => method(:decode_list),
