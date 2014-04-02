@@ -5,7 +5,7 @@ module Transit
     let(:io) { StringIO.new }
     let(:writer) { Writer.new(io, :json) }
 
-    describe "leaf nodes" do
+    describe "ground nodes" do
       it "marshals nil" do
         writer.write(nil)
         assert { io.string == "null" }
