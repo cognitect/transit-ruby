@@ -1,4 +1,5 @@
 require 'oj'
+require 'set'
 
 module Transit
   class Handler
