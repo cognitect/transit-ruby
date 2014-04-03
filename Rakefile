@@ -7,5 +7,5 @@ RSpec::Core::RakeTask.new(:spec)
 task :default => :spec
 
 task :irb do
-  sh 'irb -I lib -r transit'
+  sh 'irb -I lib -r transit -I dev -r irb_tools'
 end
