@@ -117,8 +117,8 @@ module Transit
       describe 'overrides' do
         it 'supports override of default string decoders' do
           decoder = Decoder.new
-          decoder.register("~r") {|s| s[2..-1]}
-          assert { decoder.decode("~rhttp://foo.com") == "http://foo.com" }
+          decoder.register("~r") {|u| "DECODED: #{u}"}
+          assert { decoder.decode("~rhttp://foo.com") == "DECODED: http://foo.com" }
         end
 
         it 'supports override of default hash decoders' do
@@ -126,7 +126,7 @@ module Transit
           decoder = Decoder.new
           my_uuid = my_uuid_class.new(UUID.new.to_s)
 
-          decoder.register("~#u") {|h| my_uuid_class.new(h.values.first)}
+          decoder.register("~#u") {|u| my_uuid_class.new(u)}
           assert { decoder.decode({"~#u" => my_uuid.to_s}) == my_uuid }
         end
       end
@@ -140,7 +140,7 @@ module Transit
 
         it 'supports hash based extensions' do
           decoder = Decoder.new
-          decoder.register("~#Xdouble") {|h| h.values.first * 2}
+          decoder.register("~#Xdouble") {|d| d * 2}
           assert { decoder.decode({"~#Xdouble" => 44}) == 88 }
         end
 

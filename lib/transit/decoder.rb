@@ -3,41 +3,33 @@ require 'json'
 
 module Transit
   class Decoder
-    NOT_FOUND = Object.new
-    ALWAYS_NOT_FOUND = ->(v){NOT_FOUND}
-
-    IDENTITY   = ->(v){v}
-    ALWAYS_NIL = ->(_){ }
-
     def initialize(options={})
       options = default_options.merge(options)
       @decoders = options[:decoders]
     end
 
     def default_options
-      default_decoders = {
-        "~~"  => ->(s){s[1..-1]},                        # escaped string
-        "~:"  => ->(s){s[2..-1].to_sym},                 # keyword
-        "~b"  => ->(s){ByteArray.from_base64(s[2..-1])},
-        "~d"  => ->(s){Float(s[2..-1])},
-        "~f"  => ->(s){BigDecimal.new(s[2..-1])},
-        "~c"  => ->(s){Char.new(s[2..-1])},              # char
-        "~$"  => ->(s){TransitSymbol.new(s[2..-1])},
-        "~t"  => ->(s){Time.parse(s[2..-1])},
-        "~u"  => ->(s){UUID.new(s[2..-1])},
-        "~r"  => ->(s){URI(s[2..-1])},
-        "~#'" => ->(s){decode(s.values.first)},
-        "~#t" => method(:decode_instant),
-        "~#set" =>  method(:decode_set),
-        "~#list" => method(:decode_list),
-        "~#ints" => method(:decode_ints),
-        "~#longs" => method(:decode_longs),
-        "~#floats" => method(:decode_floats),
-        "~#doubles" => method(:decode_doubles),
-        "~#bools" => method(:decode_bools)
-      }
-
-      {decoders: default_decoders}
+      {decoders: {
+          "~~" => method(:decode_escaped_string),
+          "~:" => method(:decode_keyword),
+          "~b" => method(:decode_byte_array),
+          "~d" => method(:decode_float),
+          "~f" => method(:decode_big_decimal),
+          "~c" => method(:decode_char),
+          "~$" => method(:decode_transit_symbol),
+          "~t" => method(:decode_instant),
+          "~u" => method(:decode_uuid),
+          "~r" => method(:decode_uri),
+          "~#'"       => method(:decode),
+          "~#t"       => method(:decode_instant),
+          "~#set"     => method(:decode_set),
+          "~#list"    => method(:decode_list),
+          "~#ints"    => method(:decode_ints),
+          "~#longs"   => method(:decode_longs),
+          "~#floats"  => method(:decode_floats),
+          "~#doubles" => method(:decode_doubles),
+          "~#bools"   => method(:decode_bools)
+        }}
     end
 
     def decode(node)
@@ -45,11 +37,7 @@ module Transit
       when String
         decode_string(node)
       when Hash
-        if (result = decode_encoded_hash(node)) == NOT_FOUND
-          decode_hash(node)
-        else
-          result
-        end
+        decode_hash(node)
       when Array
         node.map {|n| decode(n)}
       else
@@ -57,35 +45,76 @@ module Transit
       end
     end
 
-    def decode_encoded_hash(hash)
-      @decoders.fetch(hash.keys.first, ALWAYS_NOT_FOUND).call(hash)
-    end
-
     def decode_hash(hash)
-      hash.reduce({}) do |h,kv|
-        h.store(decode(kv[0]), decode(kv[1]))
-        h
+      if decoder = @decoders[hash.keys.first]
+        decoder.call(hash.values.first)
+      else
+        hash.reduce({}) { |h,kv| h.store(decode(kv[0]), decode(kv[1])); h}
       end
     end
 
     def decode_string(string)
-      @decoders.fetch(string[0..1], IDENTITY).call(string)
+      if decoder = @decoders[string[0..1]]
+        decoder.call(string[2..-1])
+      else
+        string
+      end
+    end
+
+    def decode_escaped_string(s)
+      # Hack alert - this is actually restoring the escaped "~"
+      # which was stripped in decode_string. It's either that or
+      # make every one of these methods responsible for destructuring
+      # strings.
+      "~#{s}"
+    end
+
+    def decode_uri(s)
+      URI(s)
+    end
+
+    def decode_keyword(s)
+      s.to_sym
+    end
+
+    def decode_byte_array(s)
+      ByteArray.from_base64(s)
+    end
+
+    def decode_float(s)
+      Float(s)
+    end
+
+    def decode_big_decimal(s)
+      BigDecimal.new(s)
+    end
+
+    def decode_char(s)
+      Char.new(s)
+    end
+
+    def decode_transit_symbol(s)
+      TransitSymbol.new(s)
     end
 
     def decode_set(m)
-      Set.new(m.values.first.map {|v| decode(v)})
+      Set.new(m.map {|v| decode(v)})
     end
 
     def decode_list(m)
-      TransitList.new(m.values.first.map {|v| decode(v)})
+      TransitList.new(m.map {|v| decode(v)})
     end
 
     def decode_instant(m)
-      Time.parse(m.values.first).utc
+      Time.parse(m).utc
+    end
+
+    def decode_uuid(s)
+      UUID.new(s)
     end
 
     def decode_typed_array(type, m)
-      TypedArray.new(type, decode(m.values.first))
+      TypedArray.new(type, decode(m))
     end
 
     def decode_ints(m)
