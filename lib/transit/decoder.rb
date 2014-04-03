@@ -49,7 +49,7 @@ module Transit
       if decoder = @decoders[hash.keys.first]
         decoder.call(hash.values.first)
       else
-        hash.reduce({}) { |h,kv| h.store(decode(kv[0]), decode(kv[1])); h}
+        hash.reduce({}) {|h,kv| h.store(decode(kv[0]), decode(kv[1])); h}
       end
     end
 
