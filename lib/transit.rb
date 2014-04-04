@@ -1,3 +1,10 @@
+module Transit
+  ESC = "~"
+  SUB = "^"
+  RES = "`"
+  TAG = "~#"
+end
+
 require 'transit/version'
 require 'transit/transit_types'
 require 'transit/class_hash'

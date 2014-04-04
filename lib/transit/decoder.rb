@@ -10,24 +10,24 @@ module Transit
 
     def default_options
       {decoders: {
-          "~:" => method(:decode_keyword),
-          "~b" => method(:decode_byte_array),
-          "~d" => method(:decode_float),
-          "~f" => method(:decode_big_decimal),
-          "~c" => method(:decode_char),
-          "~$" => method(:decode_transit_symbol),
-          "~t" => method(:decode_instant),
-          "~u" => method(:decode_uuid),
-          "~r" => method(:decode_uri),
-          "~#'"       => method(:decode),
-          "~#t"       => method(:decode_instant),
-          "~#set"     => method(:decode_set),
-          "~#list"    => method(:decode_list),
-          "~#ints"    => method(:decode_ints),
-          "~#longs"   => method(:decode_longs),
-          "~#floats"  => method(:decode_floats),
-          "~#doubles" => method(:decode_doubles),
-          "~#bools"   => method(:decode_bools)
+          "#{ESC}:" => method(:decode_keyword),
+          "#{ESC}b" => method(:decode_byte_array),
+          "#{ESC}d" => method(:decode_float),
+          "#{ESC}f" => method(:decode_big_decimal),
+          "#{ESC}c" => method(:decode_char),
+          "#{ESC}$" => method(:decode_transit_symbol),
+          "#{ESC}t" => method(:decode_instant),
+          "#{ESC}u" => method(:decode_uuid),
+          "#{ESC}r" => method(:decode_uri),
+          "#{TAG}'"       => method(:decode),
+          "#{TAG}t"       => method(:decode_instant),
+          "#{TAG}set"     => method(:decode_set),
+          "#{TAG}list"    => method(:decode_list),
+          "#{TAG}ints"    => method(:decode_ints),
+          "#{TAG}longs"   => method(:decode_longs),
+          "#{TAG}floats"  => method(:decode_floats),
+          "#{TAG}doubles" => method(:decode_doubles),
+          "#{TAG}bools"   => method(:decode_bools)
         }}
     end
 
@@ -69,8 +69,12 @@ module Transit
       end
     end
 
+    ESCAPED_ESC = Regexp.escape(ESC)
+    ESCAPED_SUB = Regexp.escape(SUB)
+    IS_ESCAPED  = Regexp.new("^#{ESCAPED_ESC}(#{ESCAPED_SUB}|#{ESCAPED_ESC})")
+
     def parse_string(str, cache, as_map_key)
-      if str =~ /^~(\^|~)/
+      if IS_ESCAPED =~ str
         str[1..-1]
       elsif decoder = @decoders[str[0..1]]
         decoder.call(str[2..-1], cache, as_map_key)

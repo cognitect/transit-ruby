@@ -2,10 +2,6 @@ require 'oj'
 
 module Transit
   class JsonMarshaler
-    ESC = "~"
-    SUB = "^"
-    RES = "`"
-    TAG = "~#"
 
     def initialize(io)
       @oj = Oj::StreamWriter.new(io)
@@ -14,7 +10,7 @@ module Transit
 
     def escape(s)
       return s if [nil, true, false].include? s
-      (s && [ESC, SUB, RES].include?(s[0])) ? "#{ESC}#{s}" : s
+      [ESC, SUB, RES].include?(s[0]) ? "#{ESC}#{s}" : s
     end
 
     def push(obj, as_map_key)

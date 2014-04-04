@@ -40,8 +40,10 @@ module Transit
       @key_to_value.size >= CACHE_SIZE
     end
 
+    ESCAPED = /^~(#|\$|:)/
+
     def cacheable?(str, as_map_key=false)
-      str && str.size >= MIN_SIZE_CACHEABLE && (as_map_key || str =~ /^~(#|\$|:)/)
+      str && str.size >= MIN_SIZE_CACHEABLE && (as_map_key || ESCAPED =~ str)
     end
 
     private
