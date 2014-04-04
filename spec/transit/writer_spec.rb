@@ -100,6 +100,11 @@ module Transit
         writer.write([{"this" => "a"},{"this" => "b"}])
         assert { io.string == '[{"this":"a"},{"^!":"b"}]' }
       end
+
+      it "caches keys in an array" do
+        writer.write([:key1, :key1])
+        assert { io.string == '["~:key1","^!"]' }
+      end
     end
 
     describe "collections" do

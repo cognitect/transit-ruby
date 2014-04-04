@@ -38,7 +38,7 @@ module Transit
 
     def emit_string(prefix, tag, string, as_map_key, cache)
       str = "#{prefix}#{tag}#{escape(string)}"
-      if as_map_key && cache.cacheable?(str, as_map_key)
+      if cache.cacheable?(str, as_map_key)
         push(cache.encode(str, as_map_key), as_map_key)
       else
         push(str, as_map_key)
