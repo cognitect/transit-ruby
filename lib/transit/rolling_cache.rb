@@ -2,23 +2,24 @@ module Transit
   class RollingCache
     FIRST_ORD = 33
     CACHE_SIZE = 94
+    MIN_SIZE_CACHEABLE = 4
 
     def initialize
       clear
     end
 
     # Always returns the name
-    def decode(name)
+    def decode(name, as_map_key=false)
       return @key_to_value[name] if cache_key?(name)
-      return name unless eligable?(name)
+      return name unless cacheable?(name, as_map_key)
       encache(name)
     end
 
     # Returns the name the first time and the key after that
-    def encode(name)
+    def encode(name, as_map_key=false)
       key = @value_to_key[name]
       return key if key
-      return encache(name) if eligable?(name)
+      return encache(name) if cacheable?(name, as_map_key)
       name
     end
 
@@ -39,6 +40,10 @@ module Transit
       @key_to_value.size >= CACHE_SIZE
     end
 
+    def cacheable?(str, as_map_key=false)
+      str && str.size >= MIN_SIZE_CACHEABLE && (as_map_key || str =~ /^~(#|\$|:)/)
+    end
+
     private
 
     def encache(name)
@@ -52,10 +57,6 @@ module Transit
         @value_to_key[name] = key
       end
       name
-    end
-
-    def eligable?(value)
-      value.size >= 3
     end
 
     def encode_key(i)

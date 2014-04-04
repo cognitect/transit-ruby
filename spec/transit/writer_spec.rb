@@ -60,7 +60,6 @@ module Transit
       it "marshals a namespaced Ruby Symbol as a namespaced keyword" do
         writer.write(:"namespace/name")
         assert { io.string == '{"~#\'":"~:namespace/name"}' }
-
       end
 
       it "marshals a TransitSymbol" do
@@ -94,6 +93,13 @@ module Transit
 
       it "marshals an extension scalar"
       it "marshals an extension struct"
+    end
+
+    describe "caching" do
+      it "caches a simple string as map key" do
+        writer.write([{"this" => "a"},{"this" => "b"}])
+        assert { io.string == '[{"this":"a"},{"^!":"b"}]' }
+      end
     end
 
     describe "collections" do

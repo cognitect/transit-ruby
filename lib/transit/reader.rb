@@ -10,10 +10,10 @@ module Transit
     def read(io, &block)
       if block
         @yajl.parse(io) do |obj|
-          block.call(@decoder.decode(obj))
+          block.call(@decoder.decode(obj, RollingCache.new))
         end
       else
-        @decoder.decode(@yajl.parse(io))
+        @decoder.decode(@yajl.parse(io), RollingCache.new)
       end
     end
   end

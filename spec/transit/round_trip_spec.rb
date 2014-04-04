@@ -19,7 +19,6 @@ def round_trips(label, obj, type)
 end
 
 module Transit
-
   shared_examples "round trips" do |type|
     round_trips("nil", nil, type)
     round_trips("a keyword", :foo, type)
@@ -46,6 +45,7 @@ module Transit
     round_trips("an array of floats", TypedArray.new("floats", [1.1,2.2,3.3]), type)
     round_trips("an array of floats", TypedArray.new("doubles", [1.1,2.2,3.3]), type)
     round_trips("an array of floats", TypedArray.new("bools", [true,false,false,true]), type)
+    round_trips("an array of maps w/ cacheable keys", [{"this" => "a"},{"this" => "b"}], type)
     round_trips("a char", Char.new("x"), type)
     #      round_trips("an extension scalar", nil, type)
     #      round_trips("an extension struct", nil, type)

@@ -4,8 +4,8 @@ module Transit
   class JsonMarshaler
     ESC = "~"
     SUB = "^"
-    RESERVED = "`"
-    ESC_TAG = "~#"
+    RES = "`"
+    TAG = "~#"
 
     def initialize(io)
       @oj = Oj::StreamWriter.new(io)
@@ -14,7 +14,7 @@ module Transit
 
     def escape(s)
       return s if [nil, true, false].include? s
-      (s && [ESC, SUB, RESERVED].include?(s[0])) ? "#{ESC}#{s}" : s
+      (s && [ESC, SUB, RES].include?(s[0])) ? "#{ESC}#{s}" : s
     end
 
     def push(obj, as_map_key)
@@ -23,7 +23,7 @@ module Transit
 
     def emit_quoted(o, as_map_key, cache)
       emit_map_start
-      emit_string(ESC_TAG, "'", nil, true, cache)
+      emit_string(TAG, "'", nil, true, cache)
       marshal(o, false, cache)
       emit_map_end
     end
@@ -37,7 +37,12 @@ module Transit
     end
 
     def emit_string(prefix, tag, string, as_map_key, cache)
-      push("#{prefix}#{tag}#{escape(string)}", as_map_key)
+      str = "#{prefix}#{tag}#{escape(string)}"
+      if as_map_key && cache.cacheable?(str, as_map_key)
+        push(cache.encode(str, as_map_key), as_map_key)
+      else
+        push(str, as_map_key)
+      end
     end
 
     def emit_int(i, as_map_key, cache)
@@ -73,7 +78,7 @@ module Transit
 
     def emit_tagged_map(tag, rep, _, cache)
       @oj.push_object
-      @oj.push_key("~##{tag}")
+      @oj.push_key("#{ESC}##{tag}")
       marshal(rep, false, cache)
       @oj.pop
     end
@@ -129,7 +134,7 @@ module Transit
     end
 
     def write(obj)
-      @marshaler.marshal_top(obj, nil)
+      @marshaler.marshal_top(obj, RollingCache.new)
     end
   end
 end
