@@ -24,6 +24,8 @@ module Transit
     round_trips("a keyword", :foo, type)
     round_trips("a string", "this string", type)
     round_trips("a string starting with ~", "~this string", type)
+    round_trips("a string starting with ^", "^!", type)
+    round_trips("a string starting with `", "`%", type)
     round_trips("true", true, type)
     round_trips("false", false, type)
     round_trips("an int", 1, type)

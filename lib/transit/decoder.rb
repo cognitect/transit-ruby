@@ -72,7 +72,8 @@ module Transit
 
     ESCAPED_ESC = Regexp.escape(ESC)
     ESCAPED_SUB = Regexp.escape(SUB)
-    IS_ESCAPED  = Regexp.new("^#{ESCAPED_ESC}(#{ESCAPED_SUB}|#{ESCAPED_ESC})")
+    ESCAPED_RES = Regexp.escape(RES)
+    IS_ESCAPED  = Regexp.new("^#{ESCAPED_ESC}(#{ESCAPED_SUB}|#{ESCAPED_ESC}|#{ESCAPED_RES})")
 
     def parse_string(str, cache, as_map_key)
       if IS_ESCAPED =~ str

@@ -88,6 +88,8 @@ module Transit
 
       it 'unescapes escaped strings' do
         assert { decode("~~foo") == "~foo" }
+        assert { decode("~^foo") == "^foo" }
+        assert { decode("~`foo") == "`foo" }
       end
 
       it 'decodes TransitSymbol into the Ruby version of Clojure symbols' do
