@@ -27,7 +27,8 @@ module Transit
           "#{TAG}longs"   => method(:decode_longs),
           "#{TAG}floats"  => method(:decode_floats),
           "#{TAG}doubles" => method(:decode_doubles),
-          "#{TAG}bools"   => method(:decode_bools)
+          "#{TAG}bools"   => method(:decode_bools),
+          "#{TAG}cmap"    => method(:decode_cmap)
         }}
     end
 
@@ -149,6 +150,10 @@ module Transit
 
     def decode_bools(m, cache, as_map_key)
       decode_typed_array("bools", m, cache, as_map_key)
+    end
+
+    def decode_cmap(v, cache, as_map_key)
+      CMap.new(decode(Hash[*v], cache, as_map_key))
     end
 
     def register(k, &b)

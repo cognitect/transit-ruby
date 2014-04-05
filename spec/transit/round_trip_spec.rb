@@ -51,6 +51,7 @@ module Transit
     #      round_trips("an extension struct", nil, type)
     round_trips("a hash with simple values", {'a' => 1, 'b' => 2, 'name' => 'russ'}, type)
     round_trips("a hash with TransitSymbols", {TransitSymbol.new("foo") => TransitSymbol.new("bar")}, type)
+    round_trips("a cmap", CMap.new({a: :b, c: :d}), type)
   end
 
   describe "Transit using json" do
