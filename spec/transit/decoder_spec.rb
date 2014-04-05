@@ -18,10 +18,6 @@ module Transit
       assert { decode(1) == 1 }
     end
 
-    it 'decodes a BigDecimal' do
-      assert { decode("~f123.456") == BigDecimal.new("123.456") }
-    end
-
     it 'decodes a one-pair hash with simple values' do
       assert { decode({a: 1}) == {a: 1} }
     end
@@ -82,6 +78,19 @@ module Transit
     end
 
     describe "tagged strings" do
+      it 'decodes BigDecimals' do
+        assert { decode("~f123.456") == BigDecimal.new("123.456") }
+      end
+
+      it 'decodes 10 digit ints' do
+        assert { decode("~i1000000000") == 1_000_000_000 }
+        assert { decode("~i9223372036854775807") == 9223372036854775807 }
+      end
+
+      it 'decodes 9 digit ints' do
+        assert { decode("~i999999999") == 999_999_999 }
+      end
+
       it 'decodes keywords to Ruby symbols' do
         assert { decode("~:foo") == :foo }
       end
@@ -92,7 +101,7 @@ module Transit
         assert { decode("~`foo") == "`foo" }
       end
 
-      it 'decodes TransitSymbol into the Ruby version of Clojure symbols' do
+      it 'decodes TransitSymbols' do
         assert { decode("~$foo") == TransitSymbol.new("foo") }
       end
 

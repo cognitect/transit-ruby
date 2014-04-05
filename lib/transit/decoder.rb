@@ -13,6 +13,7 @@ module Transit
           "#{ESC}:" => method(:decode_keyword),
           "#{ESC}b" => method(:decode_byte_array),
           "#{ESC}d" => method(:decode_float),
+          "#{ESC}i" => method(:decode_int),
           "#{ESC}f" => method(:decode_big_decimal),
           "#{ESC}c" => method(:decode_char),
           "#{ESC}$" => method(:decode_transit_symbol),
@@ -99,6 +100,10 @@ module Transit
 
     def decode_float(s, cache, as_map_key)
       Float(s)
+    end
+
+    def decode_int(s, cache, as_map_key)
+      s.to_i
     end
 
     def decode_big_decimal(s, cache, as_map_key)

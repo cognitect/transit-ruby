@@ -11,6 +11,7 @@ module Transit
       @handlers[String] = StringHandler.new
       @handlers[Time] = InstantHandler.new
       @handlers[Fixnum] = IntHandler.new
+      @handlers[Bignum] = BignumHandler.new
       @handlers[Float] = FloatHandler.new
       @handlers[Array] = ArrayHandler.new
       @handlers[Hash] = MapHandler.new
@@ -79,6 +80,8 @@ module Transit
       def rep(i) i end
       def string_rep(i) i.to_s end
     end
+
+    class BignumHandler < IntHandler; end
 
     class FloatHandler
       def tag(f) "d" end

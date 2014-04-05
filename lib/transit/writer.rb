@@ -42,7 +42,11 @@ module Transit
     end
 
     def emit_int(i, as_map_key, cache)
-      push(i, as_map_key)
+      if as_map_key || i > 999_999_999
+        emit_string(ESC, "i", i.to_s, as_map_key, cache)
+      else
+        push(i, as_map_key)
+      end
     end
 
     def emit_double(d, as_map_key, cache)

@@ -7,8 +7,8 @@ def round_trip(obj, type)
   reader.read(StringIO.new(io.string))
 end
 
-def round_trips(label, obj, type)
-  it "round trips #{label}" do
+def round_trips(label, obj, type, opts={})
+  it "round trips #{label}", :focus => !!opts[:focus], :pending => opts[:pending] do
     if Time === obj
       # Our format truncates down to millis, which to_i gives us
       assert { round_trip(obj, type).to_i == obj.to_i }
@@ -49,10 +49,12 @@ module Transit
     round_trips("an array of floats", TypedArray.new("bools", [true,false,false,true]), type)
     round_trips("an array of maps w/ cacheable keys", [{"this" => "a"},{"this" => "b"}], type)
     round_trips("a char", Char.new("x"), type)
-    #      round_trips("an extension scalar", nil, type)
-    #      round_trips("an extension struct", nil, type)
+    # round_trips("an extension scalar", nil, type)
+    # round_trips("an extension struct", nil, type)
     round_trips("a hash with simple values", {'a' => 1, 'b' => 2, 'name' => 'russ'}, type)
     round_trips("a hash with TransitSymbols", {TransitSymbol.new("foo") => TransitSymbol.new("bar")}, type)
+    round_trips("a hash with a 9 digit ints",  {999_999_999 => 999_999_999}, type)
+    round_trips("a hash with a 10 digit ints", {1_000_000_000 => 1_000_000_000}, type)
     round_trips("a cmap", CMap.new({a: :b, c: :d}), type)
   end
 
