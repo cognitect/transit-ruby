@@ -49,6 +49,17 @@ module Transit
     end
 
     describe "tagged hashes" do
+      it 'decodes instants to Time objects' do
+        assert { decode({"~#t" => "1985-04-12T23:20:50.052Z"}) ==
+          Time.parse("1985-04-12T23:20:50.052Z") }
+      end
+
+      it 'decodes uuids' do
+        assert { decode({"~#u" => "b54adc00-67f9-11d9-9669-0800200c9a66"}).is_a? UUID }
+        assert { decode({"~#u" => "b54adc00-67f9-11d9-9669-0800200c9a66"}) ==
+          Transit::UUID.new("b54adc00-67f9-11d9-9669-0800200c9a66") }
+      end
+
       it 'decodes sets' do
         assert { decode({"~#set" => [1,2,3,2,4]}) == Set.new([1,2,3,4]) }
       end
@@ -111,9 +122,6 @@ module Transit
           Time.parse("1985-04-12T23:20:50.052Z") }
 
         assert { decode("~t1985-04-12T23:20:50.052Z").usec == 52000 }
-
-        assert { decode({"~#t" => "1985-04-12T23:20:50.052Z"}) ==
-          Time.parse("1985-04-12T23:20:50.052Z") }
       end
 
       it 'decodes uuids' do

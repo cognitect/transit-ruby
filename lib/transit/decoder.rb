@@ -22,6 +22,7 @@ module Transit
           "#{ESC}r" => method(:decode_uri),
           "#{TAG}'"       => method(:decode),
           "#{TAG}t"       => method(:decode_instant),
+          "#{TAG}u"       => method(:decode_uuid),
           "#{TAG}set"     => method(:decode_set),
           "#{TAG}list"    => method(:decode_list),
           "#{TAG}ints"    => method(:decode_ints),
