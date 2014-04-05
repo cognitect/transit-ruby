@@ -1,3 +1,4 @@
+* Handle the 53 bit boundary properly for json
 * means of registering handlers
 * more rigorous testing of BigDecimal write/read
 * wrap encoder fns in json and msgpack-specific types ?
