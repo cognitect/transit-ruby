@@ -8,28 +8,28 @@ module Transit
 
     def initialize
       @handlers = ClassHash.new
-      @handlers[String] = StringHandler.new
-      @handlers[Time] = InstantHandler.new
-      @handlers[Fixnum] = IntHandler.new
-      @handlers[Bignum] = BignumHandler.new
-      @handlers[Float] = FloatHandler.new
-      @handlers[Array] = ArrayHandler.new
-      @handlers[Hash] = MapHandler.new
-      @handlers[Symbol] = KeywordHandler.new
+      @handlers[NilClass]      = NilHandler.new
+      @handlers[Symbol]        = KeywordHandler.new
+      @handlers[String]        = StringHandler.new
+      @handlers[TrueClass]     = TrueHandler.new
+      @handlers[FalseClass]    = FalseHandler.new
+      @handlers[Fixnum]        = IntHandler.new
+      @handlers[Bignum]        = BignumHandler.new
+      @handlers[Float]         = FloatHandler.new
+      @handlers[BigDecimal]    = BigDecimalHandler.new
+      @handlers[Time]          = InstantHandler.new
+      @handlers[UUID]          = UuidHandler.new
+      @handlers[URI]           = UriHandler.new
+      @handlers[ByteArray]     = ByteArrayHandler.new
       @handlers[TransitSymbol] = TransitSymbolHandler.new
-      @handlers[NilClass] = NilHandler.new
-      @handlers[TrueClass] = TrueHandler.new
-      @handlers[FalseClass] = FalseHandler.new
-      @handlers[URI] = UriHandler.new
-      @handlers[BigDecimal] = BigDecimalHandler.new
-      @handlers[ByteArray] = ByteArrayHandler.new
-      @handlers[Set] = SetHandler.new
-      @handlers[TransitList] = ListHandler.new
-      @handlers[TypedArray] = TypedArrayHandler.new
-      @handlers[UUID] = UuidHandler.new
-      @handlers[Char] = CharHandler.new
-      @handlers[CMap] = CMapHandler.new
-      @handlers[Quote] = QuoteHandler.new
+      @handlers[Array]         = ArrayHandler.new
+      @handlers[TransitList]   = ListHandler.new
+      @handlers[Hash]          = MapHandler.new
+      @handlers[Set]           = SetHandler.new
+      @handlers[TypedArray]    = TypedArrayHandler.new
+      @handlers[Char]          = CharHandler.new
+      @handlers[CMap]          = CMapHandler.new
+      @handlers[Quote]         = QuoteHandler.new
     end
 
     def [](obj)
@@ -51,16 +51,10 @@ module Transit
       def string_rep(n) nil end
     end
 
-    class FalseHandler
-      def tag(_) "?" end
-      def rep(_) false end
-      def string_rep(_) "f" end
-    end
-
-    class TrueHandler
-      def tag(_) "?" end
-      def rep(_) true end
-      def string_rep(_) "t" end
+    class KeywordHandler
+      def tag(s) ":" end
+      def rep(s) s.to_s end
+      def string_rep(s) rep(s) end
     end
 
     class StringHandler
@@ -69,10 +63,16 @@ module Transit
       def string_rep(s) s end
     end
 
-    class InstantHandler
-      def tag(t) "t" end
-      def rep(t) t.strftime("%FT%H:%M:%S.%LZ") end
-      def string_rep(t) rep(t) end
+    class TrueHandler
+      def tag(_) "?" end
+      def rep(_) true end
+      def string_rep(_) "t" end
+    end
+
+    class FalseHandler
+      def tag(_) "?" end
+      def rep(_) false end
+      def string_rep(_) "f" end
     end
 
     class IntHandler
@@ -95,9 +95,45 @@ module Transit
       def string_rep(f) rep(f) end
     end
 
+    class InstantHandler
+      def tag(t) "t" end
+      def rep(t) t.strftime("%FT%H:%M:%S.%LZ") end
+      def string_rep(t) rep(t) end
+    end
+
+    class UuidHandler
+      def tag(_) "u" end
+      def rep(u) string_rep(u) end
+      def string_rep(u) u.to_s end
+    end
+
+    class UriHandler
+      def tag(u) "r" end
+      def rep(u) u.to_s end
+      def string_rep(u) rep(u) end
+    end
+
+    class ByteArrayHandler
+      def tag(b) "b" end
+      def rep(b) b.to_base64 end
+      def string_rep(b) rep(b) end
+    end
+
+    class TransitSymbolHandler
+      def tag(s) "$" end
+      def rep(s) s.to_s end
+      def string_rep(s) rep(s) end
+    end
+
     class ArrayHandler
       def tag(a) :array end
       def rep(a) a end
+      def string_rep(_) nil end
+    end
+
+    class MapHandler
+      def tag(m) :map end
+      def rep(m) m end
       def string_rep(_) nil end
     end
 
@@ -113,46 +149,10 @@ module Transit
       def string_rep(_) nil end
     end
 
-    class MapHandler
-      def tag(m) :map end
-      def rep(m) m end
-      def string_rep(_) nil end
-    end
-
-    class KeywordHandler
-      def tag(s) ":" end
-      def rep(s) s.to_s end
-      def string_rep(s) rep(s) end
-    end
-
-    class TransitSymbolHandler
-      def tag(s) "$" end
-      def rep(s) s.to_s end
-      def string_rep(s) rep(s) end
-    end
-
-    class UriHandler
-      def tag(u) "r" end
-      def rep(u) u.to_s end
-      def string_rep(u) rep(u) end
-    end
-
-    class ByteArrayHandler
-      def tag(b) "b" end
-      def rep(b) b.to_base64 end
-      def string_rep(b) rep(b) end
-    end
-
     class TypedArrayHandler
       def tag(a) a.type end
       def rep(a) TaggedMap.new(:array, a.to_a, nil) end
       def string_rep(_) nil end
-    end
-
-    class UuidHandler
-      def tag(_) "u" end
-      def rep(u) string_rep(u) end
-      def string_rep(u) u.to_s end
     end
 
     class CharHandler

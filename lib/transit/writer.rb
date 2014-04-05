@@ -17,19 +17,8 @@ module Transit
       as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
     end
 
-    def emit_quoted(o, as_map_key, cache)
-      emit_map_start
-      emit_string(TAG, "'", nil, true, cache)
-      marshal(o, false, cache)
-      emit_map_end
-    end
-
     def emit_nil(_, as_map_key, cache)
       as_map_key ? emit_string(ESC, "_", nil, true, cache) : @oj.push_value(nil)
-    end
-
-    def emit_boolean(b, as_map_key, cache)
-      as_map_key ? emit_string(ESC, "?", b, true, cache) : @oj.push_value(b)
     end
 
     def emit_string(prefix, tag, string, as_map_key, cache)
@@ -39,6 +28,17 @@ module Transit
       else
         push(str, as_map_key)
       end
+    end
+
+    def emit_boolean(b, as_map_key, cache)
+      as_map_key ? emit_string(ESC, "?", b, true, cache) : @oj.push_value(b)
+    end
+
+    def emit_quoted(o, as_map_key, cache)
+      emit_map_start
+      emit_string(TAG, "'", nil, true, cache)
+      marshal(o, false, cache)
+      emit_map_end
     end
 
     MAX_INT = 2**53 - 1
