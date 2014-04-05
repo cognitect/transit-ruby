@@ -53,8 +53,8 @@ module Transit
     # round_trips("an extension struct", nil, type)
     round_trips("a hash with simple values", {'a' => 1, 'b' => 2, 'name' => 'russ'}, type)
     round_trips("a hash with TransitSymbols", {TransitSymbol.new("foo") => TransitSymbol.new("bar")}, type)
-    round_trips("a hash with a 9 digit ints",  {999_999_999 => 999_999_999}, type)
-    round_trips("a hash with a 10 digit ints", {1_000_000_000 => 1_000_000_000}, type)
+    round_trips("a hash with 53 bit ints",  {2**53-1 => 2**53-2}, type)
+    round_trips("a hash with 54 bit ints",  {2**53   => 2**53+1}, type)
     round_trips("a cmap", CMap.new({a: :b, c: :d}), type)
   end
 

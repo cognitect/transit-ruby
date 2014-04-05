@@ -82,13 +82,8 @@ module Transit
         assert { decode("~f123.456") == BigDecimal.new("123.456") }
       end
 
-      it 'decodes 10 digit ints' do
-        assert { decode("~i1000000000") == 1_000_000_000 }
-        assert { decode("~i9223372036854775807") == 9223372036854775807 }
-      end
-
-      it 'decodes 9 digit ints' do
-        assert { decode("~i999999999") == 999_999_999 }
+      it 'decodes tagged ints' do
+        assert { decode("~i9007199254740992") == 9007199254740992 }
       end
 
       it 'decodes keywords to Ruby symbols' do

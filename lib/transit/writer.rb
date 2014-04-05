@@ -41,8 +41,10 @@ module Transit
       end
     end
 
+    MAX_INT = 2**53 - 1
+
     def emit_int(i, as_map_key, cache)
-      if as_map_key || i > 999_999_999
+      if as_map_key || i > MAX_INT
         emit_string(ESC, "i", i.to_s, as_map_key, cache)
       else
         push(i, as_map_key)

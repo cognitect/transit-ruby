@@ -43,14 +43,14 @@ module Transit
         assert { io.string == '{"~#\'":false}' }
       end
 
-      it "marshals a 9 digit int" do
-        writer.write(999_999_999)
-        assert { io.string == '{"~#\'":999999999}' }
+      it "marshals a 53 bit int as itself" do
+        writer.write(2**53 - 1)
+        assert { JSON.parse(io.string).values.first == 9007199254740991 }
       end
 
-      it "marshals a 10 digit int" do
-        writer.write(1_000_000_000)
-        assert { io.string == '{"~#\'":"~i1000000000"}' }
+      it "marshals a 54 bit int as a tagged string" do
+        writer.write(2**53)
+        assert { io.string == '{"~#\'":"~i9007199254740992"}' }
       end
 
       it "marshals a float" do
@@ -127,19 +127,14 @@ module Transit
         assert { io.string == '{"~#ints":[1,2,3]}' }
       end
 
-      it "marshals a typed long array with 9 digit ints" do
-        writer.write(TypedArray.new(:longs, [999_999_998, 999_999_999]))
-        assert { io.string == '{"~#longs":[999999998,999999999]}' }
+      it "marshals a typed long array with 53 bit ints" do
+        writer.write(TypedArray.new(:longs, [2**53 - 2, 2**53 - 1]))
+        assert { io.string == '{"~#longs":[9007199254740990,9007199254740991]}' }
       end
 
-      it "marshals a typed long array with 10 digit ints (encoded)" do
-        writer.write(TypedArray.new(:longs, [1_000_000_000, 1_000_000_001]))
-        assert { io.string == '{"~#longs":["~i1000000000","~i1000000001"]}' }
-      end
-
-      it "marshals a typed long array with 9 and 10 digit ints (encoded)" do
-        writer.write(TypedArray.new(:longs, [999_999_999, 1_000_000_000]))
-        assert { io.string == '{"~#longs":[999999999,"~i1000000000"]}' }
+      it "marshals a typed long array with 54 bit ints (tagged)" do
+        writer.write(TypedArray.new(:longs, [2**53, 2**53 + 1]))
+        assert { io.string == '{"~#longs":["~i9007199254740992","~i9007199254740993"]}' }
       end
 
       it "marshals a typed float array" do
@@ -183,8 +178,8 @@ module Transit
       end
       marshals_map_with_key("true", true, "~?t")
       marshals_map_with_key("false", false, "~?f")
-      marshals_map_with_key("a 9 digit int", 999_999_999, "~i999999999")
-      marshals_map_with_key("a 10 digit int", 1_000_000_000, "~i1000000000")
+      marshals_map_with_key("a 53 bit int", 2**53 - 1, "~i9007199254740991")
+      marshals_map_with_key("a 54 bit int", 2**53,     "~i9007199254740992")
       marshals_map_with_key("a float", 42.37, "~d42.37")
       marshals_map_with_key("a BigDecimal", BigDecimal.new("42.37"), "~f42.37")
       it "marshals an instant as a key" do
@@ -227,8 +222,8 @@ module Transit
 
       marshals_map_with_value("true", true, true)
       marshals_map_with_value("false", false, false)
-      marshals_map_with_value("a 9 digit int", 999_999_999, 999999999)
-      marshals_map_with_value("a 10 digit int", 1_000_000_000, '"~i1000000000"')
+      marshals_map_with_value("a 53 bit int", 2**53 - 1, 9007199254740991)
+      marshals_map_with_value("a 54 bit int", 2**53, '"~i9007199254740992"')
       marshals_map_with_value("a float", 42.37, 42.37)
       marshals_map_with_value("a BigDecimal", BigDecimal.new("42.37"), '"~f42.37"')
 
