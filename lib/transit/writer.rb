@@ -98,7 +98,7 @@ module Transit
 
     def marshal(obj, as_map_key, cache)
       handler = @handlers[obj]
-      tag = handler.tag(obj)
+      tag = handler.tag
       rep = as_map_key ? handler.string_rep(obj) : handler.rep(obj)
       case tag
       when "s"
@@ -124,7 +124,7 @@ module Transit
 
     def marshal_top(obj, cache)
       handler = @handlers[obj]
-      if tag = handler.tag(obj)
+      if tag = handler.tag
         marshal(tag.length == 1 ? Quote.new(obj) : obj, false, cache)
       end
     end

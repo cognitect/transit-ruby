@@ -145,28 +145,24 @@ module Transit
       UUID.new(s)
     end
 
-    def decode_typed_array(type, m, cache, as_map_key)
-      TypedArray.new(type, decode(m, cache, as_map_key))
-    end
-
     def decode_ints(m, cache, as_map_key)
-      decode_typed_array("ints", m, cache, as_map_key)
+      IntsArray.new(decode(m, cache, as_map_key))
     end
 
     def decode_longs(m, cache, as_map_key)
-      decode_typed_array("longs", m, cache, as_map_key)
+      LongsArray.new(decode(m, cache, as_map_key))
     end
 
     def decode_floats(m, cache, as_map_key)
-      decode_typed_array("floats", m, cache, as_map_key)
+      FloatsArray.new(decode(m, cache, as_map_key))
     end
 
     def decode_doubles(m, cache, as_map_key)
-      decode_typed_array("doubles", m, cache, as_map_key)
+      DoublesArray.new(decode(m, cache, as_map_key))
     end
 
     def decode_bools(m, cache, as_map_key)
-      decode_typed_array("bools", m, cache, as_map_key)
+      BoolsArray.new(decode(m, cache, as_map_key))
     end
 
     def decode_cmap(v, cache, as_map_key)

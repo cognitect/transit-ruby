@@ -76,6 +76,36 @@ module Transit
     end
   end
 
+  class IntsArray < TypedArray
+    def initialize(ary)
+      super("ints", ary)
+    end
+  end
+
+  class LongsArray < TypedArray
+    def initialize(ary)
+      super("longs", ary)
+    end
+  end
+
+  class DoublesArray < TypedArray
+    def initialize(ary)
+      super("doubles", ary)
+    end
+  end
+
+  class FloatsArray < TypedArray
+    def initialize(ary)
+      super("floats", ary)
+    end
+  end
+
+  class BoolsArray < TypedArray
+    def initialize(ary)
+      super("bools", ary)
+    end
+  end
+
   class Char < Wrapper
     def initialize(c)
       raise ArgumentError.new("Char can only contain one character.") if c.length > 1
