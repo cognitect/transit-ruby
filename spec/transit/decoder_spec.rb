@@ -154,56 +154,6 @@ module Transit
       end
     end
 
-    describe 'registration' do
-      it 'requires a 1-arg lambda' do
-        assert { rescuing { Decoder.new.register("~D") {|s,t|} }.
-          message =~ /arity/ }
-      end
-
-      describe 'overrides' do
-        it 'supports override of default string decoders' do
-          decoder = Decoder.new
-          decoder.register("~r") {|u| "DECODED: #{u}"}
-          assert { decoder.decode("~rhttp://foo.com", cache) == "DECODED: http://foo.com" }
-        end
-
-        it 'supports override of default hash decoders' do
-          my_uuid_class = Class.new(String)
-          decoder = Decoder.new
-          my_uuid = my_uuid_class.new(UUID.new.to_s)
-
-          decoder.register("~#u") {|u| my_uuid_class.new(u)}
-          assert { decoder.decode({"~#u" => my_uuid.to_s}, cache) == my_uuid }
-        end
-      end
-
-      describe 'extensions' do
-        it 'supports string-based extensions' do
-          decoder = Decoder.new
-          decoder.register("~D") {|s| Date.parse(s[2..-1])}
-          assert { decoder.decode("~D2014-03-15", cache) == Date.new(2014,3,15) }
-        end
-
-        it 'supports hash based extensions' do
-          decoder = Decoder.new
-          decoder.register("~#Xdouble") {|d| d * 2}
-          assert { decoder.decode({"~#Xdouble" => 44}, cache) == 88 }
-        end
-
-        it 'supports hash based extensions that return nil'  do
-          decoder = Decoder.new
-          decoder.register("~#Xmynil") {|_| nil}
-          assert { decoder.decode({"~#Xmynil" => :anything }, cache) == nil }
-        end
-
-        it 'supports hash based extensions that return false' do
-          decoder = Decoder.new
-          decoder.register("~#Xmyfalse") {|_| false}
-          assert { decoder.decode({"~#Xmyfalse" => :anything }, cache) == false }
-        end
-      end
-    end
-
     describe "caching" do
       it "decodes cacheable map keys" do
         assert { decode([{"this" => "a"},{"^!" => "b"}]) == [{"this" => "a"},{"this" => "b"}] }

@@ -2,9 +2,9 @@ require 'yajl'
 
 module Transit
   class JsonUnmarshaler
-    def initialize
+    def initialize(handlers)
       @yajl = Yajl::Parser.new
-      @decoder = Transit::Decoder.new
+      @decoder = Transit::Decoder.new(handlers)
     end
 
     def read(io, &block)
@@ -19,8 +19,8 @@ module Transit
   end
 
   class Reader
-    def initialize(type=:json)
-      @reader = JsonUnmarshaler.new
+    def initialize(type=:json,handlers=Handler.new)
+      @reader = JsonUnmarshaler.new(handlers)
     end
 
     def read(io, &block)
