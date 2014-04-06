@@ -8,12 +8,38 @@ def round_trip(obj, type)
 end
 
 def round_trips(label, obj, type, opts={})
-  it "round trips #{label}", :focus => !!opts[:focus], :pending => opts[:pending] do
+  it "round trips #{label} at top level", :focus => !!opts[:focus], :pending => opts[:pending] do
     if Time === obj
       # Our format truncates down to millis, which to_i gives us
       assert { round_trip(obj, type).to_i == obj.to_i }
     else
       assert { round_trip(obj, type) == obj }
+    end
+  end
+
+  case obj
+  when Time
+    it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
+      # Our format truncates down to millis, which to_i gives us
+      before = {obj => 0}
+      after = round_trip(before, type)
+      assert { before.keys.first.to_i == after.keys.first.to_i }
+    end
+  when Hash, Array, Transit::TransitList, Set, Transit::TypedArray, Transit::CMap
+  else
+    it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
+      assert { round_trip({obj => 0}, type) == {obj => 0} }
+    end
+  end
+
+  it "round trips #{label} as a collection value", :focus => !!opts[:focus], :pending => opts[:pending] do
+    if Time === obj
+      # Our format truncates down to millis, which to_i gives us
+      before = {a: obj}
+      after = round_trip(before, type)
+      assert { before.values.first.to_i == after.values.first.to_i }
+    else
+      assert { round_trip({a: obj}, type) == {a: obj} }
     end
   end
 end

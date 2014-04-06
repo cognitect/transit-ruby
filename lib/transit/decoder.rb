@@ -10,7 +10,9 @@ module Transit
 
     def default_options
       {decoders: {
+          "#{ESC}_" => method(:decode_nil),
           "#{ESC}:" => method(:decode_keyword),
+          "#{ESC}?" => method(:decode_bool),
           "#{ESC}b" => method(:decode_byte_array),
           "#{ESC}d" => method(:decode_float),
           "#{ESC}i" => method(:decode_int),
@@ -85,6 +87,14 @@ module Transit
       else
         str
       end
+    end
+
+    def decode_nil(n, cache, as_map_key)
+      nil
+    end
+
+    def decode_bool(b, cache, as_map_key)
+      b == "t"
     end
 
     def decode_uri(s, cache, as_map_key)
