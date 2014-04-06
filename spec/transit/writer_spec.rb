@@ -202,8 +202,8 @@ module Transit
     end
 
     describe "hash values" do
-      def self.marshals_map_with_value(label, value, rep)
-        it "marshals #{label} as a map value" do
+      def self.marshals_map_with_value(label, value, rep, focus=false)
+        it "marshals #{label} as a map value", :focus => focus do
           writer.write({"a" => value})
           writer.write({"nested" => {"a" => value}})
           assert { io.string == "{\"a\":#{rep}}{\"nested\":{\"a\":#{rep}}}" }
@@ -236,6 +236,14 @@ module Transit
       marshals_map_with_value("a uri", URI("http://example.com"), '"~rhttp://example.com"')
       marshals_map_with_value("symbol", TransitSymbol.new("foo"), '"~$foo"' )
       marshals_map_with_value("char", Char.new("a"), '"~ca"')
+
+
+      marshals_map_with_value("an array", [1,2,3], '[1,2,3]')
+      marshals_map_with_value("a map", {a: :b}, '{"~:a":"~:b"}')
+      marshals_map_with_value("a set", Set.new([1,2,3]), '{"~#set":[1,2,3]}')
+      marshals_map_with_value("a list", TransitList.new([1,2,3]), '{"~#list":[1,2,3]}')
+      marshals_map_with_value("an array of ints", TypedArray.new("ints", [1,2,3]), '{"~#ints":[1,2,3]}')
+      marshals_map_with_value("a cmap", CMap.new({a: :b}), '{"~#cmap":["~:a","~:b"]}')
     end
 
     describe "nested structures" do
