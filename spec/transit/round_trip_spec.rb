@@ -30,6 +30,7 @@ module Transit
     round_trips("false", false, type)
     round_trips("an int", 1, type)
     round_trips("a long", 123456789012345, type)
+    round_trips("a very big num", 123456789012345679012345678890, type)
     round_trips("a float", 1234.56, type)
     round_trips("a bigdec", BigDecimal.new("123.45"), type)
     round_trips("an instant (Time)", Time.now.utc, type)
