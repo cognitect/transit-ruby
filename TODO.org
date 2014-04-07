@@ -1,3 +1,14 @@
 * means of registering handlers
 * wrap encoder fns in json and msgpack-specific types ?
 * Deal with reading unrecognized extensions; these are *not* errors.
+- For a string, reader should return (str "`" encoded-str)
+- For a map, reader should return an instance of a TaggedValue type w/
+map's tag and value
+- Writer should remove ` from strs that start w/ `~
+- Writer should encode TaggedValue as having tag and value it carries
+inside it
+- This allows a reader to receive non-decoded data and write it back out
+w/o losing any information
+- This is the default behavior for readers/writers - but there must be a
+way for a client to configure a reader to do something else, e.g.,
+throw an exception
