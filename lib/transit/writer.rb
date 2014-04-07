@@ -3,9 +3,9 @@ require 'oj'
 module Transit
   class JsonMarshaler
 
-    def initialize(io)
+    def initialize(io, handlers)
       @oj = Oj::StreamWriter.new(io)
-      @handlers = Handler.new
+      @handlers = handlers
     end
 
     def escape(s)
@@ -98,7 +98,7 @@ module Transit
 
     def marshal(obj, as_map_key, cache)
       handler = @handlers[obj]
-      tag = handler.tag(obj)
+      tag = handler.tag
       rep = as_map_key ? handler.string_rep(obj) : handler.rep(obj)
       case tag
       when "s"
@@ -124,15 +124,15 @@ module Transit
 
     def marshal_top(obj, cache)
       handler = @handlers[obj]
-      if tag = handler.tag(obj)
+      if tag = handler.tag
         marshal(tag.length == 1 ? Quote.new(obj) : obj, false, cache)
       end
     end
   end
 
   class Writer
-    def initialize(io, type)
-      @marshaler = JsonMarshaler.new(io)
+    def initialize(io, type, handlers=Handler.new)
+      @marshaler = JsonMarshaler.new(io, handlers)
     end
 
     def write(obj)

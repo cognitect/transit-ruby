@@ -14,5 +14,9 @@ module Transit
       end
       nil
     end
+
+    def values
+      @values.values
+    end
   end
 end

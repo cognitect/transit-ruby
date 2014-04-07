@@ -123,32 +123,32 @@ module Transit
       end
 
       it "marshals a typed int array" do
-        writer.write(TypedArray.new(:ints, [1,2,3]))
+        writer.write(IntsArray.new([1,2,3]))
         assert { io.string == '{"~#ints":[1,2,3]}' }
       end
 
       it "marshals a typed long array with 53 bit ints" do
-        writer.write(TypedArray.new(:longs, [2**53 - 2, 2**53 - 1]))
+        writer.write(LongsArray.new([2**53 - 2, 2**53 - 1]))
         assert { io.string == '{"~#longs":[9007199254740990,9007199254740991]}' }
       end
 
       it "marshals a typed long array with 54 bit ints (tagged)" do
-        writer.write(TypedArray.new(:longs, [2**53, 2**53 + 1]))
+        writer.write(LongsArray.new([2**53, 2**53 + 1]))
         assert { io.string == '{"~#longs":["~i9007199254740992","~i9007199254740993"]}' }
       end
 
       it "marshals a typed float array" do
-        writer.write(TypedArray.new(:floats, [1.1,2.2,3.3]))
+        writer.write(FloatsArray.new([1.1,2.2,3.3]))
         assert { io.string == '{"~#floats":[1.1,2.2,3.3]}' }
       end
 
       it "marshals a typed double array" do
-        writer.write(TypedArray.new(:doubles, [1.1,2.2,3.3]))
+        writer.write(DoublesArray.new([1.1,2.2,3.3]))
         assert { io.string == '{"~#doubles":[1.1,2.2,3.3]}' }
       end
 
       it "marshals a typed bool array" do
-        writer.write(TypedArray.new(:bools, [true, false, true]))
+        writer.write(BoolsArray.new([true, false, true]))
         assert { io.string == '{"~#bools":[true,false,true]}' }
       end
 
@@ -242,7 +242,11 @@ module Transit
       marshals_map_with_value("a map", {a: :b}, '{"~:a":"~:b"}')
       marshals_map_with_value("a set", Set.new([1,2,3]), '{"~#set":[1,2,3]}')
       marshals_map_with_value("a list", TransitList.new([1,2,3]), '{"~#list":[1,2,3]}')
-      marshals_map_with_value("an array of ints", TypedArray.new("ints", [1,2,3]), '{"~#ints":[1,2,3]}')
+      marshals_map_with_value("an array of ints", IntsArray.new([1,2,3]), '{"~#ints":[1,2,3]}')
+      marshals_map_with_value("an array of ints", LongsArray.new([1,2,3]), '{"~#longs":[1,2,3]}')
+      marshals_map_with_value("an array of ints", FloatsArray.new([1.1,2.2,3.3]), '{"~#floats":[1.1,2.2,3.3]}')
+      marshals_map_with_value("an array of ints", DoublesArray.new([1.1,2.2,3.3]), '{"~#doubles":[1.1,2.2,3.3]}')
+      marshals_map_with_value("an array of ints", BoolsArray.new([true,false,true]), '{"~#bools":[true,false,true]}')
       marshals_map_with_value("a cmap", CMap.new({a: :b}), '{"~#cmap":["~:a","~:b"]}')
     end
 

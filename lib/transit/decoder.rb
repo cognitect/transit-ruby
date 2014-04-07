@@ -3,37 +3,12 @@ require 'json'
 
 module Transit
   class Decoder
-    def initialize(options={})
-      options = default_options.merge(options)
-      @decoders = options[:decoders]
-    end
-
-    def default_options
-      {decoders: {
-          "#{ESC}_" => method(:decode_nil),
-          "#{ESC}:" => method(:decode_keyword),
-          "#{ESC}?" => method(:decode_bool),
-          "#{ESC}b" => method(:decode_byte_array),
-          "#{ESC}d" => method(:decode_float),
-          "#{ESC}i" => method(:decode_int),
-          "#{ESC}f" => method(:decode_big_decimal),
-          "#{ESC}c" => method(:decode_char),
-          "#{ESC}$" => method(:decode_transit_symbol),
-          "#{ESC}t" => method(:decode_instant),
-          "#{ESC}u" => method(:decode_uuid),
-          "#{ESC}r" => method(:decode_uri),
-          "#{TAG}'"       => method(:decode),
-          "#{TAG}t"       => method(:decode_instant),
-          "#{TAG}u"       => method(:decode_uuid),
-          "#{TAG}set"     => method(:decode_set),
-          "#{TAG}list"    => method(:decode_list),
-          "#{TAG}ints"    => method(:decode_ints),
-          "#{TAG}longs"   => method(:decode_longs),
-          "#{TAG}floats"  => method(:decode_floats),
-          "#{TAG}doubles" => method(:decode_doubles),
-          "#{TAG}bools"   => method(:decode_bools),
-          "#{TAG}cmap"    => method(:decode_cmap)
-        }}
+    def initialize(handlers=Handler.new)
+      @decoders = handlers.handlers.reduce({}) do |m,h|
+        "#{ESC}#{h.tag}".tap {|k| m[k] = h}
+        "#{TAG}#{h.tag}".tap {|k| m[k] = h}
+        m
+      end
     end
 
     def decode(node, cache, as_map_key=false)
@@ -57,7 +32,11 @@ module Transit
 
     def decode_hash(hash, cache, as_map_key)
       if decoder = find_encoded_hash_decoder(hash, cache)
-        decoder.call(hash.values.first, cache, as_map_key)
+        if decoder.respond_to?(:build)
+          decoder.build(decode(hash.values.first, cache, as_map_key))
+        else
+          decoder.call(hash.values.first, cache, as_map_key)
+        end
       else
         hash.reduce({}) {|h,kv| h.store(decode(kv[0], cache, true), decode(kv[1], cache)); h}
       end
@@ -83,104 +62,14 @@ module Transit
       if IS_ESCAPED =~ str
         str[1..-1]
       elsif decoder = @decoders[str[0..1]]
-        decoder.call(str[2..-1], cache, as_map_key)
+        if decoder.respond_to?(:build)
+          decoder.build(str[2..-1])
+        else
+          decoder.call(str[2..-1], cache, as_map_key)
+        end
       else
         str
       end
     end
-
-    def decode_nil(n, cache, as_map_key)
-      nil
-    end
-
-    def decode_bool(b, cache, as_map_key)
-      b == "t"
-    end
-
-    def decode_uri(s, cache, as_map_key)
-      URI(s)
-    end
-
-    def decode_keyword(s, cache, as_map_key)
-      s.to_sym
-    end
-
-    def decode_byte_array(s, cache, as_map_key)
-      ByteArray.from_base64(s)
-    end
-
-    def decode_float(s, cache, as_map_key)
-      Float(s)
-    end
-
-    def decode_int(s, cache, as_map_key)
-      s.to_i
-    end
-
-    def decode_big_decimal(s, cache, as_map_key)
-      BigDecimal.new(s)
-    end
-
-    def decode_char(s, cache, as_map_key)
-      Char.new(s)
-    end
-
-    def decode_transit_symbol(s, cache, as_map_key)
-      TransitSymbol.new(s)
-    end
-
-    def decode_set(m, cache, as_map_key)
-      Set.new(decode(m, cache, as_map_key))
-    end
-
-    def decode_list(m, cache, as_map_key)
-      TransitList.new(decode(m, cache, as_map_key))
-    end
-
-    def decode_instant(m, cache, as_map_key)
-      Time.parse(m).utc
-    end
-
-    def decode_uuid(s, cache, as_map_key)
-      UUID.new(s)
-    end
-
-    def decode_typed_array(type, m, cache, as_map_key)
-      TypedArray.new(type, decode(m, cache, as_map_key))
-    end
-
-    def decode_ints(m, cache, as_map_key)
-      decode_typed_array("ints", m, cache, as_map_key)
-    end
-
-    def decode_longs(m, cache, as_map_key)
-      decode_typed_array("longs", m, cache, as_map_key)
-    end
-
-    def decode_floats(m, cache, as_map_key)
-      decode_typed_array("floats", m, cache, as_map_key)
-    end
-
-    def decode_doubles(m, cache, as_map_key)
-      decode_typed_array("doubles", m, cache, as_map_key)
-    end
-
-    def decode_bools(m, cache, as_map_key)
-      decode_typed_array("bools", m, cache, as_map_key)
-    end
-
-    def decode_cmap(v, cache, as_map_key)
-      CMap.new(decode(Hash[*v], cache, as_map_key))
-    end
-
-    def register(k, &b)
-      raise ArgumentError.new(DECODER_ARITY_MESSAGE) unless b.arity == 1
-      @decoders[k] = b
-    end
-
-    DECODER_ARITY_MESSAGE = <<-MSG
-Decoder functions require arity 1
-- the string to decode
-MSG
   end
 end
