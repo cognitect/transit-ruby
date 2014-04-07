@@ -18,10 +18,6 @@ module Transit
       assert { decode(1) == 1 }
     end
 
-    it 'decodes a BigDecimal' do
-      assert { decode("~f123.456") == BigDecimal.new("123.456") }
-    end
-
     it 'decodes a one-pair hash with simple values' do
       assert { decode({a: 1}) == {a: 1} }
     end
@@ -53,6 +49,17 @@ module Transit
     end
 
     describe "tagged hashes" do
+      it 'decodes instants to Time objects' do
+        assert { decode({"~#t" => "1985-04-12T23:20:50.052Z"}) ==
+          Time.parse("1985-04-12T23:20:50.052Z") }
+      end
+
+      it 'decodes uuids' do
+        assert { decode({"~#u" => "b54adc00-67f9-11d9-9669-0800200c9a66"}).is_a? UUID }
+        assert { decode({"~#u" => "b54adc00-67f9-11d9-9669-0800200c9a66"}) ==
+          Transit::UUID.new("b54adc00-67f9-11d9-9669-0800200c9a66") }
+      end
+
       it 'decodes sets' do
         assert { decode({"~#set" => [1,2,3,2,4]}) == Set.new([1,2,3,4]) }
       end
@@ -68,18 +75,39 @@ module Transit
       it 'decodes nested lists' do
         assert { decode({"~#list" => {"^!" => [1,2,3]}}) == TransitList.new(TransitList.new([1,2,3]))}
       end
+
+      it 'decodes cmaps' do
+        assert { decode({"~#cmap" => ["~:a", "b", "c", "~:d"]}) == CMap.new({:a => "b", "c" => :d}) }
+      end
+
+      it 'decodes nested cmaps' do
+        cm1 = {"~#cmap" => ["~:a", "~:b"]}
+        cm2 = {"~#cmap" => ["~:c", "~:d"]}
+        cm3 = {"~#cmap" => [cm1, cm2]}
+        assert { decode(cm3) == CMap.new({CMap.new({:a => :b}) => CMap.new({:c => :d})}) }
+      end
     end
 
     describe "tagged strings" do
+      it 'decodes BigDecimals' do
+        assert { decode("~f123.456") == BigDecimal.new("123.456") }
+      end
+
+      it 'decodes tagged ints' do
+        assert { decode("~i9007199254740992") == 9007199254740992 }
+      end
+
       it 'decodes keywords to Ruby symbols' do
         assert { decode("~:foo") == :foo }
       end
 
       it 'unescapes escaped strings' do
         assert { decode("~~foo") == "~foo" }
+        assert { decode("~^foo") == "^foo" }
+        assert { decode("~`foo") == "`foo" }
       end
 
-      it 'decodes TransitSymbol into the Ruby version of Clojure symbols' do
+      it 'decodes TransitSymbols' do
         assert { decode("~$foo") == TransitSymbol.new("foo") }
       end
 
@@ -94,9 +122,6 @@ module Transit
           Time.parse("1985-04-12T23:20:50.052Z") }
 
         assert { decode("~t1985-04-12T23:20:50.052Z").usec == 52000 }
-
-        assert { decode({"~#t" => "1985-04-12T23:20:50.052Z"}) ==
-          Time.parse("1985-04-12T23:20:50.052Z") }
       end
 
       it 'decodes uuids' do
@@ -126,56 +151,6 @@ module Transit
 
       it 'decodes nested hashes' do
         assert { decode({a: 1, b: 2, c: {d: 3}}) == {a: 1, b: 2, c: {d: 3}} }
-      end
-    end
-
-    describe 'registration' do
-      it 'requires a 1-arg lambda' do
-        assert { rescuing { Decoder.new.register("~D") {|s,t|} }.
-          message =~ /arity/ }
-      end
-
-      describe 'overrides' do
-        it 'supports override of default string decoders' do
-          decoder = Decoder.new
-          decoder.register("~r") {|u| "DECODED: #{u}"}
-          assert { decoder.decode("~rhttp://foo.com", cache) == "DECODED: http://foo.com" }
-        end
-
-        it 'supports override of default hash decoders' do
-          my_uuid_class = Class.new(String)
-          decoder = Decoder.new
-          my_uuid = my_uuid_class.new(UUID.new.to_s)
-
-          decoder.register("~#u") {|u| my_uuid_class.new(u)}
-          assert { decoder.decode({"~#u" => my_uuid.to_s}, cache) == my_uuid }
-        end
-      end
-
-      describe 'extensions' do
-        it 'supports string-based extensions' do
-          decoder = Decoder.new
-          decoder.register("~D") {|s| Date.parse(s[2..-1])}
-          assert { decoder.decode("~D2014-03-15", cache) == Date.new(2014,3,15) }
-        end
-
-        it 'supports hash based extensions' do
-          decoder = Decoder.new
-          decoder.register("~#Xdouble") {|d| d * 2}
-          assert { decoder.decode({"~#Xdouble" => 44}, cache) == 88 }
-        end
-
-        it 'supports hash based extensions that return nil'  do
-          decoder = Decoder.new
-          decoder.register("~#Xmynil") {|_| nil}
-          assert { decoder.decode({"~#Xmynil" => :anything }, cache) == nil }
-        end
-
-        it 'supports hash based extensions that return false' do
-          decoder = Decoder.new
-          decoder.register("~#Xmyfalse") {|_| false}
-          assert { decoder.decode({"~#Xmyfalse" => :anything }, cache) == false }
-        end
       end
     end
 

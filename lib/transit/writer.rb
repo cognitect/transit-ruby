@@ -3,9 +3,9 @@ require 'oj'
 module Transit
   class JsonMarshaler
 
-    def initialize(io)
+    def initialize(io, handlers)
       @oj = Oj::StreamWriter.new(io)
-      @handlers = Handler.new
+      @handlers = handlers
     end
 
     def escape(s)
@@ -17,19 +17,8 @@ module Transit
       as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
     end
 
-    def emit_quoted(o, as_map_key, cache)
-      emit_map_start
-      emit_string(TAG, "'", nil, true, cache)
-      marshal(o, false, cache)
-      emit_map_end
-    end
-
     def emit_nil(_, as_map_key, cache)
       as_map_key ? emit_string(ESC, "_", nil, true, cache) : @oj.push_value(nil)
-    end
-
-    def emit_boolean(b, as_map_key, cache)
-      as_map_key ? emit_string(ESC, "?", b, true, cache) : @oj.push_value(b)
     end
 
     def emit_string(prefix, tag, string, as_map_key, cache)
@@ -41,8 +30,25 @@ module Transit
       end
     end
 
+    def emit_boolean(b, as_map_key, cache)
+      as_map_key ? emit_string(ESC, "?", b, true, cache) : @oj.push_value(b)
+    end
+
+    def emit_quoted(o, as_map_key, cache)
+      emit_map_start
+      emit_string(TAG, "'", nil, true, cache)
+      marshal(o, false, cache)
+      emit_map_end
+    end
+
+    MAX_INT = 2**53 - 1
+
     def emit_int(i, as_map_key, cache)
-      push(i, as_map_key)
+      if as_map_key || i > MAX_INT
+        emit_string(ESC, "i", i.to_s, as_map_key, cache)
+      else
+        push(i, as_map_key)
+      end
     end
 
     def emit_double(d, as_map_key, cache)
@@ -92,7 +98,7 @@ module Transit
 
     def marshal(obj, as_map_key, cache)
       handler = @handlers[obj]
-      tag = handler.tag(obj)
+      tag = handler.tag
       rep = as_map_key ? handler.string_rep(obj) : handler.rep(obj)
       case tag
       when "s"
@@ -118,15 +124,15 @@ module Transit
 
     def marshal_top(obj, cache)
       handler = @handlers[obj]
-      if tag = handler.tag(obj)
+      if tag = handler.tag
         marshal(tag.length == 1 ? Quote.new(obj) : obj, false, cache)
       end
     end
   end
 
   class Writer
-    def initialize(io, type)
-      @marshaler = JsonMarshaler.new(io)
+    def initialize(io, type, handlers=Handler.new)
+      @marshaler = JsonMarshaler.new(io, handlers)
     end
 
     def write(obj)
