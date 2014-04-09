@@ -3,9 +3,9 @@ require 'oj'
 module Transit
   class JsonMarshaler
 
-    def initialize(io, handlers)
+    def initialize(io)
       @oj = Oj::StreamWriter.new(io)
-      @handlers = handlers
+      @handlers = Handler.new
     end
 
     def escape(s)
@@ -131,8 +131,8 @@ module Transit
   end
 
   class Writer
-    def initialize(io, type, handlers=Handler.new)
-      @marshaler = JsonMarshaler.new(io, handlers)
+    def initialize(io, type)
+      @marshaler = JsonMarshaler.new(io)
     end
 
     def write(obj)

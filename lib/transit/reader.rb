@@ -4,9 +4,9 @@ module Transit
   class JsonUnmarshaler
     CHUNK_SIZE = 8192
 
-    def initialize(handlers)
+    def initialize
       @yajl = Yajl::Parser.new
-      @decoder = Transit::Decoder.new(handlers)
+      @decoder = Transit::Decoder.new
     end
 
     def read(io, &block)
@@ -28,8 +28,8 @@ module Transit
   end
 
   class Reader
-    def initialize(type=:json,handlers=Handler.new)
-      @reader = JsonUnmarshaler.new(handlers)
+    def initialize(type=:json)
+      @reader = JsonUnmarshaler.new
     end
 
     def read(io, &block)
