@@ -9,6 +9,10 @@ module Transit
       @decoder = Transit::Decoder.new
     end
 
+    def register(key, &decoder)
+      @decoder.register(key, &decoder)
+    end
+
     def read(io, &block)
       if block
         @yajl.on_parse_complete = Proc.new do |obj|
@@ -34,6 +38,10 @@ module Transit
 
     def read(io, &block)
       @reader.read(io, &block)
+    end
+
+    def register(key, &decoder)
+      @reader.register(key, &decoder)
     end
   end
 end

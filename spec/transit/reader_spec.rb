@@ -25,5 +25,11 @@ module Transit
       reader.read(io) {|o| received = o}
       assert { received == [1] }
     end
+
+    it "registers decoders" do
+      io = StringIO.new('{"~#\'":"~D2014-03-15"}', 'r+')
+      reader.register("D") {|s| Date.parse(s)}
+      assert { reader.read(io) == Date.new(2014,3,15) }
+    end
   end
 end
