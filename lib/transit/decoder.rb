@@ -57,7 +57,7 @@ module Transit
 
     def decode_hash(hash, cache, as_map_key)
       if decoder = find_encoded_hash_decoder(hash, cache)
-        decoder.call(hash.values.first, cache, as_map_key)
+        decoder.call(decode(hash.values.first, cache, as_map_key), cache, as_map_key)
       else
         hash.reduce({}) {|h,kv| h.store(decode(kv[0], cache, true), decode(kv[1], cache)); h}
       end

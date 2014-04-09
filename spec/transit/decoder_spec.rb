@@ -201,6 +201,16 @@ module Transit
           decoder.register("False") {|_| false}
           assert { decoder.decode({"~#False" => :anything }, cache) == false }
         end
+
+        it 'supports complex hash values' do
+          person_class = Struct.new("Person", :first_name, :last_name)
+          decoder = Decoder.new
+          decoder.register("person") {|p| person_class.new(p[:first_name],p[:last_name])}
+
+          expected = person_class.new("Transit", "Ruby")
+          actual   = decoder.decode({"~#person"=>{"~:first_name" => "Transit","~:last_name" => "Ruby"}}, cache)
+          assert { actual == expected }
+        end
       end
     end
 
