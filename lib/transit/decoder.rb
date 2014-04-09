@@ -22,7 +22,7 @@ module Transit
           "#{ESC}t" => method(:decode_instant),
           "#{ESC}u" => method(:decode_uuid),
           "#{ESC}r" => method(:decode_uri),
-          "#{TAG}'"       => method(:decode),
+          "#{TAG}'"       => method(:decode_quote),
           "#{TAG}t"       => method(:decode_instant),
           "#{TAG}u"       => method(:decode_uuid),
           "#{TAG}set"     => method(:decode_set),
@@ -87,6 +87,10 @@ module Transit
       else
         str
       end
+    end
+
+    def decode_quote(n, _, _)
+      n
     end
 
     def decode_nil(n, cache, as_map_key)
