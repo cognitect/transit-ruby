@@ -163,7 +163,7 @@ module Transit
       describe 'overrides' do
         it 'supports override of default string decoders' do
           decoder = Decoder.new
-          decoder.register("~r") {|u| "DECODED: #{u}"}
+          decoder.register("r") {|u| "DECODED: #{u}"}
           assert { decoder.decode("~rhttp://foo.com", cache) == "DECODED: http://foo.com" }
         end
 
@@ -172,7 +172,7 @@ module Transit
           decoder = Decoder.new
           my_uuid = my_uuid_class.new(UUID.new.to_s)
 
-          decoder.register("~#u") {|u| my_uuid_class.new(u)}
+          decoder.register("u") {|u| my_uuid_class.new(u)}
           assert { decoder.decode({"~#u" => my_uuid.to_s}, cache) == my_uuid }
         end
       end
@@ -180,26 +180,26 @@ module Transit
       describe 'extensions' do
         it 'supports string-based extensions' do
           decoder = Decoder.new
-          decoder.register("~D") {|s| Date.parse(s[2..-1])}
+          decoder.register("D") {|s| Date.parse(s[2..-1])}
           assert { decoder.decode("~D2014-03-15", cache) == Date.new(2014,3,15) }
         end
 
         it 'supports hash based extensions' do
           decoder = Decoder.new
-          decoder.register("~#Xdouble") {|d| d * 2}
-          assert { decoder.decode({"~#Xdouble" => 44}, cache) == 88 }
+          decoder.register("Times2") {|d| d * 2}
+          assert { decoder.decode({"~#Times2" => 44}, cache) == 88 }
         end
 
         it 'supports hash based extensions that return nil'  do
           decoder = Decoder.new
-          decoder.register("~#Xmynil") {|_| nil}
-          assert { decoder.decode({"~#Xmynil" => :anything }, cache) == nil }
+          decoder.register("Nil") {|_| nil}
+          assert { decoder.decode({"~#Nil" => :anything }, cache) == nil }
         end
 
         it 'supports hash based extensions that return false' do
           decoder = Decoder.new
-          decoder.register("~#Xmyfalse") {|_| false}
-          assert { decoder.decode({"~#Xmyfalse" => :anything }, cache) == false }
+          decoder.register("False") {|_| false}
+          assert { decoder.decode({"~#False" => :anything }, cache) == false }
         end
       end
     end

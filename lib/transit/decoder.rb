@@ -171,7 +171,8 @@ module Transit
 
     def register(k, &b)
       raise ArgumentError.new(DECODER_ARITY_MESSAGE) unless b.arity == 1
-      @decoders[k] = b
+      @decoders["~#{k}"] = b if k.length == 1
+      @decoders["~##{k}"] = b
     end
 
     DECODER_ARITY_MESSAGE = <<-MSG
