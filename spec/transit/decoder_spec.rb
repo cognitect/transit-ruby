@@ -210,7 +210,6 @@ module Transit
 
           expected = [person_class.new("Transit", "Ruby", Date.new(2014,1,2)),
                       person_class.new("Transit", "Ruby", Date.new(2014,1,3))]
-          debugger
           actual   = decoder.decode([
                                      {"~#person"=>{"~:first_name" => "Transit","~:last_name" => "Ruby","~:birthdate" => "~D2014-01-02"}},
                                      {"^!"=>{"^\"" => "Transit","^#" => "Ruby","^$" => "~D2014-01-03"}}
