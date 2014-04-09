@@ -5,6 +5,12 @@ module Transit
     let(:io) { StringIO.new }
     let(:writer) { Writer.new(io, :json) }
 
+    class DateHandler
+      def tag; "D"; end
+      def rep(d) d.to_s end
+      def string_rep(d) rep(d) end
+    end
+
     describe "ground nodes at the top level" do
       it "marshals nil" do
         writer.write(nil)
@@ -97,7 +103,13 @@ module Transit
         assert { io.string == '{"~#\'":"~ca"}' }
       end
 
-      it "marshals an extension scalar"
+      it "marshals an extension scalar" do
+        writer = Writer.new(io, :json)
+        writer.register(Date, DateHandler)
+        writer.write(Date.new(2014,1,2))
+        assert { io.string ==  "{\"~#'\":\"~D2014-01-02\"}" }
+      end
+
       it "marshals an extension struct"
     end
 
@@ -158,7 +170,7 @@ module Transit
       end
     end
 
-    describe "hash keys" do
+    describe "map keys" do
       def self.marshals_map_with_key(label, value, as_key)
         it "marshals #{label} as a key" do
           writer.write({value => 0})
@@ -191,7 +203,15 @@ module Transit
       marshals_map_with_key("a uri", URI("http://example.com"), "~rhttp://example.com")
       marshals_map_with_key("symbol", TransitSymbol.new("foo"), "~$foo" )
       marshals_map_with_key("char", Char.new("a"), "~ca")
-      # marshals_map_with_key("an extension scalar (tagged string) ", , )
+
+      it "marshals an extension scalar (tagged string) as a map key" do
+        writer = Writer.new(io, :json)
+        writer.register(Date, DateHandler)
+        writer.write({Date.new(1963,11,26) => :david})
+        assert { io.string ==  "{\"~D1963-11-26\":\"~:david\"}" }
+      end
+
+
       # it "raises when trying to set a vector as a key"
       # it "raises when trying to set a dict (Hash) as a key"
       # it "raises when trying to set a set as a key"
@@ -201,7 +221,7 @@ module Transit
       # it "raises when trying to set an extension struct (tagged map) as a key"
     end
 
-    describe "hash values" do
+    describe "map values" do
       def self.marshals_map_with_value(label, value, rep, focus=false)
         it "marshals #{label} as a map value", :focus => focus do
           writer.write({"a" => value})
@@ -248,6 +268,15 @@ module Transit
       marshals_map_with_value("an array of ints", DoublesArray.new([1.1,2.2,3.3]), '{"~#doubles":[1.1,2.2,3.3]}')
       marshals_map_with_value("an array of ints", BoolsArray.new([true,false,true]), '{"~#bools":[true,false,true]}')
       marshals_map_with_value("a cmap", CMap.new({a: :b}), '{"~#cmap":["~:a","~:b"]}')
+
+      it "marshals an extension scalar as a map value" do
+        writer = Writer.new(io, :json)
+        writer.register(Date, DateHandler)
+        writer.write({Date.new(2014,1,2) => Date.new(2014,1,3)})
+        assert { io.string == "{\"~D2014-01-02\":\"~D2014-01-03\"}" }
+      end
+
+      it "marshals an extension struct as a map value"
     end
 
     describe "nested structures" do

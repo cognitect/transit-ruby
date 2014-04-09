@@ -8,6 +8,10 @@ module Transit
       @handlers = Handler.new
     end
 
+    def register(type, handler_class)
+      @handlers[type] = handler_class.new
+    end
+
     def escape(s)
       return s if [nil, true, false].include? s
       [ESC, SUB, RES].include?(s[0]) ? "#{ESC}#{s}" : s
@@ -137,6 +141,10 @@ module Transit
 
     def write(obj)
       @marshaler.marshal_top(obj, RollingCache.new)
+    end
+
+    def register(type, handler_class)
+      @marshaler.register(type, handler_class)
     end
   end
 end
