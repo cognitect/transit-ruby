@@ -180,7 +180,7 @@ module Transit
       describe 'extensions' do
         it 'supports string-based extensions' do
           decoder = Decoder.new
-          decoder.register("D") {|s| Date.parse(s[2..-1])}
+          decoder.register("D") {|s| Date.parse(s)}
           assert { decoder.decode("~D2014-03-15", cache) == Date.new(2014,3,15) }
         end
 
@@ -203,12 +203,13 @@ module Transit
         end
 
         it 'supports complex hash values' do
-          person_class = Struct.new("Person", :first_name, :last_name)
+          person_class = Struct.new("Person", :first_name, :last_name, :birthdate)
           decoder = Decoder.new
-          decoder.register("person") {|p| person_class.new(p[:first_name],p[:last_name])}
+          decoder.register("person") {|p| person_class.new(p[:first_name],p[:last_name],p[:birthdate])}
+          decoder.register("D") {|s| Date.parse(s)}
 
-          expected = person_class.new("Transit", "Ruby")
-          actual   = decoder.decode({"~#person"=>{"~:first_name" => "Transit","~:last_name" => "Ruby"}}, cache)
+          expected = person_class.new("Transit", "Ruby", Date.new(2014,1,2))
+          actual   = decoder.decode({"~#person"=>{"~:first_name" => "Transit","~:last_name" => "Ruby","~:birthdate" => "~D2014-01-02"}}, cache)
           assert { actual == expected }
         end
       end
