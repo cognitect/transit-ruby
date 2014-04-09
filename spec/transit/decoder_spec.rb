@@ -208,8 +208,13 @@ module Transit
           decoder.register("person") {|p| person_class.new(p[:first_name],p[:last_name],p[:birthdate])}
           decoder.register("D") {|s| Date.parse(s)}
 
-          expected = person_class.new("Transit", "Ruby", Date.new(2014,1,2))
-          actual   = decoder.decode({"~#person"=>{"~:first_name" => "Transit","~:last_name" => "Ruby","~:birthdate" => "~D2014-01-02"}}, cache)
+          expected = [person_class.new("Transit", "Ruby", Date.new(2014,1,2)),
+                      person_class.new("Transit", "Ruby", Date.new(2014,1,3))]
+          debugger
+          actual   = decoder.decode([
+                                     {"~#person"=>{"~:first_name" => "Transit","~:last_name" => "Ruby","~:birthdate" => "~D2014-01-02"}},
+                                     {"^!"=>{"^\"" => "Transit","^#" => "Ruby","^$" => "~D2014-01-03"}}
+                                    ], cache)
           assert { actual == expected }
         end
       end
