@@ -15,8 +15,8 @@ class Object
 end
 
 class String
-  def from_transit
+  def from_transit(format=:json)
     sio = StringIO.new(self)
-    Transit::Reader.new(:json).read(sio)
+    Transit::Reader.new(format).read(sio)
   end
 end
