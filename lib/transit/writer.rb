@@ -1,10 +1,39 @@
 require 'oj'
 
 module Transit
-  class JsonMarshaler
 
+  class JsonEmitter
     def initialize(io)
       @oj = Oj::StreamWriter.new(io)
+    end
+
+    def emit_array_start(size)
+      @oj.push_array
+    end
+
+    def emit_array_end
+      @oj.pop
+    end
+
+    def emit_map_start(size)
+      @oj.push_object
+    end
+
+    def emit_map_end
+      @oj.pop
+    end
+
+    def emit_object(obj, as_map_key=false)
+      as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
+    end
+  end
+
+  class Marshaler
+    extend Forwardable
+    def_delegators :@emitter, :emit_array_start, :emit_array_end, :emit_map_start, :emit_map_end, :emit_object
+
+    def initialize(emitter)
+      @emitter = emitter
       @handlers = Handler.new
     end
 
@@ -17,29 +46,25 @@ module Transit
       [ESC, SUB, RES].include?(s[0]) ? "#{ESC}#{s}" : s
     end
 
-    def push(obj, as_map_key)
-      as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
-    end
-
     def emit_nil(_, as_map_key, cache)
-      as_map_key ? emit_string(ESC, "_", nil, true, cache) : @oj.push_value(nil)
+      as_map_key ? emit_string(ESC, "_", nil, true, cache) : emit_object(nil)
     end
 
     def emit_string(prefix, tag, string, as_map_key, cache)
       str = "#{prefix}#{tag}#{escape(string)}"
       if cache.cacheable?(str, as_map_key)
-        push(cache.encode(str, as_map_key), as_map_key)
+        emit_object(cache.encode(str, as_map_key), as_map_key)
       else
-        push(str, as_map_key)
+        emit_object(str, as_map_key)
       end
     end
 
     def emit_boolean(b, as_map_key, cache)
-      as_map_key ? emit_string(ESC, "?", b, true, cache) : @oj.push_value(b)
+      as_map_key ? emit_string(ESC, "?", b, true, cache) : emit_object(b)
     end
 
     def emit_quoted(o, as_map_key, cache)
-      emit_map_start
+      emit_map_start(1)
       emit_string(TAG, "'", nil, true, cache)
       marshal(o, false, cache)
       emit_map_end
@@ -51,30 +76,22 @@ module Transit
       if as_map_key || i > MAX_INT
         emit_string(ESC, "i", i.to_s, as_map_key, cache)
       else
-        push(i, as_map_key)
+        emit_object(i, as_map_key)
       end
     end
 
     def emit_double(d, as_map_key, cache)
-      as_map_key ? emit_string(ESC, "d", d, true, cache) : @oj.push_value(d)
+      as_map_key ? emit_string(ESC, "d", d, true, cache) : emit_object(d)
     end
 
     def emit_array(a, _, cache)
-      @oj.push_array
+      emit_array_start(a.size)
       a.each {|e| marshal(e, false, cache)}
-      @oj.pop
-    end
-
-    def emit_map_start
-      @oj.push_object
-    end
-
-    def emit_map_end
-      @oj.pop
+      emit_array_end
     end
 
     def emit_map(m, _, cache)
-      emit_map_start
+      emit_map_start(m.size)
       m.each do |k,v|
         marshal(k, true, cache)
         marshal(v, false, cache)
@@ -83,10 +100,10 @@ module Transit
     end
 
     def emit_tagged_map(tag, rep, _, cache)
-      @oj.push_object
-      @oj.push_key("#{ESC}##{tag}")
+      emit_map_start(1)
+      emit_object("#{ESC}##{tag}", true)
       marshal(rep, false, cache)
-      @oj.pop
+      emit_map_end
     end
 
     def emit_encoded(tag, obj, as_map_key, cache)
@@ -136,7 +153,7 @@ module Transit
 
   class Writer
     def initialize(io, type)
-      @marshaler = JsonMarshaler.new(io)
+      @marshaler = Marshaler.new(JsonEmitter.new(io))
     end
 
     def write(obj)
