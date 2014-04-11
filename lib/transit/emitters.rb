@@ -25,6 +25,32 @@ module Transit
     end
   end
 
+  class MessagePackEmitter
+    def initialize(io)
+      @packer = MessagePack::Packer.new(io)
+    end
+
+    def emit_array_start(size)
+      @packer.write_array_header(size)
+    end
+
+    def emit_array_end
+      # no-op
+    end
+
+    def emit_map_start(size)
+      @packer.write_map_header(size)
+    end
+
+    def emit_map_end
+      # no-op
+    end
+
+    def emit_object(obj, as_map_key=:ignore)
+      @packer.write(obj)
+    end
+  end
+
   class TransitEmitter
     class HashWrapper
       extend Forwardable
