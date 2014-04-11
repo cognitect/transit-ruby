@@ -23,6 +23,10 @@ module Transit
     def emit_object(obj, as_map_key=false)
       as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
     end
+
+    def flush
+      # no-op
+    end
   end
 
   class MessagePackEmitter
@@ -48,6 +52,10 @@ module Transit
 
     def emit_object(obj, as_map_key=:ignore)
       @packer.write(obj)
+    end
+
+    def flush
+      @packer.flush
     end
   end
 
@@ -108,6 +116,10 @@ module Transit
       else
         @value = obj
       end
+    end
+
+    def flush
+      # no-op
     end
   end
 end

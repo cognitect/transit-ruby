@@ -1,15 +1,15 @@
 require 'oj'
+require 'msgpack'
 
 module Transit
   class Marshaler
     extend Forwardable
-    def_delegators :@emitter, :emit_array_start, :emit_array_end, :emit_map_start, :emit_map_end, :emit_object
+    def_delegators :@emitter, :emit_array_start, :emit_array_end, :emit_map_start, :emit_map_end, :emit_object, :flush
 
     def initialize(emitter, opts={})
       @emitter = emitter
       @opts = opts
       @handlers = Handler.new
-
     end
 
     def register(type, handler_class)
@@ -126,13 +126,18 @@ module Transit
         else
           marshal(obj, false, cache)
         end
+        flush
       end
     end
   end
 
   class Writer
     def initialize(io, type)
-      @marshaler = Marshaler.new(JsonEmitter.new(io), :quote_scalars => true)
+      @marshaler = if type == :json
+                     Marshaler.new(JsonEmitter.new(io), :quote_scalars => true)
+                   else
+                     Marshaler.new(MessagePackEmitter.new(io), :quote_scalars => false)
+                   end
     end
 
     def write(obj)

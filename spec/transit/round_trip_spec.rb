@@ -88,4 +88,8 @@ module Transit
   describe "Transit using json" do
    include_examples "round trips", :json
   end
+
+  describe "Transit using msgpack" do
+    include_examples "round trips", :msgpack
+  end
 end
