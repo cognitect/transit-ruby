@@ -1,40 +1,15 @@
 require 'oj'
 
 module Transit
-
-  class JsonEmitter
-    def initialize(io)
-      @oj = Oj::StreamWriter.new(io)
-    end
-
-    def emit_array_start(size)
-      @oj.push_array
-    end
-
-    def emit_array_end
-      @oj.pop
-    end
-
-    def emit_map_start(size)
-      @oj.push_object
-    end
-
-    def emit_map_end
-      @oj.pop
-    end
-
-    def emit_object(obj, as_map_key=false)
-      as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
-    end
-  end
-
   class Marshaler
     extend Forwardable
     def_delegators :@emitter, :emit_array_start, :emit_array_end, :emit_map_start, :emit_map_end, :emit_object
 
-    def initialize(emitter)
+    def initialize(emitter, opts={})
       @emitter = emitter
+      @opts = opts
       @handlers = Handler.new
+
     end
 
     def register(type, handler_class)
@@ -146,14 +121,18 @@ module Transit
     def marshal_top(obj, cache)
       handler = @handlers[obj]
       if tag = handler.tag
-        marshal(tag.length == 1 ? Quote.new(obj) : obj, false, cache)
+        if @opts[:quote_scalars] && tag.length == 1
+          marshal(Quote.new(obj), false, cache)
+        else
+          marshal(obj, false, cache)
+        end
       end
     end
   end
 
   class Writer
     def initialize(io, type)
-      @marshaler = Marshaler.new(JsonEmitter.new(io))
+      @marshaler = Marshaler.new(JsonEmitter.new(io), :quote_scalars => true)
     end
 
     def write(obj)
