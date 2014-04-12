@@ -3,6 +3,8 @@
 $LOAD_PATH << 'lib'
 require 'transit'
 
-r = Transit::Reader.new(:json)
-w = Transit::Writer.new(STDOUT, :json)
+transport = ENV['TRANSPORT'] || "json"
+
+r = Transit::Reader.new(transport.to_sym)
+w = Transit::Writer.new(STDOUT, transport.to_sym)
 r.read(STDIN) {|o| w.write o}
