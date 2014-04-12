@@ -48,5 +48,21 @@ module Transit
       marshaler.marshal_top(1, cache)
       assert { emitter.value == {"~#'"=>1} }
     end
+
+    it 'marshals time as a string for json' do
+      t = Time.now
+      emitter = TransitEmitter.new(true)
+      marshaler =  Marshaler.new(emitter, :quote_scalars => false, :prefer_strings => true)
+      marshaler.marshal_top(t, cache)
+      assert { emitter.value == "~t#{t.utc.iso8601(3)}" }
+    end
+
+    it 'marshals time as a map for msgpack' do
+      t = Time.now
+      emitter = TransitEmitter.new(false)
+      marshaler =  Marshaler.new(emitter, :quote_scalars => false, :prefer_strings => false)
+      marshaler.marshal_top(t, cache)
+      assert { emitter.value == {"~#t" => Util.time_to_millis(t)} }
+    end
   end
 end

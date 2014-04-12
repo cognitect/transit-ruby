@@ -6,7 +6,7 @@ module Transit
     let(:writer) { Writer.new(io, :json) }
 
     class DateHandler
-      def tag; "D"; end
+      def tag(_); "D"; end
       def rep(d) d.to_s end
       def string_rep(d) rep(d) end
     end
@@ -72,7 +72,7 @@ module Transit
       it "marshals an instant" do
         t = Time.now
         writer.write(t)
-        assert { io.string == "{\"~#'\":\"~t#{t.strftime("%FT%H:%M:%S.%LZ")}\"}" }
+        assert { io.string == "{\"~#'\":\"~t#{t.utc.iso8601(3)}\"}" }
       end
 
       it "marshals a UUID" do
@@ -197,7 +197,7 @@ module Transit
       it "marshals an instant as a key" do
         t = Time.now
         writer.write({t => "ignore"})
-        assert { io.string == "{\"~t#{t.strftime("%FT%H:%M:%S.%LZ")}\":\"ignore\"}" }
+        assert { io.string == "{\"~t#{t.utc.iso8601(3)}\":\"ignore\"}" }
       end
       marshals_map_with_key("a uuid", UUID.new("dda5a83f-8f9d-4194-ae88-5745c8ca94a7"), "~udda5a83f-8f9d-4194-ae88-5745c8ca94a7")
       marshals_map_with_key("a uri", URI("http://example.com"), "~rhttp://example.com")
@@ -250,7 +250,7 @@ module Transit
       it "marshals an instant as a value" do
         t = Time.now
         writer.write({"a" => t})
-        assert { io.string == "{\"a\":\"~t#{t.strftime("%FT%H:%M:%S.%LZ")}\"}" }
+        assert { io.string == "{\"a\":\"~t#{t.utc.iso8601(3)}\"}" }
       end
       marshals_map_with_value("a uuid", UUID.new("dda5a83f-8f9d-4194-ae88-5745c8ca94a7"), '"~udda5a83f-8f9d-4194-ae88-5745c8ca94a7"')
       marshals_map_with_value("a uri", URI("http://example.com"), '"~rhttp://example.com"')

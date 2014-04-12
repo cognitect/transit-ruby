@@ -19,11 +19,11 @@ module Transit
           "#{ESC}f" => method(:decode_big_decimal),
           "#{ESC}c" => method(:decode_char),
           "#{ESC}$" => method(:decode_transit_symbol),
-          "#{ESC}t" => method(:decode_instant),
+          "#{ESC}t" => method(:decode_instant_from_string),
           "#{ESC}u" => method(:decode_uuid),
           "#{ESC}r" => method(:decode_uri),
           "#{TAG}'"       => method(:decode_quote),
-          "#{TAG}t"       => method(:decode_instant),
+          "#{TAG}t"       => method(:decode_instant_from_int),
           "#{TAG}u"       => method(:decode_uuid),
           "#{TAG}set"     => method(:decode_set),
           "#{TAG}list"    => method(:decode_list),
@@ -141,8 +141,12 @@ module Transit
       TransitList.new(decode(m, cache, as_map_key))
     end
 
-    def decode_instant(m, cache, as_map_key)
-      Time.parse(m).utc
+    def decode_instant_from_string(s, cache, as_map_key)
+      Time.parse(s).utc
+    end
+
+    def decode_instant_from_int(i, cache, as_key)
+      Util.time_from_millis(i)
     end
 
     def decode_uuid(s, cache, as_map_key)

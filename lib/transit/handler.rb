@@ -1,4 +1,5 @@
 require 'set'
+require 'time'
 
 module Transit
   class Handler
@@ -34,6 +35,7 @@ module Transit
       @handlers[Char]          = CharHandler.new
       @handlers[CMap]          = CMapHandler.new
       @handlers[Quote]         = QuoteHandler.new
+      @handlers[TaggedMap]     = TaggedMapHandler.new
     end
 
     def [](obj)
@@ -50,37 +52,37 @@ module Transit
     end
 
     class NilHandler
-      def tag() "_" end
+      def tag(_) "_" end
       def rep(_) nil end
       def string_rep(n) nil end
     end
 
     class KeywordHandler
-      def tag() ":" end
+      def tag(_) ":" end
       def rep(s) s.to_s end
       def string_rep(s) rep(s) end
     end
 
     class StringHandler
-      def tag() "s" end
+      def tag(_) "s" end
       def rep(s) s end
       def string_rep(s) s end
     end
 
     class TrueHandler
-      def tag() "?" end
+      def tag(_) "?" end
       def rep(_) true end
       def string_rep(_) "t" end
     end
 
     class FalseHandler
-      def tag() "?" end
+      def tag(_) "?" end
       def rep(_) false end
       def string_rep(_) "f" end
     end
 
     class IntHandler
-      def tag() "i" end
+      def tag(_) "i" end
       def rep(i) i end
       def string_rep(i) i.to_s end
     end
@@ -88,67 +90,67 @@ module Transit
     class BignumHandler < IntHandler; end
 
     class FloatHandler
-      def tag() "d" end
+      def tag(_) "d" end
       def rep(f) f end
       def string_rep(f) f.to_s end
     end
 
     class BigDecimalHandler
-      def tag() "f" end
+      def tag(_) "f" end
       def rep(f) f.to_s("f") end
       def string_rep(f) rep(f) end
     end
 
     class InstantHandler
-      def tag() "t" end
-      def rep(t) t.strftime("%FT%H:%M:%S.%LZ") end
-      def string_rep(t) rep(t) end
+      def tag(_) "t" end
+      def rep(t) Util.time_to_millis(t) end
+      def string_rep(t) t.utc.iso8601(3) end
     end
 
     class UuidHandler
-      def tag() "u" end
+      def tag(_) "u" end
       def rep(u) string_rep(u) end
       def string_rep(u) u.to_s end
     end
 
     class UriHandler
-      def tag() "r" end
+      def tag(_) "r" end
       def rep(u) u.to_s end
       def string_rep(u) rep(u) end
     end
 
     class ByteArrayHandler
-      def tag() "b" end
+      def tag(_) "b" end
       def rep(b) b.to_base64 end
       def string_rep(b) rep(b) end
     end
 
     class TransitSymbolHandler
-      def tag() "$" end
+      def tag(_) "$" end
       def rep(s) s.to_s end
       def string_rep(s) rep(s) end
     end
 
     class ArrayHandler
-      def tag() :array end
+      def tag(_) :array end
       def rep(a) a end
       def string_rep(_) nil end
     end
 
     class MapHandler
-      def tag() :map end
+      def tag(_) :map end
       def rep(m) m end
       def string_rep(_) nil end
     end
 
     class SetHandler
-      def tag() "set" end
+      def tag(_) "set" end
       def rep(s) TaggedMap.new(:array, s.to_a, nil) end
       def string_rep(_) nil end
     end
 
     class ListHandler
-      def tag() "list" end
+      def tag(_) "list" end
       def rep(l) TaggedMap.new(:array, l.to_a, nil) end
       def string_rep(_) nil end
     end
@@ -157,7 +159,7 @@ module Transit
       def initialize(type)
         @type = type
       end
-      def tag() @type end
+      def tag(_) @type end
       def rep(a) TaggedMap.new(:array, a.to_a, nil) end
       def string_rep(_) nil end
     end
@@ -198,21 +200,27 @@ module Transit
     end
 
     class CharHandler
-      def tag() "c" end
+      def tag(_) "c" end
       def rep(c) string_rep(c) end
       def string_rep(c) c.to_s end
     end
 
     class CMapHandler
-      def tag() "cmap" end
+      def tag(_) "cmap" end
       def rep(cm) TaggedMap.new(:array, cm.to_a, nil) end
       def string_rep(_) nil end
     end
 
     class QuoteHandler
-      def tag() "'" end
+      def tag(_) "'" end
       def rep(q) q.value end
       def string_rep(s) nil end
+    end
+
+    class TaggedMapHandler
+      def tag(tm) tm.tag end
+      def rep(tm) tm.rep end
+      def string_rep(tm) tm.to_s end
     end
   end
 end

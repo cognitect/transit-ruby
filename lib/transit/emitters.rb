@@ -4,6 +4,10 @@ module Transit
       @oj = Oj::StreamWriter.new(io)
     end
 
+    def prefer_strings
+      true
+    end
+
     def emit_array_start(size)
       @oj.push_array
     end
@@ -32,6 +36,10 @@ module Transit
   class MessagePackEmitter
     def initialize(io)
       @packer = MessagePack::Packer.new(io)
+    end
+
+    def prefer_strings
+      false
     end
 
     def emit_array_start(size)
@@ -67,9 +75,10 @@ module Transit
       def initialize; @h = {}; end
     end
 
-    attr_reader :value
+    attr_reader :value, :prefer_strings
 
-    def initialize
+    def initialize(prefer_strings=false)
+      @prefer_strings = prefer_strings
       @value = nil
       @stack = []
       @keys = {}

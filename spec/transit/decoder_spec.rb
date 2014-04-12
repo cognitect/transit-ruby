@@ -50,8 +50,9 @@ module Transit
 
     describe "tagged hashes" do
       it 'decodes instants to Time objects' do
-        assert { decode({"~#t" => "1985-04-12T23:20:50.052Z"}) ==
-          Time.parse("1985-04-12T23:20:50.052Z") }
+        expected = Time.parse("1985-04-12T23:20:50.052Z").utc
+        actual = decode({"~#t" => Util.time_to_millis(expected)})
+        assert { Util.time_to_millis(actual) == Util.time_to_millis(expected) }
       end
 
       it 'decodes uuids' do

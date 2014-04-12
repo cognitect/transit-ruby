@@ -81,20 +81,33 @@ module Transit
       emit_map_end
     end
 
-    def emit_encoded(tag, obj, as_map_key, cache)
+    def emit_encoded(tag, handler, obj, as_map_key, cache)
       if tag
-        handler = @handlers[obj]
-        if String === rep = handler.rep(obj)
-          emit_string(ESC, tag, rep, as_map_key, cache)
+        if tag.length == 1
+          rep = handler.rep(obj)
+          if String === rep
+            emit_string(ESC, tag, rep, as_map_key, cache)
+          elsif as_map_key || @emitter.prefer_strings
+            rep = handler.string_rep(obj)
+            if String === rep
+              emit_string(ESC, tag, rep, as_map_key, cache)
+            else
+              raise "Cannot be encoded as String: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
+            end
+          else
+            emit_tagged_map(tag, rep, false, cache)
+          end
+        elsif as_map_key
+          raise "Cannot be used as a map key: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
         else
-          emit_tagged_map(tag, rep.rep, false, cache)
+          emit_tagged_map(tag, handler.rep(obj), false, cache)
         end
       end
     end
 
     def marshal(obj, as_map_key, cache)
       handler = @handlers[obj]
-      tag = handler.tag
+      tag = handler.tag(obj)
       rep = as_map_key ? handler.string_rep(obj) : handler.rep(obj)
       case tag
       when "s"
@@ -114,13 +127,13 @@ module Transit
       when :map
         emit_map(rep, as_map_key, cache)
       else
-        emit_encoded(tag, obj, as_map_key, cache)
+        emit_encoded(tag, handler, obj, as_map_key, cache)
       end
     end
 
     def marshal_top(obj, cache)
       handler = @handlers[obj]
-      if tag = handler.tag
+      if tag = handler.tag(obj)
         if @opts[:quote_scalars] && tag.length == 1
           marshal(Quote.new(obj), false, cache)
         else
@@ -134,9 +147,13 @@ module Transit
   class Writer
     def initialize(io, type)
       @marshaler = if type == :json
-                     Marshaler.new(JsonEmitter.new(io), :quote_scalars => true)
+                     Marshaler.new(JsonEmitter.new(io),
+                                   :quote_scalars => true,
+                                   :prefer_strings => true)
                    else
-                     Marshaler.new(MessagePackEmitter.new(io), :quote_scalars => false)
+                     Marshaler.new(MessagePackEmitter.new(io),
+                                   :quote_scalars => false,
+                                   :prefer_strings => false)
                    end
     end
 
