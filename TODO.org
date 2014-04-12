@@ -1,5 +1,4 @@
 * means of registering handlers
-* wrap encoder fns in json and msgpack-specific types ?
 * Deal with reading unrecognized extensions; these are *not* errors.
 - For a string, reader should return (str "`" encoded-str)
 - For a map, reader should return an instance of a TaggedValue type w/
