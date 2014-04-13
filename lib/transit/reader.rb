@@ -16,7 +16,7 @@ module Transit
     def read(io, &block)
       if block
         @yajl.on_parse_complete = Proc.new do |obj|
-          block.call(@decoder.decode(obj, RollingCache.new))
+          block.call(@decoder.decode(obj))
         end
         while true
           begin
@@ -26,7 +26,7 @@ module Transit
           end
         end
       else
-        @decoder.decode(@yajl.parse(io), RollingCache.new)
+        @decoder.decode(@yajl.parse(io))
       end
     end
   end
@@ -40,10 +40,10 @@ module Transit
       u = MessagePack::Unpacker.new(io)
       if block
         u.each do |o|
-          block.call(@decoder.decode(o, RollingCache.new))
+          block.call(@decoder.decode(o))
         end
       else
-        @decoder.decode(u.read, RollingCache.new)
+        @decoder.decode(u.read)
       end
     end
   end

@@ -131,7 +131,7 @@ module Transit
       end
     end
 
-    def marshal_top(obj, cache)
+    def marshal_top(obj, cache=RollingCache.new)
       handler = @handlers[obj]
       if tag = handler.tag(obj)
         if @opts[:quote_scalars] && tag.length == 1
@@ -158,7 +158,7 @@ module Transit
     end
 
     def write(obj)
-      @marshaler.marshal_top(obj, RollingCache.new)
+      @marshaler.marshal_top(obj)
     end
 
     def register(type, handler_class)

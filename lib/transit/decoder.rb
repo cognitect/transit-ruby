@@ -36,7 +36,7 @@ module Transit
         }}
     end
 
-    def decode(node, cache, as_map_key=false)
+    def decode(node, cache=RollingCache.new, as_map_key=false)
       case node
       when String
         decode_string(node, cache, as_map_key)

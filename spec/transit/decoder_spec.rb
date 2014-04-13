@@ -2,10 +2,8 @@ require 'spec_helper'
 
 module Transit
   describe Decoder do
-    let(:cache) { RollingCache.new }
-
     def decode(o)
-      Decoder.new.decode(o, cache)
+      Decoder.new.decode(o)
     end
 
     [nil, true, false].each do |element|
@@ -165,7 +163,7 @@ module Transit
         it 'supports override of default string decoders' do
           decoder = Decoder.new
           decoder.register("r") {|u| "DECODED: #{u}"}
-          assert { decoder.decode("~rhttp://foo.com", cache) == "DECODED: http://foo.com" }
+          assert { decoder.decode("~rhttp://foo.com") == "DECODED: http://foo.com" }
         end
 
         it 'supports override of default hash decoders' do
@@ -174,7 +172,7 @@ module Transit
           my_uuid = my_uuid_class.new(UUID.new.to_s)
 
           decoder.register("u") {|u| my_uuid_class.new(u)}
-          assert { decoder.decode({"~#u" => my_uuid.to_s}, cache) == my_uuid }
+          assert { decoder.decode({"~#u" => my_uuid.to_s}) == my_uuid }
         end
       end
 
@@ -182,25 +180,25 @@ module Transit
         it 'supports string-based extensions' do
           decoder = Decoder.new
           decoder.register("D") {|s| Date.parse(s)}
-          assert { decoder.decode("~D2014-03-15", cache) == Date.new(2014,3,15) }
+          assert { decoder.decode("~D2014-03-15") == Date.new(2014,3,15) }
         end
 
         it 'supports hash based extensions' do
           decoder = Decoder.new
           decoder.register("Times2") {|d| d * 2}
-          assert { decoder.decode({"~#Times2" => 44}, cache) == 88 }
+          assert { decoder.decode({"~#Times2" => 44}) == 88 }
         end
 
         it 'supports hash based extensions that return nil'  do
           decoder = Decoder.new
           decoder.register("Nil") {|_| nil}
-          assert { decoder.decode({"~#Nil" => :anything }, cache) == nil }
+          assert { decoder.decode({"~#Nil" => :anything }) == nil }
         end
 
         it 'supports hash based extensions that return false' do
           decoder = Decoder.new
           decoder.register("False") {|_| false}
-          assert { decoder.decode({"~#False" => :anything }, cache) == false }
+          assert { decoder.decode({"~#False" => :anything }) == false }
         end
 
         it 'supports complex hash values' do
@@ -214,7 +212,7 @@ module Transit
           actual   = decoder.decode([
                                      {"~#person"=>{"~:first_name" => "Transit","~:last_name" => "Ruby","~:birthdate" => "~D2014-01-02"}},
                                      {"^!"=>{"^\"" => "Transit","^#" => "Ruby","^$" => "~D2014-01-03"}}
-                                    ], cache)
+                                    ])
           assert { actual == expected }
         end
       end
