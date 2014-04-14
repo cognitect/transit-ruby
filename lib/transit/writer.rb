@@ -3,11 +3,7 @@ require 'msgpack'
 
 module Transit
   class Marshaler
-    extend Forwardable
-    def_delegators :@emitter, :emit_array_start, :emit_array_end, :emit_map_start, :emit_map_end, :emit_object, :flush
-
-    def initialize(emitter, opts={})
-      @emitter = emitter
+    def initialize(opts={})
       @opts = opts
       @handlers = Handler.new
     end
@@ -22,6 +18,7 @@ module Transit
     end
 
     def stringable_keys?(m)
+      # TODO - handler keys that have no handler
       m.keys.all? {|k| (@handlers[k].tag(k).length == 1) }
     end
 
@@ -98,7 +95,7 @@ module Transit
           rep = handler.rep(obj)
           if String === rep
             emit_string(ESC, tag, rep, as_map_key, cache)
-          elsif as_map_key || @emitter.prefer_strings
+          elsif as_map_key || @opts[:prefer_strings]
             rep = handler.string_rep(obj)
             if String === rep
               emit_string(ESC, tag, rep, as_map_key, cache)
@@ -159,16 +156,139 @@ module Transit
     end
   end
 
+  class JsonMarshaler < Marshaler
+    def initialize(io, opts={})
+      @oj = Oj::StreamWriter.new(io)
+      super({:prefer_strings => true}.merge(opts))
+    end
+
+    def emit_array_start(size)
+      @oj.push_array
+    end
+
+    def emit_array_end
+      @oj.pop
+    end
+
+    def emit_map_start(size)
+      @oj.push_object
+    end
+
+    def emit_map_end
+      @oj.pop
+    end
+
+    def emit_object(obj, as_map_key=false)
+      as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
+    end
+
+    def flush
+      # no-op
+    end
+  end
+
+  class MessagePackMarshaler < Marshaler
+    def initialize(io, opts={})
+      @packer = MessagePack::Packer.new(io)
+      super({:prefer_strings => false}.merge(opts))
+    end
+
+    def emit_array_start(size)
+      @packer.write_array_header(size)
+    end
+
+    def emit_array_end
+      # no-op
+    end
+
+    def emit_map_start(size)
+      @packer.write_map_header(size)
+    end
+
+    def emit_map_end
+      # no-op
+    end
+
+    def emit_object(obj, as_map_key=:ignore)
+      @packer.write(obj)
+    end
+
+    def flush
+      @packer.flush
+    end
+  end
+
+  class TransitMarshaler < Marshaler
+    class HashWrapper
+      extend Forwardable
+      def_delegators :@h, :[], :[]=
+      attr_reader :h
+      def initialize; @h = {}; end
+    end
+
+    attr_reader :value
+
+    def initialize(opts={})
+      @value = nil
+      @stack = []
+      @keys = {}
+      super(opts)
+    end
+
+    def emit_array_start(size)
+      @stack.push([])
+    end
+
+    def emit_array_end
+      o = @stack.pop
+      if @stack.empty?
+        @value = o
+      else
+        emit_object(o)
+      end
+    end
+
+    def emit_map_start(size)
+      h = HashWrapper.new
+      @stack.push(h)
+      @keys[h] = []
+    end
+
+    def emit_map_end
+      o = @stack.pop.h
+      if @stack.empty?
+        @value = o
+      else
+        emit_object(o)
+      end
+    end
+
+    def emit_object(obj, as_map_key=false)
+      current = @stack.last
+      if Array === current
+        current.push(obj)
+      elsif HashWrapper === current
+        if @keys[current].empty?
+          @keys[current].push(obj)
+        else
+          current[@keys[current].pop] = obj
+        end
+      else
+        @value = obj
+      end
+    end
+
+    def flush
+      # no-op
+    end
+  end
+
   class Writer
     def initialize(io, type)
       @marshaler = if type == :json
-                     Marshaler.new(JsonEmitter.new(io),
-                                   :quote_scalars => true,
-                                   :prefer_strings => true)
+                     JsonMarshaler.new(io, :quote_scalars => true, :prefer_strings => true)
                    else
-                     Marshaler.new(MessagePackEmitter.new(io),
-                                   :quote_scalars => false,
-                                   :prefer_strings => false)
+                     MessagePackMarshaler.new(io, :quote_scalars => false, :prefer_strings => false)
                    end
     end
 
