@@ -174,7 +174,7 @@ module Transit
     end
 
     def decode_cmap(v, cache, as_map_key)
-      CMap.new(decode(Hash[*v], cache, as_map_key))
+      decode(Hash[*v], cache, as_map_key)
     end
 
     def register(k, &b)

@@ -117,12 +117,5 @@ module Transit
     end
   end
 
-  class CMap < Wrapper
-    def to_a
-      # TODO benchmark this against @value.to_a.flatten(1)
-      @value.reduce([]) {|a, kv| a.concat(kv)}
-    end
-  end
-
   class Quote < Wrapper; end
 end

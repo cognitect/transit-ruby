@@ -21,6 +21,10 @@ module Transit
       [ESC, SUB, RES].include?(s[0]) ? "#{ESC}#{s}" : s
     end
 
+    def stringable_keys?(m)
+      m.keys.all? {|k| (@handlers[k].tag(k).length == 1) }
+    end
+
     def emit_nil(_, as_map_key, cache)
       as_map_key ? emit_string(ESC, "_", nil, true, cache) : emit_object(nil)
     end
@@ -71,6 +75,13 @@ module Transit
         marshal(k, true, cache)
         marshal(v, false, cache)
       end
+      emit_map_end
+    end
+
+    def emit_cmap(m, _, cache)
+      emit_map_start(1)
+      emit_object("~#cmap", true)
+      marshal(m.reduce([]) {|a, kv| a.concat(kv)}, false, cache)
       emit_map_end
     end
 
@@ -125,7 +136,11 @@ module Transit
       when :array
         emit_array(rep, as_map_key, cache)
       when :map
-        emit_map(rep, as_map_key, cache)
+        if stringable_keys?(rep)
+          emit_map(rep, as_map_key, cache)
+        else
+          emit_cmap(rep, as_map_key, cache)
+        end
       else
         emit_encoded(tag, handler, obj, as_map_key, cache)
       end

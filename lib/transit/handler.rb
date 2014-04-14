@@ -33,7 +33,6 @@ module Transit
       @handlers[FloatsArray]   = FloatsArrayHandler.new
       @handlers[BoolsArray]    = BoolsArrayHandler.new
       @handlers[Char]          = CharHandler.new
-      @handlers[CMap]          = CMapHandler.new
       @handlers[Quote]         = QuoteHandler.new
       @handlers[TaggedMap]     = TaggedMapHandler.new
     end
@@ -138,7 +137,7 @@ module Transit
     end
 
     class MapHandler
-      def tag(_) :map end
+      def tag(m) :map end
       def rep(m) m end
       def string_rep(_) nil end
     end
@@ -203,12 +202,6 @@ module Transit
       def tag(_) "c" end
       def rep(c) string_rep(c) end
       def string_rep(c) c.to_s end
-    end
-
-    class CMapHandler
-      def tag(_) "cmap" end
-      def rep(cm) TaggedMap.new(:array, cm.to_a, nil) end
-      def string_rep(_) nil end
     end
 
     class QuoteHandler

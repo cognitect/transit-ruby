@@ -163,11 +163,6 @@ module Transit
         writer.write(BoolsArray.new([true, false, true]))
         assert { io.string == '{"~#bools":[true,false,true]}' }
       end
-
-      it "marshals a cmap" do
-        writer.write(CMap.new({{a: 1} => :b, [1,"~foo"] => 3, {c: {d: :e}} => :f}))
-        assert { io.string == '{"~#cmap":[{"~:a":1},"~:b",[1,"~~foo"],3,{"~:c":{"~:d":"~:e"}},"~:f"]}' }
-      end
     end
 
     describe "map keys" do
@@ -217,6 +212,10 @@ module Transit
         assert { io.string ==  "{\"~D1963-11-26\":\"~:david\"}" }
       end
 
+      it "marshals a map with composite keys" do
+        writer.write({{"a" => "map", "as" => "key"} => "a value" })
+        assert { io.string == '{"~#cmap":[{"a":"map","as":"key"},"a value"]}' }
+      end
 
       # it "raises when trying to set a vector as a key"
       # it "raises when trying to set a dict (Hash) as a key"
@@ -227,59 +226,93 @@ module Transit
       # it "raises when trying to set an extension struct (tagged map) as a key"
     end
 
-    describe "map values" do
-      def self.marshals_map_with_value(label, value, rep, focus=false)
+    describe "collection values" do
+      def self.marshals_collection_with_value(label, value, rep, focus=false)
         it "marshals #{label} as a map value", :focus => focus do
           writer.write({"a" => value})
           writer.write({"nested" => {"a" => value}})
           assert { io.string == "{\"a\":#{rep}}{\"nested\":{\"a\":#{rep}}}" }
         end
+        it "marshals #{label} as an array value", :focus => focus do
+          writer.write([value])
+          writer.write([[value]])
+          assert { io.string == "[#{rep}][[#{rep}]]" }
+        end
       end
 
-      marshals_map_with_value("nil", nil, "null")
-      marshals_map_with_value("a keyword", :this, '"~:this"')
-      marshals_map_with_value("a string (as/is)", "this", '"this"')
-      it "marshals strings that requires escaping as values" do
+      marshals_collection_with_value("nil", nil, "null")
+      marshals_collection_with_value("a keyword", :this, '"~:this"')
+      marshals_collection_with_value("a string (as/is)", "this", '"this"')
+
+      it "marshals a string that requires escaping a map value" do
         writer.write({"a" => "~this"})
         writer.write({"b" => "^this"})
         writer.write({"c" => "`this"})
         assert { io.string == '{"a":"~~this"}{"b":"~^this"}{"c":"~`this"}' }
       end
 
-      marshals_map_with_value("true", true, true)
-      marshals_map_with_value("false", false, false)
-      marshals_map_with_value("a 53 bit int", 2**53 - 1, 9007199254740991)
-      marshals_map_with_value("a 54 bit int", 2**53, '"~i9007199254740992"')
-      marshals_map_with_value("a float", 42.37, 42.37)
-      marshals_map_with_value("a BigDecimal", BigDecimal.new("42.37"), '"~f42.37"')
+      it "marshals a string that requires escaping an array value" do
+        writer.write(["~this","^this","`this"])
+        assert { io.string == '["~~this","~^this","~`this"]' }
+      end
 
-      it "marshals an instant as a value" do
+      marshals_collection_with_value("true", true, true)
+      marshals_collection_with_value("false", false, false)
+      marshals_collection_with_value("a 53 bit int", 2**53 - 1, 9007199254740991)
+      marshals_collection_with_value("a 54 bit int", 2**53, '"~i9007199254740992"')
+      marshals_collection_with_value("a float", 42.37, 42.37)
+      marshals_collection_with_value("a BigDecimal", BigDecimal.new("42.37"), '"~f42.37"')
+
+      it "marshals an instant as a map value" do
         t = Time.now
         writer.write({"a" => t})
         assert { io.string == "{\"a\":\"~t#{t.utc.iso8601(3)}\"}" }
       end
-      marshals_map_with_value("a uuid", UUID.new("dda5a83f-8f9d-4194-ae88-5745c8ca94a7"), '"~udda5a83f-8f9d-4194-ae88-5745c8ca94a7"')
-      marshals_map_with_value("a uri", URI("http://example.com"), '"~rhttp://example.com"')
-      marshals_map_with_value("symbol", TransitSymbol.new("foo"), '"~$foo"' )
-      marshals_map_with_value("char", Char.new("a"), '"~ca"')
+
+      it "marshals an instant as an array value" do
+        t = Time.now
+        writer.write([t])
+        assert { io.string == "[\"~t#{t.utc.iso8601(3)}\"]" }
+      end
+
+      marshals_collection_with_value("a uuid", UUID.new("dda5a83f-8f9d-4194-ae88-5745c8ca94a7"), '"~udda5a83f-8f9d-4194-ae88-5745c8ca94a7"')
+      marshals_collection_with_value("a uri", URI("http://example.com"), '"~rhttp://example.com"')
+      marshals_collection_with_value("symbol", TransitSymbol.new("foo"), '"~$foo"' )
+      marshals_collection_with_value("char", Char.new("a"), '"~ca"')
 
 
-      marshals_map_with_value("an array", [1,2,3], '[1,2,3]')
-      marshals_map_with_value("a map", {a: :b}, '{"~:a":"~:b"}')
-      marshals_map_with_value("a set", Set.new([1,2,3]), '{"~#set":[1,2,3]}')
-      marshals_map_with_value("a list", TransitList.new([1,2,3]), '{"~#list":[1,2,3]}')
-      marshals_map_with_value("an array of ints", IntsArray.new([1,2,3]), '{"~#ints":[1,2,3]}')
-      marshals_map_with_value("an array of ints", LongsArray.new([1,2,3]), '{"~#longs":[1,2,3]}')
-      marshals_map_with_value("an array of ints", FloatsArray.new([1.1,2.2,3.3]), '{"~#floats":[1.1,2.2,3.3]}')
-      marshals_map_with_value("an array of ints", DoublesArray.new([1.1,2.2,3.3]), '{"~#doubles":[1.1,2.2,3.3]}')
-      marshals_map_with_value("an array of ints", BoolsArray.new([true,false,true]), '{"~#bools":[true,false,true]}')
-      marshals_map_with_value("a cmap", CMap.new({a: :b}), '{"~#cmap":["~:a","~:b"]}')
+      marshals_collection_with_value("an array", [1,2,3], '[1,2,3]')
+      marshals_collection_with_value("a map", {a: :b}, '{"~:a":"~:b"}')
+      marshals_collection_with_value("a set", Set.new([1,2,3]), '{"~#set":[1,2,3]}')
+      marshals_collection_with_value("a list", TransitList.new([1,2,3]), '{"~#list":[1,2,3]}')
+      marshals_collection_with_value("an array of ints", IntsArray.new([1,2,3]), '{"~#ints":[1,2,3]}')
+      marshals_collection_with_value("an array of ints", LongsArray.new([1,2,3]), '{"~#longs":[1,2,3]}')
+      marshals_collection_with_value("an array of ints", FloatsArray.new([1.1,2.2,3.3]), '{"~#floats":[1.1,2.2,3.3]}')
+      marshals_collection_with_value("an array of ints", DoublesArray.new([1.1,2.2,3.3]), '{"~#doubles":[1.1,2.2,3.3]}')
+      marshals_collection_with_value("an array of ints", BoolsArray.new([true,false,true]), '{"~#bools":[true,false,true]}')
+
+      it "marshals a map with composite keys as map value" do
+        writer.write({:a => {{:b => :c} => :e}})
+        assert { io.string == '{"~:a":{"~#cmap":[{"~:b":"~:c"},"~:e"]}}' }
+      end
+
+      it "marshals a map with composite keys as array value" do
+        writer.write([{{:b => :c} => :e}])
+        assert { io.string == '[{"~#cmap":[{"~:b":"~:c"},"~:e"]}]' }
+      end
 
       it "marshals an extension scalar as a map value" do
         writer = Writer.new(io, :json)
         writer.register(Date, DateHandler)
         writer.write({Date.new(2014,1,2) => Date.new(2014,1,3)})
         assert { io.string == "{\"~D2014-01-02\":\"~D2014-01-03\"}" }
+      end
+
+      it "marshals an extension scalar as a map value" do
+        writer = Writer.new(io, :json)
+        writer.register(Date, DateHandler)
+        writer.write([Date.new(2014,1,2)])
+        assert { io.string == "[\"~D2014-01-02\"]" }
       end
 
       it "marshals an extension struct as a map value"

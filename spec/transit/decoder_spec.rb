@@ -76,14 +76,14 @@ module Transit
       end
 
       it 'decodes cmaps' do
-        assert { decode({"~#cmap" => ["~:a", "b", "c", "~:d"]}) == CMap.new({:a => "b", "c" => :d}) }
+        assert { decode({"~#cmap" => ["~:a", "b", "c", "~:d"]}) == {:a => "b", "c" => :d} }
       end
 
       it 'decodes nested cmaps' do
         cm1 = {"~#cmap" => ["~:a", "~:b"]}
         cm2 = {"~#cmap" => ["~:c", "~:d"]}
         cm3 = {"~#cmap" => [cm1, cm2]}
-        assert { decode(cm3) == CMap.new({CMap.new({:a => :b}) => CMap.new({:c => :d})}) }
+        assert { decode(cm3) == {{:a => :b} => {:c => :d}} }
       end
     end
 

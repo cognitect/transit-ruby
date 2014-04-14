@@ -25,7 +25,7 @@ def round_trips(label, obj, type, opts={})
       after = round_trip(before, type)
       assert { before.keys.first.to_i == after.keys.first.to_i }
     end
-  when Hash, Array, Transit::TransitList, Set, Transit::TypedArray, Transit::CMap
+  when Hash, Array, Transit::TransitList, Set, Transit::TypedArray
   else
     it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
       assert { round_trip({obj => 0}, type) == {obj => 0} }
@@ -82,7 +82,7 @@ module Transit
     round_trips("a hash with TransitSymbols", {TransitSymbol.new("foo") => TransitSymbol.new("bar")}, type)
     round_trips("a hash with 53 bit ints",  {2**53-1 => 2**53-2}, type)
     round_trips("a hash with 54 bit ints",  {2**53   => 2**53+1}, type)
-    round_trips("a cmap", CMap.new({a: :b, c: :d}), type)
+    round_trips("a map with composite keys", {{a: :b} => {c: :d}}, type)
   end
 
   describe "Transit using json" do
