@@ -90,11 +90,11 @@ end
 
 __END__
 
-$ ruby benchmarks/encoding_time.rb
+$ ruby benchmarks/decoding_time.rb
 Not all methods returned the same values:
 [1397450386660, 1397450386661, 1397450386661, 1397450386660, 1397450386661, 1397450386661]
 
-# This ^^ shows that Time.parse is truncating millis instead of rounding them.
+# This ^^ shows that Time.new.iso8601(3) is truncating millis instead of rounding them.
 
 Time.parse("2014-04-14T04:39:46.660Z").utc
    0.270000   0.000000   0.270000 (  0.265990)
