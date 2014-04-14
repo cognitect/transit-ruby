@@ -5,7 +5,7 @@ module Transit
     end
 
     def time_from_millis(millis)
-      Time.at(millis / 1000) + (millis % 1000) / 1000.0
+      Time.at(millis / 1000).utc + (millis % 1000) / 1000.0
     end
 
     module_function :time_to_millis, :time_from_millis

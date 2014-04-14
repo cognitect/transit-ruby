@@ -199,6 +199,12 @@ module Transit
         writer.write({t => "ignore"})
         assert { io.string == "{\"~t#{t.utc.iso8601(3)}\":\"ignore\"}" }
       end
+      it "doesn't modify the source Time when writing an instant as a map key" do
+        t = Time.now
+        z = t.zone
+        writer.write({t => :now})
+        assert { t.zone == z }
+      end
       marshals_map_with_key("a uuid", UUID.new("dda5a83f-8f9d-4194-ae88-5745c8ca94a7"), "~udda5a83f-8f9d-4194-ae88-5745c8ca94a7")
       marshals_map_with_key("a uri", URI("http://example.com"), "~rhttp://example.com")
       marshals_map_with_key("symbol", TransitSymbol.new("foo"), "~$foo" )

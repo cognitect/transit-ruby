@@ -14,10 +14,21 @@ module Transit
           sleep(0.0001)
         end
       end
+    end
 
+    describe "time_to_millis" do
       it "(at least sometimes) has non-zero millis" do
         a = 1.upto(20).map { sleep(0.0001); Transit::Util.time_to_millis(Time.now) % 1000 }
         assert { a.reduce(&:+) > 0 }
+      end
+    end
+
+    describe "time_from_millis" do
+      it "converts to utc" do
+        t = Time.now
+        m = Transit::Util.time_to_millis(t)
+        f = Transit::Util.time_from_millis(m)
+        assert { f.utc? }
       end
     end
   end

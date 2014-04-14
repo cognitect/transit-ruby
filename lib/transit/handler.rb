@@ -104,7 +104,7 @@ module Transit
     class InstantHandler
       def tag(_) "t" end
       def rep(t) Util.time_to_millis(t) end
-      def string_rep(t) t.utc.iso8601(3) end
+      def string_rep(t) t.getutc.iso8601(3) end
     end
 
     class UuidHandler
