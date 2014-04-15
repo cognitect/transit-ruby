@@ -46,10 +46,8 @@ module Transit
       emit_map_end
     end
 
-    MAX_INT = 2**53 - 1
-
     def emit_int(i, as_map_key, cache)
-      if as_map_key || i > MAX_INT
+      if as_map_key || i > @opts[:max_int] || i < @opts[:min_int]
         emit_string(ESC, "i", i.to_s, as_map_key, cache)
       else
         emit_object(i, as_map_key)
@@ -157,9 +155,17 @@ module Transit
   end
 
   class JsonMarshaler < Marshaler
+    JSON_MAX_INT = 2**53 - 1
+    JSON_MIN_INT = -2**53
+    def default_opts
+      {:prefer_strings => true,
+        :max_int       => JSON_MAX_INT,
+        :min_int       => JSON_MIN_INT}
+    end
+
     def initialize(io, opts={})
       @oj = Oj::StreamWriter.new(io)
-      super({:prefer_strings => true}.merge(opts))
+      super(default_opts.merge(opts))
     end
 
     def emit_array_start(size)
@@ -188,9 +194,18 @@ module Transit
   end
 
   class MessagePackMarshaler < Marshaler
+    MSGPACK_MAX_INT = 2**63 - 1
+    MSGPACK_MIN_INT = -2**63
+
+    def default_opts
+      {:prefer_strings => false,
+        :max_int       => MSGPACK_MAX_INT,
+        :min_int       => MSGPACK_MIN_INT}
+    end
+
     def initialize(io, opts={})
       @packer = MessagePack::Packer.new(io)
-      super({:prefer_strings => false}.merge(opts))
+      super(default_opts.merge(opts))
     end
 
     def emit_array_start(size)
@@ -226,13 +241,22 @@ module Transit
       def initialize; @h = {}; end
     end
 
+    TRANSIT_MAX_INT = 2**63 - 1
+    TRANSIT_MIN_INT = -2**63
+
+    def default_opts
+      {:prefer_strings => true,
+        :max_int       => TRANSIT_MAX_INT,
+        :min_int       => TRANSIT_MIN_INT}
+    end
+
     attr_reader :value
 
     def initialize(opts={})
       @value = nil
       @stack = []
       @keys = {}
-      super(opts)
+      super(default_opts.merge(opts))
     end
 
     def emit_array_start(size)
