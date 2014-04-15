@@ -11,13 +11,3 @@ w/o losing any information
 - This is the default behavior for readers/writers - but there must be a
 way for a client to configure a reader to do something else, e.g.,
 throw an exception
-* Composite map keys
-- If I have a hash in Ruby with some composite key, does that just
-  automatically get written out at a cmap?
-  - Yes
-- Do I as the writer need to do anything special, like perhaps
-  wrapping my map in a special CMap object?
-  - No
-- Similarly on the way in, should Cmaps just translate into ordinary
-  maps with interesting keys?
-  - Yes
