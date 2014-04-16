@@ -4,23 +4,23 @@ require 'benchmark'
 
 decoder = Transit::Decoder.new
 custom_decoder = Transit::Decoder.new
-custom_decoder.register("t") {|t| Transit::Util.time_from_millis(t.to_i)}
+custom_decoder.register("t") {|t| Transit::Util.date_time_from_millis(t.to_i)}
 
 n = 10000
 
 t = Time.now
-m = Transit::Util.time_to_millis(t)
+m = Transit::Util.date_time_to_millis(t)
 m_to_s = m.to_s
 s = t.utc.iso8601(3)
 
 results = [Time.parse(s).utc,
-           Transit::Util.time_from_millis(m),
-           Transit::Util.time_from_millis(m_to_s.to_i),
+           Transit::Util.date_time_from_millis(m),
+           Transit::Util.date_time_from_millis(m_to_s.to_i),
            decoder.decode("~t#{s}"),
            decoder.decode({"~#t" => m}),
            custom_decoder.decode("~t#{m}")]
 
-as_millis = results.map {|r| Transit::Util.time_to_millis(r)}
+as_millis = results.map {|r| Transit::Util.date_time_to_millis(r)}
 
 if Set.new(as_millis).length > 1
   warn "Not all methods returned the same values:"
@@ -38,21 +38,21 @@ Benchmark.benchmark do |bm|
   end
 
   puts
-  puts "Transit::Util.time_from_millis(#{m.inspect})"
+  puts "Transit::Util.date_time_from_millis(#{m.inspect})"
   3.times do
     bm.report do
       n.times do
-        Transit::Util.time_from_millis(m)
+        Transit::Util.date_time_from_millis(m)
       end
     end
   end
 
   puts
-  puts "Transit::Util.time_from_millis(#{m_to_s.inspect}.to_i)"
+  puts "Transit::Util.date_time_from_millis(#{m_to_s.inspect}.to_i)"
   3.times do
     bm.report do
       n.times do
-        Transit::Util.time_from_millis(m_to_s.to_i)
+        Transit::Util.date_time_from_millis(m_to_s.to_i)
       end
     end
   end
@@ -101,12 +101,12 @@ Time.parse("2014-04-14T04:39:46.660Z").utc
    0.260000   0.000000   0.260000 (  0.261357)
    0.260000   0.000000   0.260000 (  0.263597)
 
-Transit::Util.time_from_millis(1397450386661)
+Transit::Util.date_time_from_millis(1397450386661)
    0.040000   0.000000   0.040000 (  0.041289)
    0.040000   0.000000   0.040000 (  0.043084)
    0.050000   0.000000   0.050000 (  0.043169)
 
-Transit::Util.time_from_millis("1397450386661".to_i)
+Transit::Util.date_time_from_millis("1397450386661".to_i)
    0.040000   0.000000   0.040000 (  0.048342)
    0.050000   0.000000   0.050000 (  0.047006)
    0.050000   0.010000   0.060000 (  0.046771)
