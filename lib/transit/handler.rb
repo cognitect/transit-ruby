@@ -18,7 +18,9 @@ module Transit
       @handlers[Bignum]        = BignumHandler.new
       @handlers[Float]         = FloatHandler.new
       @handlers[BigDecimal]    = BigDecimalHandler.new
-      @handlers[Time]          = InstantHandler.new
+      @handlers[Time]          = TimeHandler.new
+      @handlers[DateTime]      = DateTimeHandler.new
+      @handlers[Date]          = DateHandler.new
       @handlers[UUID]          = UuidHandler.new
       @handlers[URI]           = UriHandler.new
       @handlers[ByteArray]     = ByteArrayHandler.new
@@ -100,10 +102,22 @@ module Transit
       def string_rep(f) rep(f) end
     end
 
-    class InstantHandler
+    class TimeHandler
       def tag(_) "t" end
       def rep(t) Util.time_to_millis(t) end
       def string_rep(t) t.getutc.iso8601(3) end
+    end
+
+    class DateTimeHandler
+      def tag(_) "t" end
+      def rep(t) Util.date_time_to_millis(t) end
+      def string_rep(t) t.new_offset(0).iso8601(3) end
+    end
+
+    class DateHandler
+      def tag(_) "t" end
+      def rep(d) Util.date_time_to_millis(d) end
+      def string_rep(d) Time.gm(d.year, d.month, d.day).iso8601(3) end
     end
 
     class UuidHandler

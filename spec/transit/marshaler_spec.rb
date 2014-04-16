@@ -47,18 +47,46 @@ module Transit
       assert { marshaler.value == {"~#'"=>1} }
     end
 
-    it 'marshals time as a string for json' do
+    it 'marshals Time as a string for json' do
       t = Time.now
       marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => true)
       marshaler.marshal_top(t)
       assert { marshaler.value == "~t#{t.utc.iso8601(3)}" }
     end
 
-    it 'marshals time as a map for msgpack' do
+    it 'marshals DateTime as a string for json' do
+      t = DateTime.now
+      marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => true)
+      marshaler.marshal_top(t)
+      assert { marshaler.value == "~t#{t.new_offset(0).iso8601(3)}" }
+    end
+
+    it 'marshals a Date as a string for json' do
+      t = Date.new(2014,1,2)
+      marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => true)
+      marshaler.marshal_top(t)
+      assert { marshaler.value == "~t2014-01-02T00:00:00.000Z" }
+    end
+
+    it 'marshals Time as a map for msgpack' do
       t = Time.now
       marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => false)
       marshaler.marshal_top(t)
       assert { marshaler.value == {"~#t" => Util.time_to_millis(t)} }
+    end
+
+    it 'marshals DateTime as a map for msgpack' do
+      dt = DateTime.now
+      marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => false)
+      marshaler.marshal_top(dt)
+      assert { marshaler.value == {"~#t" => Util.date_time_to_millis(dt)} }
+    end
+
+    it 'marshals a Date as a map for msgpack' do
+      d = Date.new(2014,1,2)
+      marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => false)
+      marshaler.marshal_top(d)
+      assert { marshaler.value == {"~#t" => Util.date_to_millis(d) } }
     end
   end
 end
