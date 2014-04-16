@@ -142,7 +142,7 @@ module Transit
     end
 
     def decode_instant_from_string(s, cache, as_map_key)
-      DateTime.parse(s).new_offset(0)
+      DateTime.iso8601(s).new_offset(0)
     end
 
     def decode_instant_from_int(i, cache, as_key)
