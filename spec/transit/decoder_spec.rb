@@ -47,10 +47,10 @@ module Transit
     end
 
     describe "tagged hashes" do
-      it 'decodes instants to Time objects' do
-        expected = Time.parse("1985-04-12T23:20:50.052Z").utc
-        actual = decode({"~#t" => Util.time_to_millis(expected)})
-        assert { Util.time_to_millis(actual) == Util.time_to_millis(expected) }
+      it 'decodes instants to DateTime objects' do
+        expected = DateTime.parse("1985-04-12T23:20:50.052Z").new_offset(0)
+        actual = decode({"~#t" => Util.date_time_to_millis(expected)})
+        assert { Util.date_time_to_millis(actual) == Util.date_time_to_millis(expected) }
       end
 
       it 'decodes uuids' do
@@ -116,11 +116,11 @@ module Transit
           Base64.decode64("YWJj\n") }
       end
 
-      it 'decodes instants to Time objects' do
+      it 'decodes instants to DateTime objects' do
         assert { decode("~t1985-04-12T23:20:50.052Z") ==
-          Time.parse("1985-04-12T23:20:50.052Z") }
+          DateTime.parse("1985-04-12T23:20:50.052Z") }
 
-        assert { decode("~t1985-04-12T23:20:50.052Z").usec == 52000 }
+        assert { decode("~t1985-04-12T23:20:50.052Z").to_time.usec == 52000 }
       end
 
       it 'decodes uuids' do

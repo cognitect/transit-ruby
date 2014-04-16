@@ -142,11 +142,11 @@ module Transit
     end
 
     def decode_instant_from_string(s, cache, as_map_key)
-      Time.parse(s).utc
+      DateTime.parse(s).new_offset(0)
     end
 
     def decode_instant_from_int(i, cache, as_key)
-      Util.time_from_millis(i)
+      Util.date_time_from_millis(i)
     end
 
     def decode_uuid(s, cache, as_map_key)

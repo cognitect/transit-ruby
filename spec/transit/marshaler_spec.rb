@@ -72,7 +72,7 @@ module Transit
       t = Time.now
       marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => false)
       marshaler.marshal_top(t)
-      assert { marshaler.value == {"~#t" => Util.time_to_millis(t)} }
+      assert { marshaler.value == {"~#t" => Util.date_time_to_millis(t)} }
     end
 
     it 'marshals DateTime as a map for msgpack' do
@@ -86,7 +86,7 @@ module Transit
       d = Date.new(2014,1,2)
       marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => false)
       marshaler.marshal_top(d)
-      assert { marshaler.value == {"~#t" => Util.date_to_millis(d) } }
+      assert { marshaler.value == {"~#t" => Util.date_time_to_millis(d) } }
     end
   end
 end

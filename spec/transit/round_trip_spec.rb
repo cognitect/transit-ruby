@@ -9,21 +9,21 @@ end
 
 def round_trips(label, obj, type, opts={})
   it "round trips #{label} at top level", :focus => !!opts[:focus], :pending => opts[:pending] do
-    if Time === obj
+    if DateTime === obj
       # Our format truncates down to millis, which to_i gives us
-      assert { round_trip(obj, type).to_i == obj.to_i }
+      assert { Transit::Util.date_time_to_millis(round_trip(obj, type)) == Transit::Util.date_time_to_millis(obj) }
     else
       assert { round_trip(obj, type) == obj }
     end
   end
 
   case obj
-  when Time
+  when DateTime
     it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
       # Our format truncates down to millis, which to_i gives us
       before = {obj => 0}
       after = round_trip(before, type)
-      assert { before.keys.first.to_i == after.keys.first.to_i }
+      assert { Transit::Util.date_time_to_millis(before.keys.first) == Transit::Util.date_time_to_millis(after.keys.first) }
     end
   when Hash, Array, Transit::TransitList, Set, Transit::TypedArray
   else
@@ -33,11 +33,11 @@ def round_trips(label, obj, type, opts={})
   end
 
   it "round trips #{label} as a collection value", :focus => !!opts[:focus], :pending => opts[:pending] do
-    if Time === obj
+    if DateTime === obj
       # Our format truncates down to millis, which to_i gives us
       before = {a: obj}
       after = round_trip(before, type)
-      assert { before.values.first.to_i == after.values.first.to_i }
+      assert { Transit::Util.date_time_to_millis(before.values.first) == Transit::Util.date_time_to_millis(after.values.first) }
     else
       assert { round_trip({a: obj}, type) == {a: obj} }
     end
@@ -59,7 +59,7 @@ module Transit
     round_trips("a very big num", 123456789012345679012345678890, type)
     round_trips("a float", 1234.56, type)
     round_trips("a bigdec", BigDecimal.new("123.45"), type)
-    round_trips("an instant (Time)", Time.now.utc, type)
+    round_trips("an instant (DateTime)", DateTime.now.new_offset(0), type)
     round_trips("a uuid", UUID.new, type)
     round_trips("a uri (url)", URI("http://example.com"), type)
     round_trips("a uri (file)", URI("file:///path/to/file.txt"), type)
