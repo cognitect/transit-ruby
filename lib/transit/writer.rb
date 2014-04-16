@@ -155,7 +155,8 @@ module Transit
   end
 
   class JsonMarshaler < Marshaler
-    JSON_MAX_INT = 2**53 - 1
+    # see http://ecma262-5.com/ELS5_HTML.htm#Section_8.5
+    JSON_MAX_INT = 2**53
     JSON_MIN_INT = -2**53
     def default_opts
       {:prefer_strings => true,
@@ -194,7 +195,9 @@ module Transit
   end
 
   class MessagePackMarshaler < Marshaler
-    MSGPACK_MAX_INT = 2**63 - 1
+    # see http://wiki.msgpack.org/display/MSGPACK/Format+specification#Formatspecification-uint64
+    # see http://wiki.msgpack.org/display/MSGPACK/Format+specification#Formatspecification-int64
+    MSGPACK_MAX_INT = 2**64 - 1
     MSGPACK_MIN_INT = -2**63
 
     def default_opts
@@ -241,8 +244,8 @@ module Transit
       def initialize; @h = {}; end
     end
 
-    TRANSIT_MAX_INT = 2**63 - 1
-    TRANSIT_MIN_INT = -2**63
+    TRANSIT_MAX_INT = JsonMarshaler::JSON_MAX_INT
+    TRANSIT_MIN_INT = JsonMarshaler::JSON_MIN_INT
 
     def default_opts
       {:prefer_strings => true,
