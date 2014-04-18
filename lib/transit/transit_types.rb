@@ -23,6 +23,10 @@ module Transit
       return false unless other.is_a?(self.class)
       @value.eql?(other.value)
     end
+
+    def inspect
+      "<#{self.class} \"#{to_s}\">"
+    end
   end
 
   class TransitSymbol < Wrapper
@@ -36,8 +40,47 @@ module Transit
       super uuid
     end
 
+    def self.random
+      new
+    end
+
+    def self.from_string(s)
+      new(s)
+    end
+
+    def self.from_ints(b)
+      msb_str = b[0].to_s 16
+      lsb_str = b[1].to_s 16
+      new("#{msb_str[0..7]}-#{msb_str[8..11]}-#{msb_str[12..15]}-#{lsb_str[0..3]}-#{lsb_str[4..15]}")
+    end
+
+    def as_ints
+      @as_ints ||= to_ints(@value)
+    end
+
     def to_s
       @value
+    end
+
+    def inspect
+      "<#{self.class} \"#{to_s}\">"
+    end
+
+    private
+    def to_ints(s)
+      components = s.split("-")
+      raise ArgumentError.new("Invalid UUID string: #{s}") unless components.size == 5
+      msb = components[0].hex
+      msb = msb << 16
+      msb = msb | components[1].hex
+      msb = msb << 16
+      msb = msb | components[2].hex
+
+      lsb = components[3].hex
+      lsb = lsb << 48
+      lsb = lsb | components[4].hex
+
+      return msb, lsb
     end
   end
 

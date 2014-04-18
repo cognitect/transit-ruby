@@ -42,4 +42,25 @@ module Transit
       assert { rescuing { Char.new("foo") }.kind_of? ArgumentError }
     end
   end
+
+  describe UUID do
+    it 'generates random' do
+      assert { UUID.random }
+    end
+
+    it 'splits to two 64bit integers' do
+      as_ints = UUID.random.as_ints
+      assert { Array === as_ints }
+      assert { as_ints.size == 2 }
+      as_ints.map {|b| Numeric === b}
+    end
+
+    it 'round trips strings and ints' do
+      uuid = UUID.random
+      s    = uuid.to_s
+      ints = uuid.as_ints
+      assert { UUID.from_ints(ints) == uuid }
+      assert { UUID.from_string(s)  == uuid }
+    end
+  end
 end
