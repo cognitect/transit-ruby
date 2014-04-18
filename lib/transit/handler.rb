@@ -121,19 +121,30 @@ module Transit
     class TimeHandler
       def tag(_) "t" end
       def rep(t) Util.date_time_to_millis(t) end
-      def string_rep(t) t.getutc.strftime(Transit::TIME_FORMAT) end
+      def string_rep(t)
+        # .getutc because we don't want to modify t
+        t.getutc.strftime(Transit::TIME_FORMAT)
+      end
     end
 
     class DateTimeHandler
       def tag(_) "t" end
       def rep(t) Util.date_time_to_millis(t) end
-      def string_rep(t) t.to_time.utc.strftime(Transit::TIME_FORMAT) end
+      def string_rep(t)
+        # .utc because to_time already creates a new object
+        t.to_time.utc.strftime(Transit::TIME_FORMAT)
+      end
     end
 
     class DateHandler
       def tag(_) "t" end
       def rep(d) Util.date_time_to_millis(d) end
-      def string_rep(d) d.to_datetime.strftime(Transit::TIME_FORMAT) end
+      def string_rep(d)
+        # to_datetime because DateTime's strftime is faster
+        # thank Time's, and millis are 000 so it doesn't matter
+        # if we truncate or round.
+        d.to_datetime.strftime(Transit::TIME_FORMAT)
+      end
     end
 
     class UuidHandler
