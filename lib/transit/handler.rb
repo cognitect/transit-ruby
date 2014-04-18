@@ -102,22 +102,38 @@ module Transit
       def string_rep(f) rep(f) end
     end
 
+    # TimeHandler, DateTimeHandler, and DateHandler all have different
+    # implementations of string_rep. Here is the rationale:
+    #
+    # For all three, want to write out the same format
+    # e.g. 2014-04-18T18:51:29.478Z, and we want the milliseconds to truncate
+    # rather than round, eg 29.4786 seconds should be 29.478, not 29.479.
+    # - "sss is the number of complete milliseconds since the start of the
+    #    second as three decimal digits."
+    # - http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.15
+    #
+    # Some data points (see benchmarks/encoding_time.rb)
+    # - Time and DateTime each offer iso8601 methods, but strftime is faster.
+    # - DateTime's strftime (and iso8601) round millis
+    # - Time's strftime (and iso8601) truncate millis
+    # - we don't care about truncate v round for dates (which have 000 ms)
+    # - date.to_datetime.strftime(...) is considerably faster than date.to_time.strftime(...)
     class TimeHandler
       def tag(_) "t" end
       def rep(t) Util.date_time_to_millis(t) end
-      def string_rep(t) t.getutc.iso8601(3) end
+      def string_rep(t) t.getutc.strftime(Transit::TIME_FORMAT) end
     end
 
     class DateTimeHandler
       def tag(_) "t" end
       def rep(t) Util.date_time_to_millis(t) end
-      def string_rep(t) t.new_offset(0).iso8601(3) end
+      def string_rep(t) t.new_offset(0).to_time.strftime(Transit::TIME_FORMAT) end
     end
 
     class DateHandler
       def tag(_) "t" end
       def rep(d) Util.date_time_to_millis(d) end
-      def string_rep(d) Time.gm(d.year, d.month, d.day).iso8601(3) end
+      def string_rep(d) d.to_datetime.strftime(Transit::TIME_FORMAT) end
     end
 
     class UuidHandler

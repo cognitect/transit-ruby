@@ -3,6 +3,7 @@ module Transit
   SUB = "^"
   RES = "`"
   TAG = "~#"
+  TIME_FORMAT = "%FT%H:%M:%S.%LZ"
 end
 
 require 'transit/version'
