@@ -10,7 +10,7 @@ module Transit
     end
 
     def date_time_from_millis(millis)
-      (Time.at(millis / 1000).utc + (millis % 1000) / 1000.0).to_datetime
+      Time.at(millis * 0.001).utc.to_datetime
     end
 
     module_function :date_time_to_millis, :date_time_from_millis
