@@ -12,3 +12,4 @@ w/o losing any information
 - This is the default behavior for readers/writers - but there must be a
 way for a client to configure a reader to do something else, e.g.,
 throw an exception
+* 1.8.7-ify
