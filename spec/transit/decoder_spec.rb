@@ -48,7 +48,7 @@ module Transit
 
     describe "tagged hashes" do
       it 'decodes instants to DateTime objects' do
-        expected = DateTime.parse("1985-04-12T23:20:50.052Z").new_offset(0)
+        expected = DateTime.parse("1985-04-12T23:20:50.052Z")
         actual = decode({"~#t" => Util.date_time_to_millis(expected)})
         assert { Util.date_time_to_millis(actual) == Util.date_time_to_millis(expected) }
       end
@@ -116,11 +116,19 @@ module Transit
           Base64.decode64("YWJj\n") }
       end
 
-      it 'decodes instants to DateTime objects' do
-        assert { decode("~t1985-04-12T23:20:50.052Z") ==
-          DateTime.parse("1985-04-12T23:20:50.052Z") }
-
+      it 'decodes iso8601-formatted strings to GMT DateTime objects' do
+        dt = DateTime.new(1985,4,12,23,20,50.052)
+        assert { decode("~t1985-04-12T23:20:50.052Z") == dt }
+        assert { decode("~t1985-04-12T23:20:50.052Z").zone == "+00:00" }
         assert { decode("~t1985-04-12T23:20:50.052Z").to_time.usec == 52000 }
+      end
+
+      it 'decodes millis to GMT DateTime objects' do
+        dt = DateTime.new(1985,4,12,23,20,50.052).new_offset(0)
+        millis_before = Transit::Util.date_time_to_millis(dt)
+        decoded = decode({"~#t" => millis_before})
+        millis_after = Transit::Util.date_time_to_millis(decoded)
+        assert { millis_after == millis_before }
       end
 
       it 'decodes uuids' do

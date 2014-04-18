@@ -49,17 +49,16 @@ module Transit
 
     describe "json-specific rules" do
       it 'marshals Time as a string' do
-        t = Time.new(2014,1,2,3,4,5,"-05:00") + 0.1235
+        t = Time.new(2014,1,2,3,4,5.12345,"-05:00")
         marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => true)
         marshaler.marshal_top(t)
         assert { marshaler.value == "~t2014-01-02T08:04:05.123Z" }
       end
 
       it 'marshals DateTime as a string' do
-        t = Time.new(2014,1,2,3,4,5,"-05:00") + 0.1235
-        dt = t.to_datetime
+        dt = DateTime.new(2014,1,2,3,4,5.1235,"-5")
         marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => true)
-        marshaler.marshal_top(t)
+        marshaler.marshal_top(dt)
         assert { marshaler.value == "~t2014-01-02T08:04:05.123Z" }
       end
 

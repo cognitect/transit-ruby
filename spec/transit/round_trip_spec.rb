@@ -7,11 +7,18 @@ def round_trip(obj, type)
   reader.read(StringIO.new(io.string))
 end
 
+def assert_equal_times(actual,expected)
+  assert { actual.year  == expected.year }
+  assert { actual.month == expected.month }
+  assert { actual.day   == expected.day }
+  assert { actual.hour  == expected.hour }
+end
+
 def round_trips(label, obj, type, opts={})
   it "round trips #{label} at top level", :focus => !!opts[:focus], :pending => opts[:pending] do
+    require 'debugger'
     if DateTime === obj
-      # Our format truncates down to millis, which to_i gives us
-      assert { Transit::Util.date_time_to_millis(round_trip(obj, type)) == Transit::Util.date_time_to_millis(obj) }
+      assert_equal_times(round_trip(obj, type), obj)
     else
       assert { round_trip(obj, type) == obj }
     end
@@ -20,10 +27,9 @@ def round_trips(label, obj, type, opts={})
   case obj
   when DateTime
     it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
-      # Our format truncates down to millis, which to_i gives us
       before = {obj => 0}
       after = round_trip(before, type)
-      assert { Transit::Util.date_time_to_millis(before.keys.first) == Transit::Util.date_time_to_millis(after.keys.first) }
+      assert_equal_times(after.keys.first, before.keys.first)
     end
   when Hash, Array, Transit::TransitList, Set, Transit::TypedArray
   else
@@ -34,10 +40,9 @@ def round_trips(label, obj, type, opts={})
 
   it "round trips #{label} as a collection value", :focus => !!opts[:focus], :pending => opts[:pending] do
     if DateTime === obj
-      # Our format truncates down to millis, which to_i gives us
-      before = {a: obj}
+      before = {:a => obj}
       after = round_trip(before, type)
-      assert { Transit::Util.date_time_to_millis(before.values.first) == Transit::Util.date_time_to_millis(after.values.first) }
+      assert_equal_times(after.values.first, before.values.first)
     else
       assert { round_trip({a: obj}, type) == {a: obj} }
     end

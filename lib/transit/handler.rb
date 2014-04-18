@@ -127,7 +127,7 @@ module Transit
     class DateTimeHandler
       def tag(_) "t" end
       def rep(t) Util.date_time_to_millis(t) end
-      def string_rep(t) t.new_offset(0).to_time.strftime(Transit::TIME_FORMAT) end
+      def string_rep(t) t.to_time.utc.strftime(Transit::TIME_FORMAT) end
     end
 
     class DateHandler
