@@ -53,10 +53,16 @@ module Transit
         assert { Util.date_time_to_millis(actual) == Util.date_time_to_millis(expected) }
       end
 
-      it 'decodes uuids' do
-        assert { decode({"~#u" => "b54adc00-67f9-11d9-9669-0800200c9a66"}).is_a? UUID }
-        assert { decode({"~#u" => "b54adc00-67f9-11d9-9669-0800200c9a66"}) ==
-          Transit::UUID.new("b54adc00-67f9-11d9-9669-0800200c9a66") }
+      it 'decodes uuids from strings' do
+        uuid = Transit::UUID.random
+        decoded = decode({"~#u" => uuid.to_s})
+        assert { decoded == uuid }
+      end
+
+      it 'decodes uuids from ints' do
+        uuid = Transit::UUID.random
+        decoded = decode({"~#u" => uuid.as_ints})
+        assert { decoded == uuid }
       end
 
       it 'decodes sets' do
@@ -131,7 +137,7 @@ module Transit
         assert { millis_after == millis_before }
       end
 
-      it 'decodes uuids' do
+      it 'decodes uuids from strings' do
         assert { decode("~ub54adc00-67f9-11d9-9669-0800200c9a66").is_a? UUID }
         assert { decode("~ub54adc00-67f9-11d9-9669-0800200c9a66") ==
           Transit::UUID.new("b54adc00-67f9-11d9-9669-0800200c9a66") }

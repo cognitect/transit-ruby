@@ -92,6 +92,13 @@ module Transit
         marshaler.marshal_top(-(2**53 + 1))
         assert { marshaler.value == "~i-#{2**53+1}" }
       end
+
+      it 'marshals a UUID as an encoded string' do
+        uuid = UUID.new("dda5a83f-8f9d-4194-ae88-5745c8ca94a7")
+        marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => true)
+        marshaler.marshal_top(uuid)
+        assert { marshaler.value == "~udda5a83f-8f9d-4194-ae88-5745c8ca94a7" }
+      end
     end
 
     describe "msgpack-specific rules" do
@@ -138,6 +145,14 @@ module Transit
         marshaler = TransitMarshaler.new(:min_int => MessagePackMarshaler::MSGPACK_MIN_INT)
         marshaler.marshal_top(-(2**63 + 1))
         assert { marshaler.value == "~i-#{2**63+1}" }
+      end
+
+      it 'marshals a UUID as a string in an encoded hash' do
+        ints = [6353693437827696322, 11547645107031845111]
+        uuid = UUID.from_ints(ints)
+        marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => false)
+        marshaler.marshal_top(uuid)
+        assert { marshaler.value == {"~#u" => ints.map{|i| "~i#{i}"}} }
       end
     end
   end
