@@ -83,7 +83,7 @@ module Transit
 
     def emit_tagged_map(tag, rep, _, cache)
       emit_map_start(1)
-      emit_object("#{ESC}##{tag}", true)
+      emit_object(cache.encode("#{ESC}##{tag}", true), true)
       marshal(rep, false, cache)
       emit_map_end
     end

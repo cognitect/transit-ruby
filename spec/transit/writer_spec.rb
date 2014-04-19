@@ -318,6 +318,11 @@ module Transit
         writer.write([:key1, :key1])
         assert { io.string == '["~:key1","^!"]' }
       end
+
+      it "caches map keys in nested maps" do
+        writer.write(Set.new([Set.new([:a])]))
+        assert { io.string == "{\"~#set\":[{\"^!\":[\"~:a\"]}]}" }
+      end
     end
   end
 end
