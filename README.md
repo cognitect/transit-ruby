@@ -16,3 +16,13 @@ reader.read(io)
 
 reader.read(io) {|o| do_something_with(o)}
 ```
+
+# Supported Rubies
+
+* MRI 2.1.1, 2.1.0, 1.9.3
+
+# Future targets
+
+* MRI 1.8.7 (???)
+* jruby >= ???
+* rbx >= ???

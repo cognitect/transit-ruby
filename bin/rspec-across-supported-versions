@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+# also consider:
+# jruby-1.7.0
+# jruby-1.7.11
+# 1.8.7-p385
+# rbx-2.0.0
+# rbx-2.2.5
+
+for r in  1.9.3-p484 2.1.0 2.1.1
+do
+  eval "rbenv local $r"
+  echo `ruby -v`
+  rspec
+done
+
+echo "current rbenv version is `ruby -v`"

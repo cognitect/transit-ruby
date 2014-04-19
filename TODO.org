@@ -21,3 +21,7 @@ throw an exception
 - caching is broken (not sure why yet)
 - escaping is broken (not sure why yet)
 * require msgpack or oj on demand (don't load the ones we don't need)
+* bug reading ratios
+* jruby
+- can't use oj or msgpack-ruby, which both use C extensions
+* rbx ???
