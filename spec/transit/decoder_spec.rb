@@ -34,6 +34,10 @@ module Transit
       assert { decode("foo") == "foo" }
     end
 
+    it '_encodes_ strings it does not know how to decode' do
+      assert { decode("~xfoo") == "`~xfoo" }
+    end
+
     it 'decodes an empty array' do
       assert { decode([]) == [] }
     end
@@ -90,6 +94,11 @@ module Transit
         cm2 = {"~#cmap" => ["~:c", "~:d"]}
         cm3 = {"~#cmap" => [cm1, cm2]}
         assert { decode(cm3) == {{:a => :b} => {:c => :d}} }
+      end
+
+      it 'wraps unrecognized tags in a TaggedValue type' do
+        map = {"~#unrecognized" => ["~:a",1]}
+        assert { decode(map) == TaggedValue.new("~#unrecognized", [:a, 1]) }
       end
     end
 

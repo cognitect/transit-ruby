@@ -49,18 +49,16 @@ module Transit
       end
     end
 
-    def find_encoded_hash_decoder(hash, cache)
-      return nil unless hash.size == 1
-      key = decode(hash.keys.first, cache, true)
-      @decoders[key]
-    end
-
     def decode_hash(hash, cache, as_map_key)
-      if decoder = find_encoded_hash_decoder(hash, cache)
-        decoder.call(decode(hash.values.first, cache, false), cache, as_map_key)
-      else
-        hash.reduce({}) {|h,kv| h.store(decode(kv[0], cache, true), decode(kv[1], cache)); h}
+      if hash.size == 1
+        key = decode(hash.keys.first, cache, true)
+        if decoder = @decoders[key]
+          return decoder.call(decode(hash.values.first, cache, false), cache, as_map_key)
+        elsif String === key && /^~#/ =~ key
+          return TaggedValue.new(key, decode(hash.values.first, cache, false))
+        end
       end
+      hash.reduce({}) {|h,kv| h.store(decode(kv[0], cache, true), decode(kv[1], cache)); h}
     end
 
     def decode_string(string, cache, as_map_key)
@@ -84,8 +82,10 @@ module Transit
         str[1..-1]
       elsif decoder = @decoders[str[0..1]]
         decoder.call(str[2..-1], cache, as_map_key)
-      else
+      elsif as_map_key || /^~/ !~ str
         str
+      else
+        "`#{str}"
       end
     end
 

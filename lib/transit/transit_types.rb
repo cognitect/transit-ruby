@@ -174,4 +174,21 @@ module Transit
   end
 
   class Quote < Wrapper; end
+
+  class TaggedValue
+    attr_reader :tag, :value
+    def initialize(tag, value)
+      @tag, @value = tag, value
+    end
+
+    def ==(other)
+      return false unless other.is_a?(self.class)
+      other.tag == tag && other.value == value
+    end
+
+    def eql?(other)
+      return false unless other.is_a?(self.class)
+      other.tag.eql?(tag) && other.value.eql?(value)
+    end
+  end
 end
