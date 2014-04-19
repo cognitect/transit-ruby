@@ -37,6 +37,7 @@ module Transit
       @handlers[Char]          = CharHandler.new
       @handlers[Quote]         = QuoteHandler.new
       @handlers[TaggedMap]     = TaggedMapHandler.new
+      @handlers[TaggedValue]   = TaggedValueHandler.new
     end
 
     def [](obj)
@@ -255,6 +256,12 @@ module Transit
       def tag(tm) tm.tag end
       def rep(tm) tm.rep end
       def string_rep(tm) tm.to_s end
+    end
+
+    class TaggedValueHandler
+      def tag(tv) :tagged_value end
+      def rep(tv) {tv.tag => tv.value} end
+      def string_rep(_) nil end
     end
   end
 end

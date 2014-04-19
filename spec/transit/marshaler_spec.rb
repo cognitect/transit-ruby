@@ -53,6 +53,12 @@ module Transit
       assert { marshaler.value == "~xfoo" }
     end
 
+    it 'marshals a TaggedValue' do
+      marshaler =  TransitMarshaler.new
+      marshaler.marshal_top(TaggedValue.new("~#unrecognized", [:a, 1]))
+      assert { marshaler.value == {"~#unrecognized" => ["~:a", 1]} }
+    end
+
     describe "json-specific rules" do
       it 'marshals Time as a string' do
         t = Time.new(2014,1,2,3,4,5.12345,"-05:00")

@@ -88,6 +88,13 @@ module Transit
       emit_map_end
     end
 
+    def emit_tagged_value(rep, as_map_key, cache)
+      emit_map_start(1)
+      emit_object(rep.keys.first, true)
+      marshal(rep.values.first, false, cache)
+      emit_map_end
+    end
+
     def emit_encoded(tag, handler, obj, as_map_key, cache)
       if tag
         if tag.length == 1
@@ -137,6 +144,8 @@ module Transit
         else
           emit_cmap(rep, as_map_key, cache)
         end
+      when :tagged_value
+        emit_tagged_value(rep, as_map_key, cache)
       else
         emit_encoded(tag, handler, obj, as_map_key, cache)
       end
