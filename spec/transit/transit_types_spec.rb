@@ -63,9 +63,6 @@ module Transit
       assert { UUID.from_string(s)  == uuid }
     end
 
-    # These next two examples both work in clojure, and produce the
-    # same UUID string. The positive example passes, but the negative
-    # example fails.
     it 'supports positive ints' do
       ints = [15122072677373264971, 11503552724641936009]
       uuid = UUID.from_ints(ints)

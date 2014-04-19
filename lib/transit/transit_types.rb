@@ -49,9 +49,11 @@ module Transit
     end
 
     def self.from_ints(b)
-      msb_str = b[0].to_s 16
-      lsb_str = b[1].to_s 16
-      new("#{msb_str[0..7]}-#{msb_str[8..11]}-#{msb_str[12..15]}-#{lsb_str[0..3]}-#{lsb_str[4..15]}")
+      new(digits(b[0] >> 32, 8) + "-" +
+          digits(b[0] >> 16, 4) + "-" +
+          digits(b[0], 4)       + "-" +
+          digits(b[1] >> 48, 4) + "-" +
+          digits(b[1], 12))
     end
 
     def as_ints
@@ -67,6 +69,12 @@ module Transit
     end
 
     private
+
+    def self.digits(val, digits)
+      hi = 1 << (digits*4)
+      (hi | (val & (hi - 1))).to_s(16)[1..-1]
+    end
+
     def to_ints(s)
       components = s.split("-")
       raise ArgumentError.new("Invalid UUID string: #{s}") unless components.size == 5
