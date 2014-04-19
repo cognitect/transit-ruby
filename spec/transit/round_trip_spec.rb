@@ -16,7 +16,6 @@ end
 
 def round_trips(label, obj, type, opts={})
   it "round trips #{label} at top level", :focus => !!opts[:focus], :pending => opts[:pending] do
-    require 'debugger'
     if DateTime === obj
       assert_equal_times(round_trip(obj, type), obj)
     else
