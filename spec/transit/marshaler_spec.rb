@@ -47,6 +47,12 @@ module Transit
       assert { marshaler.value == {"~#'"=>1} }
     end
 
+    it 'marshals a ` encoded string without the `' do
+      marshaler =  TransitMarshaler.new(:quote_scalars => false)
+      marshaler.marshal_top("`~xfoo")
+      assert { marshaler.value == "~xfoo" }
+    end
+
     describe "json-specific rules" do
       it 'marshals Time as a string' do
         t = Time.new(2014,1,2,3,4,5.12345,"-05:00")

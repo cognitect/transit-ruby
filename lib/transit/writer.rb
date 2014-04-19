@@ -14,6 +14,7 @@ module Transit
 
     def escape(s)
       return s if [nil, true, false].include? s
+      return s[1..-1] if /^`~/ =~ s
       [ESC, SUB, RES].include?(s[0]) ? "#{ESC}#{s}" : s
     end
 
