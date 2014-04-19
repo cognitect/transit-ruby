@@ -1,4 +1,3 @@
-* handle UUID for message pack
 * means of registering handlers
 * Deal with reading unrecognized extensions; these are *not* errors.
 - For a string, reader should return (str "`" encoded-str)
