@@ -20,3 +20,4 @@ throw an exception
 - date formats are all different, need to re-implement for 1.8
 - caching is broken (not sure why yet)
 - escaping is broken (not sure why yet)
+* require msgpack or oj on demand (don't load the ones we don't need)
