@@ -36,32 +36,37 @@ module Transit
   end
 
   class UUID < Wrapper
-    def initialize(uuid=SecureRandom.uuid)
-      super uuid
+    attr_reader :most_significant_bits, :least_significant_bits
+
+    def initialize(uuid_or_most_significant_bits=nil,least_significant_bits=nil)
+      case uuid_or_most_significant_bits
+      when String
+        @most_significant_bits, @least_significant_bits = parse_msb_lsb(uuid_or_most_significant_bits)
+        super uuid_or_most_significant_bits
+      when Numeric
+        @most_significant_bits, @least_significant_bits = uuid_or_most_significant_bits, least_significant_bits
+        super to_s
+      when Array
+        @most_significant_bits, @least_significant_bits = *uuid_or_most_significant_bits
+        super to_s
+      when nil
+        super SecureRandom.uuid
+        @most_significant_bits, @least_significant_bits = parse_msb_lsb(@value)
+      else
+        raise "Can't build UUID from #{uuid_or_most_significant_bits.inspect}"
+      end
     end
 
     def self.random
       new
     end
 
-    def self.from_string(s)
-      new(s)
-    end
-
-    def self.from_ints(b)
-      new(digits(b[0] >> 32, 8) + "-" +
-          digits(b[0] >> 16, 4) + "-" +
-          digits(b[0], 4)       + "-" +
-          digits(b[1] >> 48, 4) + "-" +
-          digits(b[1], 12))
-    end
-
-    def as_ints
-      @as_ints ||= to_ints(@value)
-    end
-
     def to_s
-      @value
+      @value ||= digits(@most_significant_bits >> 32, 8) + "-" +
+        digits(@most_significant_bits >> 16, 4) + "-" +
+        digits(@most_significant_bits, 4)       + "-" +
+        digits(@least_significant_bits >> 48, 4) + "-" +
+        digits(@least_significant_bits, 12)
     end
 
     def inspect
@@ -70,12 +75,12 @@ module Transit
 
     private
 
-    def self.digits(val, digits)
+    def digits(val, digits)
       hi = 1 << (digits*4)
       (hi | (val & (hi - 1))).to_s(16)[1..-1]
     end
 
-    def to_ints(s)
+    def parse_msb_lsb(s)
       components = s.split("-")
       raise ArgumentError.new("Invalid UUID string: #{s}") unless components.size == 5
       msb = components[0].hex

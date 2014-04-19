@@ -148,11 +148,11 @@ module Transit
       end
 
       it 'marshals a UUID as a string in an encoded hash' do
-        ints = [6353693437827696322, 11547645107031845111]
-        uuid = UUID.from_ints(ints)
+        msb, lsb = 6353693437827696322, 11547645107031845111
+        uuid = UUID.new(msb,lsb)
         marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => false)
         marshaler.marshal_top(uuid)
-        assert { marshaler.value == {"~#u" => ints.map{|i| "~i#{i}"}} }
+        assert { marshaler.value == {"~#u" => [msb,lsb].map{|i| "~i#{i}"}} }
       end
     end
   end

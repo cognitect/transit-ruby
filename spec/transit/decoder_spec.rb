@@ -61,7 +61,7 @@ module Transit
 
       it 'decodes uuids from ints' do
         uuid = Transit::UUID.random
-        decoded = decode({"~#u" => uuid.as_ints})
+        decoded = decode({"~#u" => [uuid.most_significant_bits, uuid.least_significant_bits]})
         assert { decoded == uuid }
       end
 

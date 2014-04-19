@@ -151,12 +151,7 @@ module Transit
     end
 
     def decode_uuid(rep, cache, as_map_key)
-      case rep
-      when String
-        UUID.from_string(rep)
-      else
-        UUID.from_ints(rep)
-      end
+      UUID.new(rep)
     end
 
     def decode_ints(m, cache, as_map_key)

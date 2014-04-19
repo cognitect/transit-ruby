@@ -44,35 +44,21 @@ module Transit
   end
 
   describe UUID do
-    it 'generates random' do
-      assert { UUID.random }
+    it 'round trips strings' do
+      100.times do
+        uuid = UUID.random
+        s    = uuid.to_s
+        assert { UUID.new(s)  == uuid }
+      end
     end
 
-    it 'splits to two 64bit integers' do
-      as_ints = UUID.random.as_ints
-      assert { Array === as_ints }
-      assert { as_ints.size == 2 }
-      as_ints.map {|b| Numeric === b}
-    end
-
-    it 'round trips strings and ints' do
-      uuid = UUID.random
-      s    = uuid.to_s
-      ints = uuid.as_ints
-      assert { UUID.from_ints(ints) == uuid }
-      assert { UUID.from_string(s)  == uuid }
-    end
-
-    it 'supports positive ints' do
-      ints = [15122072677373264971, 11503552724641936009]
-      uuid = UUID.from_ints(ints)
-      assert { uuid.to_s == "d1dc64fa-da79-444b-9fa4-d4412f427289" }
-    end
-
-    it 'supports negative ints' do
-      ints = [-3324671396336286645, -6943191349067615607]
-      uuid = UUID.from_ints(ints)
-      assert { uuid.to_s == "d1dc64fa-da79-444b-9fa4-d4412f427289" }
+    it 'round trips ints' do
+      100.times do
+        uuid = UUID.random
+        msb, lsb = uuid.most_significant_bits, uuid.least_significant_bits
+        assert { UUID.new(msb,lsb) == uuid }
+        assert { UUID.new([msb,lsb]) == uuid }
+      end
     end
   end
 end

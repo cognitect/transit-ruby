@@ -149,7 +149,7 @@ module Transit
 
     class UuidHandler
       def tag(_) "u" end
-      def rep(u) u.as_ints end
+      def rep(u) [u.most_significant_bits, u.least_significant_bits] end
       def string_rep(u) u.to_s end
     end
 
