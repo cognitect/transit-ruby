@@ -90,7 +90,7 @@ module Transit
 
     def emit_tagged_value(rep, as_map_key, cache)
       emit_map_start(1)
-      emit_object(rep.keys.first, true)
+      emit_object(cache.encode(rep.keys.first, true), true)
       marshal(rep.values.first, false, cache)
       emit_map_end
     end

@@ -319,9 +319,16 @@ module Transit
         assert { io.string == '["~:key1","^!"]' }
       end
 
-      it "caches map keys in nested maps" do
+      it "caches tagged map keys" do
         writer.write(Set.new([Set.new([:a])]))
         assert { io.string == "{\"~#set\":[{\"^!\":[\"~:a\"]}]}" }
+      end
+
+      it "caches tagged value (map) keys" do
+        tv = TaggedValue.new("~#unrecognized", :value)
+        writer.write([TaggedValue.new("~#unrecognized", :a),
+                      TaggedValue.new("~#unrecognized", :b)])
+        assert { io.string == '[{"~#unrecognized":"~:a"},{"^!":"~:b"}]' }
       end
     end
   end
