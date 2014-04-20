@@ -37,13 +37,23 @@ def round_trips(label, obj, type, opts={})
     end
   end
 
-  it "round trips #{label} as a collection value", :focus => !!opts[:focus], :pending => opts[:pending] do
+  it "round trips #{label} as a map value", :focus => !!opts[:focus], :pending => opts[:pending] do
     if DateTime === obj
       before = {:a => obj}
       after = round_trip(before, type)
       assert_equal_times(after.values.first, before.values.first)
     else
       assert { round_trip({a: obj}, type) == {a: obj} }
+    end
+  end
+
+  it "round trips #{label} as an array value", :focus => !!opts[:focus], :pending => opts[:pending] do
+    if DateTime === obj
+      before = [obj]
+      after = round_trip(before, type)
+      assert_equal_times(after.first, before.first)
+    else
+      assert { round_trip([obj], type) == [obj] }
     end
   end
 end

@@ -82,10 +82,10 @@ module Transit
         str[1..-1]
       elsif decoder = @decoders[str[0..1]]
         decoder.call(str[2..-1], cache, as_map_key)
-      elsif as_map_key || /^~/ !~ str
-        str
-      else
+      elsif /^~\w/ =~ str
         "`#{str}"
+      else
+        str
       end
     end
 

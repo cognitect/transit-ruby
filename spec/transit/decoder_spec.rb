@@ -36,6 +36,8 @@ module Transit
 
     it '_encodes_ strings it does not know how to decode' do
       assert { decode("~xfoo") == "`~xfoo" }
+      assert { decode(["~xfoo", "~xbar"]) == ["`~xfoo", "`~xbar"] }
+      assert { decode({"~xfoo" => "~xbar"}) == {"`~xfoo" => "`~xbar"} }
     end
 
     it 'decodes an empty array' do
