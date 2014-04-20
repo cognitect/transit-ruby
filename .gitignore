@@ -20,3 +20,5 @@ doc/
 .rvm
 Gemfile.lock
 .ruby-version
+spec_helper-local.rb
+Gemfile-custom
