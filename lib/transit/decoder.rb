@@ -56,9 +56,12 @@ module Transit
           return decoder.call(decode(hash.values.first, cache, false), cache, as_map_key)
         elsif String === key && /^~#/ =~ key
           return TaggedValue.new(key, decode(hash.values.first, cache, false))
+        else
+          {key => decode(hash.values.first, cache, false)}
         end
+      else
+        hash.reduce({}) {|h,kv| h.store(decode(kv[0], cache, true), decode(kv[1], cache)); h}
       end
-      hash.reduce({}) {|h,kv| h.store(decode(kv[0], cache, true), decode(kv[1], cache)); h}
     end
 
     def decode_string(string, cache, as_map_key)
