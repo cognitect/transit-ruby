@@ -30,6 +30,10 @@ module Transit
       assert { decode({a: '~~escaped', b: 42}) == {a: '~escaped', b: 42} }
     end
 
+    example do
+      assert { decode({"~#set" => [{"^!" => [nil, "~~eight"]}]}) == Set.new([Set.new([nil, "~eight"])]) }
+    end
+
     it 'decodes strings' do
       assert { decode("foo") == "foo" }
     end
@@ -85,6 +89,10 @@ module Transit
 
       it 'decodes nested lists' do
         assert { decode({"~#list" => {"^!" => [1,2,3]}}) == TransitList.new(TransitList.new([1,2,3]))}
+      end
+
+      it "decodes a 'typed array' of ints" do
+        assert { decode({"~#ints" => [1,2,3,2,4]}) == IntsArray.new([1,2,3,2,4]) }
       end
 
       it 'decodes cmaps' do

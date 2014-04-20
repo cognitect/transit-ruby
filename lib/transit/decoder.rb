@@ -92,93 +92,93 @@ module Transit
       end
     end
 
-    def decode_quote(n, _, _)
-      n
+    def decode_quote(v,_,_)
+      v
     end
 
-    def decode_nil(n, cache, as_map_key)
+    def decode_nil(_,_,_)
       nil
     end
 
-    def decode_bool(b, cache, as_map_key)
-      b == "t"
+    def decode_bool(v,_,_)
+      v == "t"
     end
 
-    def decode_uri(s, cache, as_map_key)
-      URI(s)
+    def decode_uri(v,_,_)
+      URI(v)
     end
 
-    def decode_keyword(s, cache, as_map_key)
-      s.to_sym
+    def decode_keyword(v,_,_)
+      v.to_sym
     end
 
-    def decode_byte_array(s, cache, as_map_key)
-      ByteArray.from_base64(s)
+    def decode_byte_array(v,_,_)
+      ByteArray.from_base64(v)
     end
 
-    def decode_float(s, cache, as_map_key)
-      Float(s)
+    def decode_float(v,_,_)
+      Float(v)
     end
 
-    def decode_int(s, cache, as_map_key)
-      s.to_i
+    def decode_int(v,_,_)
+      v.to_i
     end
 
-    def decode_big_decimal(s, cache, as_map_key)
-      BigDecimal.new(s)
+    def decode_big_decimal(v,_,_)
+      BigDecimal.new(v)
     end
 
-    def decode_char(s, cache, as_map_key)
-      Char.new(s)
+    def decode_char(v,_,_)
+      Char.new(v)
     end
 
-    def decode_transit_symbol(s, cache, as_map_key)
-      TransitSymbol.new(s)
+    def decode_transit_symbol(v,_,_)
+      TransitSymbol.new(v)
     end
 
-    def decode_set(m, cache, as_map_key)
-      Set.new(decode(m, cache, as_map_key))
+    def decode_set(v,_,_)
+      Set.new(v)
     end
 
-    def decode_list(m, cache, as_map_key)
-      TransitList.new(decode(m, cache, as_map_key))
+    def decode_list(v,_,_)
+      TransitList.new(v)
     end
 
-    def decode_instant_from_string(s, cache, as_map_key)
+    def decode_instant_from_string(v,_,_)
       # s is already in zulu time, so no need to convert
-      DateTime.iso8601(s)
+      DateTime.iso8601(v)
     end
 
-    def decode_instant_from_int(i, cache, as_key)
-      Util.date_time_from_millis(i).new_offset(0)
+    def decode_instant_from_int(v,_,_)
+      Util.date_time_from_millis(v).new_offset(0)
     end
 
-    def decode_uuid(rep, cache, as_map_key)
+    def decode_uuid(rep,_,_)
       UUID.new(rep)
     end
 
-    def decode_ints(m, cache, as_map_key)
-      IntsArray.new(decode(m, cache, as_map_key))
+    def decode_ints(v,_,_)
+      IntsArray.new(v)
     end
 
-    def decode_longs(m, cache, as_map_key)
-      LongsArray.new(decode(m, cache, as_map_key))
+    def decode_longs(v,_,_)
+      LongsArray.new(v)
     end
 
-    def decode_floats(m, cache, as_map_key)
-      FloatsArray.new(decode(m, cache, as_map_key))
+    def decode_floats(v,_,_)
+      FloatsArray.new(v)
     end
 
-    def decode_doubles(m, cache, as_map_key)
-      DoublesArray.new(decode(m, cache, as_map_key))
+    def decode_doubles(v,_,_)
+      DoublesArray.new(v)
     end
 
-    def decode_bools(m, cache, as_map_key)
-      BoolsArray.new(decode(m, cache, as_map_key))
+    def decode_bools(v,_,_)
+      BoolsArray.new(v)
     end
 
-    def decode_cmap(v, cache, as_map_key)
-      decode(Hash[*v], cache, as_map_key)
+    def decode_cmap(v, _, _)
+      Hash[*v]
     end
 
     def register(k, &b)
