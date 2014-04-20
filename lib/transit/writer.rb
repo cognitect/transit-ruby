@@ -12,10 +12,18 @@ module Transit
       @handlers[type] = handler_class.new
     end
 
+    ESCAPED_ESC     = Regexp.escape(ESC)
+    ESCAPED_SUB     = Regexp.escape(SUB)
+    ESCAPED_RES     = Regexp.escape(RES)
+    IS_ESCAPED      = Regexp.new("^(#{ESCAPED_SUB}|#{ESCAPED_ESC}|#{ESCAPED_RES}).+")
+    IS_UNRECOGNIZED = Regexp.new("^#{ESCAPED_RES}#{ESCAPED_ESC}")
+
     def escape(s)
-      return s if [nil, true, false].include? s
-      return s[1..-1] if /^`~/ =~ s
-      [ESC, SUB, RES].include?(s[0]) ? "#{ESC}#{s}" : s
+      case s
+      when IS_UNRECOGNIZED then s[1..-1]
+      when IS_ESCAPED      then "#{ESC}#{s}"
+      else s
+      end
     end
 
     def stringable_keys?(m)

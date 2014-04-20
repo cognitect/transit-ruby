@@ -260,5 +260,12 @@ module Transit
         assert { decode([{"a" => "~^!"},{"b" => "~^?"}]) == [{"a" => "^!"},{"b" => "^?"}] }
       end
     end
+
+    describe "edge cases" do
+      it "decodes escape characters (as Chars)" do
+        expected = %w[` ~ ^ #].map {|c| Char.new(c)}
+        assert { decode(["~c`","~c~","~c^","~c#"]) == expected }
+      end
+    end
   end
 end

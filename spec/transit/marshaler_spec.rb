@@ -167,5 +167,14 @@ module Transit
         assert { marshaler.value == {"~#u" => [msb,lsb].map{|i| "~i#{i}"}} }
       end
     end
+
+    describe "edge cases" do
+      it "writes Chars with escape characters" do
+        chars = %w[` ~ ^ #].map {|c| Char.new(c)}
+        marshaler = TransitMarshaler.new
+        marshaler.marshal_top(chars)
+        assert { marshaler.value == ["~c`", "~c~", "~c^", "~c#"] }
+      end
+    end
   end
 end
