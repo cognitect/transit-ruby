@@ -10,29 +10,29 @@ module Transit
 
     def default_options
       {decoders: {
-          "#{ESC}_" => method(:decode_nil),
-          "#{ESC}:" => method(:decode_keyword),
-          "#{ESC}?" => method(:decode_bool),
-          "#{ESC}b" => method(:decode_byte_array),
-          "#{ESC}d" => method(:decode_float),
-          "#{ESC}i" => method(:decode_int),
-          "#{ESC}f" => method(:decode_big_decimal),
-          "#{ESC}c" => method(:decode_char),
-          "#{ESC}$" => method(:decode_transit_symbol),
-          "#{ESC}t" => method(:decode_instant_from_string),
-          "#{ESC}u" => method(:decode_uuid),
-          "#{ESC}r" => method(:decode_uri),
-          "#{TAG}'"       => method(:decode_quote),
-          "#{TAG}t"       => method(:decode_instant_from_int),
-          "#{TAG}u"       => method(:decode_uuid),
-          "#{TAG}set"     => method(:decode_set),
-          "#{TAG}list"    => method(:decode_list),
-          "#{TAG}ints"    => method(:decode_ints),
-          "#{TAG}longs"   => method(:decode_longs),
-          "#{TAG}floats"  => method(:decode_floats),
-          "#{TAG}doubles" => method(:decode_doubles),
-          "#{TAG}bools"   => method(:decode_bools),
-          "#{TAG}cmap"    => method(:decode_cmap)
+          "#{ESC}_" => ->(_){nil},
+          "#{ESC}:" => ->(v){v.to_sym},
+          "#{ESC}?" => ->(v){v == "t"},
+          "#{ESC}b" => ->(v){ByteArray.from_base64(v)},
+          "#{ESC}d" => ->(v){Float(v)},
+          "#{ESC}i" => ->(v){v.to_i},
+          "#{ESC}f" => ->(v){BigDecimal.new(v)},
+          "#{ESC}c" => ->(v){Char.new(v)},
+          "#{ESC}$" => ->(v){TransitSymbol.new(v)},
+          "#{ESC}t" => ->(v){DateTime.iso8601(v)},
+          "#{ESC}u" => ->(v){UUID.new(v)},
+          "#{ESC}r" => ->(v){URI(v)},
+          "#{TAG}'"       => ->(v){v},
+          "#{TAG}t"       => ->(v){Util.date_time_from_millis(v).new_offset(0)},
+          "#{TAG}u"       => ->(v){UUID.new(v)},
+          "#{TAG}set"     => ->(v){Set.new(v)},
+          "#{TAG}list"    => ->(v){TransitList.new(v)},
+          "#{TAG}ints"    => ->(v){IntsArray.new(v)},
+          "#{TAG}longs"   => ->(v){LongsArray.new(v)},
+          "#{TAG}floats"  => ->(v){FloatsArray.new(v)},
+          "#{TAG}doubles" => ->(v){DoublesArray.new(v)},
+          "#{TAG}bools"   => ->(v){BoolsArray.new(v)},
+          "#{TAG}cmap"    => ->(v){Hash[*v]}
         }}
     end
 
@@ -53,7 +53,7 @@ module Transit
       if hash.size == 1
         key = decode(hash.keys.first, cache, true)
         if decoder = @decoders[key]
-          return decoder.call(decode(hash.values.first, cache, false), cache, as_map_key)
+          return decoder.call(decode(hash.values.first, cache, false))
         elsif String === key && /^~#/ =~ key
           return TaggedValue.new(key, decode(hash.values.first, cache, false))
         else
@@ -84,101 +84,12 @@ module Transit
       if IS_ESCAPED =~ str
         str[1..-1]
       elsif decoder = @decoders[str[0..1]]
-        decoder.call(str[2..-1], cache, as_map_key)
+        decoder.call(str[2..-1])
       elsif /^~\w/ =~ str
         "`#{str}"
       else
         str
       end
-    end
-
-    def decode_quote(v,_,_)
-      v
-    end
-
-    def decode_nil(_,_,_)
-      nil
-    end
-
-    def decode_bool(v,_,_)
-      v == "t"
-    end
-
-    def decode_uri(v,_,_)
-      URI(v)
-    end
-
-    def decode_keyword(v,_,_)
-      v.to_sym
-    end
-
-    def decode_byte_array(v,_,_)
-      ByteArray.from_base64(v)
-    end
-
-    def decode_float(v,_,_)
-      Float(v)
-    end
-
-    def decode_int(v,_,_)
-      v.to_i
-    end
-
-    def decode_big_decimal(v,_,_)
-      BigDecimal.new(v)
-    end
-
-    def decode_char(v,_,_)
-      Char.new(v)
-    end
-
-    def decode_transit_symbol(v,_,_)
-      TransitSymbol.new(v)
-    end
-
-    def decode_set(v,_,_)
-      Set.new(v)
-    end
-
-    def decode_list(v,_,_)
-      TransitList.new(v)
-    end
-
-    def decode_instant_from_string(v,_,_)
-      # s is already in zulu time, so no need to convert
-      DateTime.iso8601(v)
-    end
-
-    def decode_instant_from_int(v,_,_)
-      Util.date_time_from_millis(v).new_offset(0)
-    end
-
-    def decode_uuid(rep,_,_)
-      UUID.new(rep)
-    end
-
-    def decode_ints(v,_,_)
-      IntsArray.new(v)
-    end
-
-    def decode_longs(v,_,_)
-      LongsArray.new(v)
-    end
-
-    def decode_floats(v,_,_)
-      FloatsArray.new(v)
-    end
-
-    def decode_doubles(v,_,_)
-      DoublesArray.new(v)
-    end
-
-    def decode_bools(v,_,_)
-      BoolsArray.new(v)
-    end
-
-    def decode_cmap(v, _, _)
-      Hash[*v]
     end
 
     def register(k, &b)
