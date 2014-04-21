@@ -199,6 +199,12 @@ module Transit
           assert { decoder.decode("~rhttp://foo.com") == "DECODED: http://foo.com" }
         end
 
+        it 'supports override of default string decoders' do
+          decoder = Decoder.new
+          decoder.register("r", :string) {|u| "DECODED: #{u}"}
+          assert { decoder.decode("~rhttp://foo.com") == "DECODED: http://foo.com" }
+        end
+
         it 'supports override of default hash decoders' do
           my_uuid_class = Class.new(String)
           decoder = Decoder.new
@@ -206,6 +212,18 @@ module Transit
 
           decoder.register("u") {|u| my_uuid_class.new(u)}
           assert { decoder.decode({"~#u" => my_uuid.to_s}) == my_uuid }
+        end
+
+        it 'supports override of the default default string encoder' do
+          decoder = Decoder.new
+          decoder.register(:default_string_decoder) {|s| raise "Unacceptable: #{s}"}
+          assert { rescuing { decoder.decode("~Xabc") }.message =~ /Unacceptable/ }
+        end
+
+        it 'supports override of the default default hash encoder' do
+          decoder = Decoder.new
+          decoder.register(:default_hash_decoder) {|s| raise "Unacceptable: #{s}"}
+          assert { rescuing { decoder.decode({"~#X" => :anything}) }.message =~ /Unacceptable/ }
         end
       end
 
@@ -216,9 +234,26 @@ module Transit
           assert { decoder.decode("~D2014-03-15") == Date.new(2014,3,15) }
         end
 
+        it 'supports string-based extensions with :string key' do
+          decoder = Decoder.new
+          decoder.register("D", :string) {|s| Date.parse(s)}
+          assert { decoder.decode("~D2014-03-15") == Date.new(2014,3,15) }
+        end
+
+        it 'raises when specifying :string w/ a tag length > 1' do
+          decoder = Decoder.new
+          assert { rescuing { decoder.register("DATE", :string) {|_|} }.message =~ /string decoder/ }
+        end
+
         it 'supports hash based extensions' do
           decoder = Decoder.new
           decoder.register("Times2") {|d| d * 2}
+          assert { decoder.decode({"~#Times2" => 44}) == 88 }
+        end
+
+        it 'supports hash based extensions with :hash key' do
+          decoder = Decoder.new
+          decoder.register("Times2", :hash) {|d| d * 2}
           assert { decoder.decode({"~#Times2" => 44}) == 88 }
         end
 

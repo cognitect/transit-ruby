@@ -4,8 +4,8 @@ require 'json'
 module Transit
   class Decoder
     def initialize(options={})
-      options = default_options.merge(options)
-      @decoders = options[:decoders]
+      @options = default_options.merge(options)
+      @decoders = @options[:decoders]
     end
 
     def default_options
@@ -33,7 +33,10 @@ module Transit
           "#{TAG}doubles" => ->(v){DoublesArray.new(v)},
           "#{TAG}bools"   => ->(v){BoolsArray.new(v)},
           "#{TAG}cmap"    => ->(v){Hash[*v]}
-        }}
+        },
+        :default_string_decoder => ->(s){"`#{s}"},
+        :default_hash_decoder   => ->(h){TaggedValue.new(h.keys.first, h.values.first)}
+      }
     end
 
     def decode(node, cache=RollingCache.new, as_map_key=false)
@@ -55,7 +58,7 @@ module Transit
         if decoder = @decoders[key]
           return decoder.call(decode(hash.values.first, cache, false))
         elsif String === key && /^~#/ =~ key
-          return TaggedValue.new(key, decode(hash.values.first, cache, false))
+          @options[:default_hash_decoder].call({key => decode(hash.values.first, cache, false)})
         else
           {key => decode(hash.values.first, cache, false)}
         end
@@ -79,28 +82,40 @@ module Transit
     ESCAPED_SUB = Regexp.escape(SUB)
     ESCAPED_RES = Regexp.escape(RES)
     IS_ESCAPED  = Regexp.new("^#{ESCAPED_ESC}(#{ESCAPED_SUB}|#{ESCAPED_ESC}|#{ESCAPED_RES})")
+    IS_UNRECOGNIZED = /^#{ESC}\w/
 
     def parse_string(str, cache, as_map_key)
       if IS_ESCAPED =~ str
         str[1..-1]
       elsif decoder = @decoders[str[0..1]]
         decoder.call(str[2..-1])
-      elsif /^~\w/ =~ str
-        "`#{str}"
+      elsif IS_UNRECOGNIZED =~ str
+        @options[:default_string_decoder].call(str)
       else
         str
       end
     end
 
-    def register(k, &b)
+    def register(tag_or_key, type=nil, &b)
       raise ArgumentError.new(DECODER_ARITY_MESSAGE) unless b.arity == 1
-      @decoders["~#{k}"] = b if k.length == 1
-      @decoders["~##{k}"] = b
+      raise ArgumentError.new(TAG_LENGTH_MESSAGE) if type == :string && tag_or_key.length > 1
+      if tag_or_key == :default_string_decoder
+        @options[:default_string_decoder] = b
+      elsif tag_or_key == :default_hash_decoder
+        @options[:default_hash_decoder] = b
+      else
+        @decoders["~##{tag_or_key}"] = b if type.nil? or type == :hash
+        @decoders["~#{tag_or_key}"] = b  if (type.nil? or type == :string) && tag_or_key.length == 1
+      end
     end
 
     DECODER_ARITY_MESSAGE = <<-MSG
 Decoder functions require arity 1
-- the string to decode
+- the string or hash to decode
+MSG
+
+    TAG_LENGTH_MESSAGE = <<-MSG
+Tags for string decoders must be one character.
 MSG
   end
 end
