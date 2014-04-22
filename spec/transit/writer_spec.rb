@@ -5,12 +5,6 @@ module Transit
     let(:io) { StringIO.new }
     let(:writer) { Writer.new(io, :json) }
 
-    class DateHandler
-      def tag(_); "D"; end
-      def rep(d) d.to_s end
-      def string_rep(d) rep(d) end
-    end
-
     describe "ground nodes at the top level" do
       it "marshals nil" do
         writer.write(nil)
@@ -92,15 +86,6 @@ module Transit
         writer.write(char)
         assert { io.string == '{"~#\'":"~ca"}' }
       end
-
-      it "marshals an extension scalar" do
-        writer = Writer.new(io, :json)
-        writer.register(Date, DateHandler)
-        writer.write(Date.new(2014,1,2))
-        assert { io.string ==  "{\"~#'\":\"~D2014-01-02\"}" }
-      end
-
-      it "marshals an extension struct"
     end
 
     describe "sequences" do

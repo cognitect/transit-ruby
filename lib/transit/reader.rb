@@ -36,6 +36,10 @@ module Transit
       @decoder = Transit::Decoder.new
     end
 
+    def register(key, &decoder)
+      @decoder.register(key, &decoder)
+    end
+
     def read(io, &block)
       u = MessagePack::Unpacker.new(io)
       if block

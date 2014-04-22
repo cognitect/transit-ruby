@@ -1,9 +1,12 @@
 require 'spec_helper'
 
-def round_trip(obj, type)
+def round_trip(obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, decoder_fn=nil)
   io = StringIO.new('', 'w+')
-  Transit::Writer.new(io, type).write(obj)
+  writer = Transit::Writer.new(io, type)
+  writer.register(type_to_handle, handler) if handler
+  writer.write(obj)
   reader = Transit::Reader.new(type)
+  reader.register(decoder_key, &decoder_fn) if decoder_key && decoder_fn
   reader.read(StringIO.new(io.string))
 end
 
@@ -14,10 +17,13 @@ def assert_equal_times(actual,expected)
   assert { actual.hour  == expected.hour }
 end
 
-def round_trips(label, obj, type, opts={})
+def round_trips(label, obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, decoder_fn=nil)
+  opts = {}
   it "round trips #{label} at top level", :focus => !!opts[:focus], :pending => opts[:pending] do
     if DateTime === obj
       assert_equal_times(round_trip(obj, type), obj)
+    elsif handler && decoder_fn
+      assert { round_trip(obj, type, type_to_handle, handler, decoder_key, decoder_fn) == obj }
     else
       assert { round_trip(obj, type) == obj }
     end
@@ -33,7 +39,11 @@ def round_trips(label, obj, type, opts={})
   when Hash, Array, Transit::TransitList, Set, Transit::TypedArray
   else
     it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
-      assert { round_trip({obj => 0}, type) == {obj => 0} }
+      if handler && decoder_fn
+        assert { round_trip({obj => 0}, type, type_to_handle, handler, decoder_key, decoder_fn) == {obj => 0} }
+      else
+        assert { round_trip({obj => 0}, type) == {obj => 0} }
+      end
     end
   end
 
@@ -42,6 +52,8 @@ def round_trips(label, obj, type, opts={})
       before = {:a => obj}
       after = round_trip(before, type)
       assert_equal_times(after.values.first, before.values.first)
+    elsif handler && decoder_fn
+      assert { round_trip({a: obj}, type, type_to_handle, handler, decoder_key, decoder_fn) == {a: obj} }
     else
       assert { round_trip({a: obj}, type) == {a: obj} }
     end
@@ -52,13 +64,26 @@ def round_trips(label, obj, type, opts={})
       before = [obj]
       after = round_trip(before, type)
       assert_equal_times(after.first, before.first)
-    else
+    elsif handler && decoder_fn
+      assert { round_trip([obj], type, type_to_handle, handler, decoder_key, decoder_fn) == [obj] }    else
       assert { round_trip([obj], type) == [obj] }
     end
   end
 end
 
 module Transit
+  PhoneNumber = Struct.new(:area, :prefix, :suffix)
+  def PhoneNumber.parse(p)
+    area, prefix, suffix = p.split(".")
+    PhoneNumber.new(area, prefix, suffix)
+  end
+
+  class PhoneNumberHandler
+    def tag(_) "P" end
+    def rep(p) "#{p.area}.#{p.prefix}.#{p.suffix}" end
+    def string_rep(p) rep(p) end
+  end
+
   shared_examples "round trips" do |type|
     round_trips("nil", nil, type)
     round_trips("a keyword", :foo, type)
@@ -90,8 +115,12 @@ module Transit
     round_trips("an array of floats", BoolsArray.new([true,false,false,true]), type)
     round_trips("an array of maps w/ cacheable keys", [{"this" => "a"},{"this" => "b"}], type)
     round_trips("a char", Char.new("x"), type)
-    # round_trips("an extension scalar", nil, type)
-    # round_trips("an extension struct", nil, type)
+    round_trips("an extension scalar", PhoneNumber.new("555","867","5309"), type,
+                PhoneNumber, PhoneNumberHandler,
+                "P", ->(p){PhoneNumber.parse(p)})
+    round_trips("an extension struct", Person.new("First","Last",:today), type,
+                Person, PersonHandler,
+                "person", ->(p){Person.new(p[:first_name],p[:last_name],p[:birthdate])})
     round_trips("a hash with simple values", {'a' => 1, 'b' => 2, 'name' => 'russ'}, type)
     round_trips("a hash with TransitSymbols", {TransitSymbol.new("foo") => TransitSymbol.new("bar")}, type)
     round_trips("a hash with 53 bit ints",  {2**53-1 => 2**53-2}, type)

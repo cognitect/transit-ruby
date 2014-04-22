@@ -270,13 +270,12 @@ module Transit
         end
 
         it 'supports complex hash values' do
-          person_class = Struct.new("Person", :first_name, :last_name, :birthdate)
           decoder = Decoder.new
-          decoder.register("person") {|p| person_class.new(p[:first_name],p[:last_name],p[:birthdate])}
+          decoder.register("person") {|p| Person.new(p[:first_name],p[:last_name],p[:birthdate])}
           decoder.register("D") {|s| Date.parse(s)}
 
-          expected = [person_class.new("Transit", "Ruby", Date.new(2014,1,2)),
-                      person_class.new("Transit", "Ruby", Date.new(2014,1,3))]
+          expected = [Person.new("Transit", "Ruby", Date.new(2014,1,2)),
+                      Person.new("Transit", "Ruby", Date.new(2014,1,3))]
           actual   = decoder.decode([
                                      {"~#person"=>{"~:first_name" => "Transit","~:last_name" => "Ruby","~:birthdate" => "~D2014-01-02"}},
                                      {"^!"=>{"^\"" => "Transit","^#" => "Ruby","^$" => "~D2014-01-03"}}

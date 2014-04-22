@@ -171,9 +171,25 @@ module Transit
     describe "edge cases" do
       it "writes Chars with escape characters" do
         chars = %w[` ~ ^ #].map {|c| Char.new(c)}
-        marshaler = TransitMarshaler.new
         marshaler.marshal_top(chars)
         assert { marshaler.value == ["~c`", "~c~", "~c^", "~c#"] }
+      end
+    end
+
+    describe "extensions" do
+      it "marshals an extension scalar" do
+        marshaler.register(Date, DateHandler)
+        marshaler.marshal_top(Date.new(2014,1,2))
+        assert { marshaler.value == "~D2014-01-02" }
+      end
+
+      it "marshals an extension struct" do
+        marshaler.register(Person, PersonHandler)
+        marshaler.marshal_top(Person.new("Joe", "Smith", Date.new(1963,11,26)))
+        assert { marshaler.value == {"~#person" => {
+              "~:first_name"=>"Joe",
+              "~:last_name"=>"Smith",
+              "~:birthdate"=>"~t1963-11-26T00:00:00.000Z"}}}
       end
     end
   end
