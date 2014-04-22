@@ -12,3 +12,5 @@
 * jruby
 - can't use oj or msgpack-ruby, which both use C extensions
 * rbx ???
+* check stringable_keys?
+does it handle the diffs between msgpack and json?
