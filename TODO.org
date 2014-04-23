@@ -13,3 +13,4 @@
 * rbx ???
 * check stringable_keys?
 does it handle the diffs between msgpack and json?
+* move most of writer_spec to marshaler_spec

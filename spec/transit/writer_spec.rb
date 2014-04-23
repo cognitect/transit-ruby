@@ -292,29 +292,5 @@ module Transit
         assert { io.string == "[37,{\"~:a\":[1,[{\"~:b\":\"~~c\"}]]}]" }
       end
     end
-
-    describe "caching" do
-      it "caches a simple string as map key" do
-        writer.write([{"this" => "a"},{"this" => "b"}])
-        assert { io.string == '[{"this":"a"},{"^!":"b"}]' }
-      end
-
-      it "caches keys in an array" do
-        writer.write([:key1, :key1])
-        assert { io.string == '["~:key1","^!"]' }
-      end
-
-      it "caches tagged map keys" do
-        writer.write(Set.new([Set.new([:a])]))
-        assert { io.string == "{\"~#set\":[{\"^!\":[\"~:a\"]}]}" }
-      end
-
-      it "caches tagged value (map) keys" do
-        tv = TaggedValue.new("~#unrecognized", :value)
-        writer.write([TaggedValue.new("~#unrecognized", :a),
-                      TaggedValue.new("~#unrecognized", :b)])
-        assert { io.string == '[{"~#unrecognized":"~:a"},{"^!":"~:b"}]' }
-      end
-    end
   end
 end

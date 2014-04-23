@@ -192,5 +192,30 @@ module Transit
               "~:birthdate"=>"~t1963-11-26T00:00:00.000Z"}}}
       end
     end
+
+    describe "caching" do
+      it "caches a simple string as map key" do
+        marshaler.marshal_top([{"this" => "a"},{"this" => "b"}])
+        assert { marshaler.value == [{"this" => "a"}, {"^!" => "b"}] }
+      end
+
+      it "caches keys in an array" do
+        marshaler.marshal_top([:key1, :key1])
+        assert { marshaler.value == ["~:key1","^!"] }
+      end
+
+      it "caches tagged map keys" do
+        marshaler.marshal_top(Set.new([Set.new([:a])]))
+        assert { marshaler.value == {"~#set" => [{"^!" => ["~:a"]}]} }
+      end
+
+      it "caches tagged value (map) keys" do
+        tv = TaggedValue.new("~#unrecognized", :value)
+        marshaler.marshal_top([TaggedValue.new("~#unrecognized", :a),
+                               TaggedValue.new("~#unrecognized", :b)])
+        assert { marshaler.value == [{"~#unrecognized" => "~:a"},{"^!" => "~:b"}] }
+      end
+    end
+
   end
 end
