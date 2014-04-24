@@ -18,6 +18,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
+  spec.add_dependency "addressable", "~> 2.3.6"
   spec.add_dependency "msgpack", "~> 0.5.8"
   spec.add_dependency "oj", "~> 2.7.1"
   spec.add_dependency "yajl-ruby", "~> 1.2.0"

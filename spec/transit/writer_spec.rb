@@ -70,6 +70,11 @@ module Transit
         assert { io.string == '{"~#\'":"~rhttp://example.com"}' }
       end
 
+      it "marshals an Addressable::URI" do
+        writer.write(Addressable::URI.parse("http://example.com"))
+        assert { io.string == '{"~#\'":"~rhttp://example.com"}' }
+      end
+
       it "marshals a binary object (ByteArray)" do
         ba = ByteArray.new('abcdef\n\r\tghij')
         writer.write(ba)

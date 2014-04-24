@@ -163,7 +163,7 @@ module Transit
       end
 
       it 'decodes uris' do
-        assert { decode("~rprotocol://domain") == URI("protocol://domain") }
+        assert { decode("~rprotocol://domain") == Addressable::URI.parse("protocol://domain") }
       end
 
       it 'decodes chars' do

@@ -23,6 +23,7 @@ module Transit
       @handlers[Date]          = DateHandler.new
       @handlers[UUID]          = UuidHandler.new
       @handlers[URI]           = UriHandler.new
+      @handlers[Addressable::URI] = AddressableUriHandler.new
       @handlers[ByteArray]     = ByteArrayHandler.new
       @handlers[TransitSymbol] = TransitSymbolHandler.new
       @handlers[Array]         = ArrayHandler.new
@@ -155,6 +156,12 @@ module Transit
     end
 
     class UriHandler
+      def tag(_) "r" end
+      def rep(u) u.to_s end
+      def string_rep(u) rep(u) end
+    end
+
+    class AddressableUriHandler
       def tag(_) "r" end
       def rep(u) u.to_s end
       def string_rep(u) rep(u) end

@@ -21,7 +21,7 @@ module Transit
           "#{ESC}$" => ->(v){TransitSymbol.new(v)},
           "#{ESC}t" => ->(v){DateTime.iso8601(v)},
           "#{ESC}u" => ->(v){UUID.new(v)},
-          "#{ESC}r" => ->(v){URI(v)},
+          "#{ESC}r" => ->(v){Addressable::URI.parse(v)},
           "#{TAG}'"       => ->(v){v},
           "#{TAG}t"       => ->(v){Util.date_time_from_millis(v).new_offset(0)},
           "#{TAG}u"       => ->(v){UUID.new(v)},
