@@ -252,10 +252,14 @@ module Transit
     def initialize(io, type)
       @marshaler = if type == :json
                      require 'oj'
-                     JsonMarshaler.new(io, :quote_scalars => true, :prefer_strings => true)
+                     JsonMarshaler.new(io,
+                                       :quote_scalars  => true,
+                                       :prefer_strings => true)
                    else
                      require 'msgpack'
-                     MessagePackMarshaler.new(io, :quote_scalars => false, :prefer_strings => false)
+                     MessagePackMarshaler.new(io,
+                                              :quote_scalars  => false,
+                                              :prefer_strings => false)
                    end
     end
 
