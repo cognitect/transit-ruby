@@ -11,21 +11,21 @@ def round_trip(obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, deco
 end
 
 def assert_equal_times(actual,expected)
-  assert { actual.year  == expected.year }
-  assert { actual.month == expected.month }
-  assert { actual.day   == expected.day }
-  assert { actual.hour  == expected.hour }
+  assert { actual.year   == expected.year }
+  assert { actual.month  == expected.month }
+  assert { actual.day    == expected.day }
+  assert { actual.hour   == expected.hour }
+  assert { actual.minute == expected.minute }
+  assert { actual.second == expected.second }
 end
 
-def round_trips(label, obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, decoder_fn=nil)
-  opts = {}
+def round_trips(label, obj, type, opts={}) # type_to_handle=nil, handler=nil, decoder_key=nil, decoder_fn=nil)
   it "round trips #{label} at top level", :focus => !!opts[:focus], :pending => opts[:pending] do
     if DateTime === obj
       assert_equal_times(round_trip(obj, type), obj)
-    elsif handler && decoder_fn
-      assert { round_trip(obj, type, type_to_handle, handler, decoder_key, decoder_fn) == obj }
     else
-      assert { round_trip(obj, type) == obj }
+      assert { round_trip(obj, type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn]) ==
+        (opts[:expected] || obj) }
     end
   end
 
@@ -39,11 +39,8 @@ def round_trips(label, obj, type, type_to_handle=nil, handler=nil, decoder_key=n
   when Hash, Array, Transit::TransitList, Set, Transit::TypedArray
   else
     it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
-      if handler && decoder_fn
-        assert { round_trip({obj => 0}, type, type_to_handle, handler, decoder_key, decoder_fn) == {obj => 0} }
-      else
-        assert { round_trip({obj => 0}, type) == {obj => 0} }
-      end
+      assert { round_trip({obj => 0}, type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn]) ==
+        {(opts[:expected] || obj) => 0} }
     end
   end
 
@@ -52,10 +49,9 @@ def round_trips(label, obj, type, type_to_handle=nil, handler=nil, decoder_key=n
       before = {:a => obj}
       after = round_trip(before, type)
       assert_equal_times(after.values.first, before.values.first)
-    elsif handler && decoder_fn
-      assert { round_trip({a: obj}, type, type_to_handle, handler, decoder_key, decoder_fn) == {a: obj} }
     else
-      assert { round_trip({a: obj}, type) == {a: obj} }
+      assert { round_trip({a: obj}, type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn]) ==
+        {a: (opts[:expected] || obj)} }
     end
   end
 
@@ -64,9 +60,9 @@ def round_trips(label, obj, type, type_to_handle=nil, handler=nil, decoder_key=n
       before = [obj]
       after = round_trip(before, type)
       assert_equal_times(after.first, before.first)
-    elsif handler && decoder_fn
-      assert { round_trip([obj], type, type_to_handle, handler, decoder_key, decoder_fn) == [obj] }    else
-      assert { round_trip([obj], type) == [obj] }
+    else
+      assert { round_trip([obj], type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn]) ==
+        [(opts[:expected] || obj)] }
     end
   end
 end
@@ -104,23 +100,27 @@ module Transit
     round_trips("a uri (file)", Addressable::URI.parse("file:///path/to/file.txt"), type)
     round_trips("a bytearray", ByteArray.new("abcdef\n\r\tghij"), type)
     round_trips("a TransitSymbol", TransitSymbol.new("abc"), type)
-    round_trips("a list", TransitList.new([1,2,3]), type)
+    round_trips("a list", TransitList.new([1,2,3]), type, :expected => [1,2,3])
     round_trips("a hash w/ stringable keys", {"this" => "~hash", "1" => 2}, type)
     round_trips("a set", Set.new([1,2,3]), type)
     round_trips("an array", [1,2,3], type)
-    round_trips("an array of ints", IntsArray.new([1,2,3]), type)
-    round_trips("an array of longs", LongsArray.new( [1,2,3]), type)
-    round_trips("an array of floats", FloatsArray.new([1.1,2.2,3.3]), type)
-    round_trips("an array of floats", DoublesArray.new([1.1,2.2,3.3]), type)
-    round_trips("an array of floats", BoolsArray.new([true,false,false,true]), type)
+    round_trips("an array of ints", IntsArray.new([1,2,3]), type, :expected => [1,2,3])
+    round_trips("an array of longs", LongsArray.new( [1,2,3]), type, :expected => [1,2,3])
+    round_trips("an array of floats", FloatsArray.new([1.1,2.2,3.3]), type, :expected => [1.1,2.2,3.3])
+    round_trips("an array of doubles", DoublesArray.new([1.1,2.2,3.3]), type, :expected => [1.1,2.2,3.3])
+    round_trips("an array of bools", BoolsArray.new([true,false,false,true]), type, :expected => [true,false,false,true])
     round_trips("an array of maps w/ cacheable keys", [{"this" => "a"},{"this" => "b"}], type)
-    round_trips("a char", Char.new("x"), type)
+    round_trips("a char", Char.new("x"), type, :expected => "x")
     round_trips("an extension scalar", PhoneNumber.new("555","867","5309"), type,
-                PhoneNumber, PhoneNumberHandler,
-                "P", ->(p){PhoneNumber.parse(p)})
+                :type_to_handle => PhoneNumber,
+                :handler => PhoneNumberHandler,
+                :decoder_key => "P",
+                :decoder_fn => ->(p){PhoneNumber.parse(p)})
     round_trips("an extension struct", Person.new("First","Last",:today), type,
-                Person, PersonHandler,
-                "person", ->(p){Person.new(p[:first_name],p[:last_name],p[:birthdate])})
+                :type_to_handle => Person,
+                :handler => PersonHandler,
+                :decoder_key => "person",
+                :decoder_fn => ->(p){Person.new(p[:first_name],p[:last_name],p[:birthdate])})
     round_trips("a hash with simple values", {'a' => 1, 'b' => 2, 'name' => 'russ'}, type)
     round_trips("a hash with TransitSymbols", {TransitSymbol.new("foo") => TransitSymbol.new("bar")}, type)
     round_trips("a hash with 53 bit ints",  {2**53-1 => 2**53-2}, type)

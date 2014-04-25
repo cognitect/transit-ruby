@@ -1,5 +1,7 @@
 module Transit
   class Decoder
+    IDENTITY = ->(v){v}
+
     def initialize(options={})
       @options = default_options.merge(options)
       @decoders = @options[:decoders]
@@ -14,19 +16,19 @@ module Transit
           "d" => ->(v){Float(v)},
           "i" => ->(v){v.to_i},
           "f" => ->(v){BigDecimal.new(v)},
-          "c" => ->(v){Char.new(v)},
+          "c" => IDENTITY,
           "$" => ->(v){TransitSymbol.new(v)},
           "t" => ->(v){String === v ? DateTime.iso8601(v) : Util.date_time_from_millis(v).new_offset(0)},
           "u" => ->(v){UUID.new(v)},
           "r" => ->(v){Addressable::URI.parse(v)},
-          "'"       => ->(v){v},
+          "'" => ->(v){v},
           "set"     => ->(v){Set.new(v)},
-          "list"    => ->(v){TransitList.new(v)},
-          "ints"    => ->(v){IntsArray.new(v)},
-          "longs"   => ->(v){LongsArray.new(v)},
-          "floats"  => ->(v){FloatsArray.new(v)},
-          "doubles" => ->(v){DoublesArray.new(v)},
-          "bools"   => ->(v){BoolsArray.new(v)},
+          "list"    => IDENTITY,
+          "ints"    => IDENTITY,
+          "longs"   => IDENTITY,
+          "floats"  => IDENTITY,
+          "doubles" => IDENTITY,
+          "bools"   => IDENTITY,
           "cmap"    => ->(v){Hash[*v]}
         },
         :default_string_decoder => ->(s){"`#{s}"},

@@ -84,15 +84,15 @@ module Transit
       end
 
       it 'decodes lists' do
-        assert { decode({"~#list" => [1,2,3,2,4]}) == TransitList.new([1,2,3,2,4]) }
+        assert { decode({"~#list" => [1,2,3,2,4]}) == [1,2,3,2,4]}
       end
 
       it 'decodes nested lists' do
-        assert { decode({"~#list" => {"^!" => [1,2,3]}}) == TransitList.new(TransitList.new([1,2,3]))}
+        assert { decode({"~#list" => [{"^!" => [1,2,3]}]}) == [[1,2,3]]}
       end
 
       it "decodes a 'typed array' of ints" do
-        assert { decode({"~#ints" => [1,2,3,2,4]}) == IntsArray.new([1,2,3,2,4]) }
+        assert { decode({"~#ints" => [1,2,3,2,4]}) == [1,2,3,2,4] }
       end
 
       it 'decodes cmaps' do
@@ -167,7 +167,7 @@ module Transit
       end
 
       it 'decodes chars' do
-        assert {decode("~ca") == Char.new("a")}
+        assert {decode("~ca") == "a"}
       end
     end
 
@@ -275,8 +275,7 @@ module Transit
 
     describe "edge cases" do
       it "decodes escape characters (as Chars)" do
-        expected = %w[` ~ ^ #].map {|c| Char.new(c)}
-        assert { decode(["~c`","~c~","~c^","~c#"]) == expected }
+        assert { decode(["~c`","~c~","~c^","~c#"]) == %w[` ~ ^ #] }
       end
     end
   end
