@@ -1,6 +1,3 @@
-require 'set'
-require 'time'
-
 module Transit
   class Handler
     extend Forwardable

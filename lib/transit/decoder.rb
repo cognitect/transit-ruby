@@ -1,6 +1,3 @@
-require 'uri'
-require 'json'
-
 module Transit
   class Decoder
     def initialize(options={})

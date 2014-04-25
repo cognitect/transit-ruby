@@ -1,3 +1,9 @@
+require 'set'
+require 'time'
+require 'uri'
+require 'base64'
+require 'securerandom'
+require 'forwardable'
 require 'addressable/uri'
 
 module Transit

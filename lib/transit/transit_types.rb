@@ -1,7 +1,3 @@
-require 'base64'
-require 'securerandom'
-require 'forwardable'
-
 module Transit
   class Wrapper
     extend Forwardable
