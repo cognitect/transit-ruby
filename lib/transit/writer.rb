@@ -9,11 +9,8 @@ module Transit
       @handlers[type] = handler_class.new
     end
 
-    ESCAPED_ESC     = Regexp.escape(ESC)
-    ESCAPED_SUB     = Regexp.escape(SUB)
-    ESCAPED_RES     = Regexp.escape(RES)
-    IS_ESCAPED      = Regexp.new("^(#{ESCAPED_SUB}|#{ESCAPED_ESC}|#{ESCAPED_RES}).+")
-    IS_UNRECOGNIZED = Regexp.new("^#{ESCAPED_RES}#{ESCAPED_ESC}")
+    IS_UNRECOGNIZED = /^#{RES}#{ESC}/
+    IS_ESCAPED      = /^(#{Regexp.escape(SUB)}|#{ESC}|#{RES}).+/
 
     def escape(s)
       case s
