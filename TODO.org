@@ -7,10 +7,17 @@
 - date formats are all different, need to re-implement for 1.8
 - caching is broken (not sure why yet)
 - escaping is broken (not sure why yet)
-* require msgpack or oj on demand (don't load the ones we don't need)
 * jruby
 - can't use oj or msgpack-ruby, which both use C extensions
 * rbx ???
 * check stringable_keys?
 does it handle the diffs between msgpack and json?
 * move most of writer_spec to marshaler_spec
+* consider two read formats
+- ruby
+  - reads stringlike things as strings
+  - reads typed arrays as arrays
+- transit
+  - reads stinglike things as Ruby and Transit-specific types
+    - e.g. URI | Addressable::URI
+  - wraps typed arrays
