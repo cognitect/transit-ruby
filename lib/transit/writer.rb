@@ -98,26 +98,24 @@ module Transit
     end
 
     def emit_encoded(tag, handler, obj, as_map_key, cache)
-      if tag
-        if tag.length == 1
-          rep = handler.rep(obj)
+      rep = handler.rep(obj)
+      if tag.length == 1
+        if String === rep
+          emit_string(ESC, tag, rep, as_map_key, cache)
+        elsif as_map_key || @opts[:prefer_strings]
+          rep = handler.string_rep(obj)
           if String === rep
             emit_string(ESC, tag, rep, as_map_key, cache)
-          elsif as_map_key || @opts[:prefer_strings]
-            rep = handler.string_rep(obj)
-            if String === rep
-              emit_string(ESC, tag, rep, as_map_key, cache)
-            else
-              raise "Cannot be encoded as String: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
-            end
           else
-            emit_tagged_map(tag, rep, false, cache)
+            raise "Cannot be encoded as String: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
           end
-        elsif as_map_key
-          raise "Cannot be used as a map key: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
         else
-          emit_tagged_map(tag, handler.rep(obj), false, cache)
+          emit_tagged_map(tag, rep, false, cache)
         end
+      elsif as_map_key
+        raise "Cannot be used as a map key: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
+      else
+        emit_tagged_map(tag, rep, false, cache)
       end
     end
 
@@ -162,6 +160,8 @@ module Transit
           marshal(obj, false, cache)
         end
         flush
+      else
+        raise "Handler must provide a non-nil tag: #{handler.inspect}"
       end
     end
   end

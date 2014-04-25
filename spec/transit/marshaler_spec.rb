@@ -275,5 +275,15 @@ module Transit
       end
     end
 
+    describe "illegal conditions" do
+      it "raises when a handler provides nil as a tag" do
+        handler = Class.new do
+          def tag(_) nil end
+        end
+        marshaler.register(Date, handler)
+        assert { rescuing { marshaler.marshal_top(Date.today) }.message =~ /must provide a non-nil tag/ }
+      end
+    end
+
   end
 end
