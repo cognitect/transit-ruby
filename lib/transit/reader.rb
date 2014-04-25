@@ -1,5 +1,3 @@
-require 'yajl'
-
 module Transit
   class JsonUnmarshaler
     CHUNK_SIZE = 8192
@@ -55,8 +53,10 @@ module Transit
   class Reader
     def initialize(type=:json)
       @reader = if type == :json
+                  require 'yajl'
                   JsonUnmarshaler.new
                 else
+                  require 'msgpack'
                   MsgpackUnmarshaler.new
                 end
     end
