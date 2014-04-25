@@ -1,6 +1,7 @@
 require 'rspec'
 require 'wrong/adapters/rspec'
 require 'transit'
+require 'transit_marshaler'
 require 'spec_helper-local' if File.exist?(File.expand_path('../spec_helper-local.rb', __FILE__))
 
 RSpec.configure do |c|
