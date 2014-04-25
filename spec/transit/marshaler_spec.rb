@@ -4,59 +4,117 @@ module Transit
   describe Marshaler do
     let(:marshaler) { TransitMarshaler.new }
 
-    it 'marshals 1 at top' do
-      marshaler.marshal_top(1)
-      assert { marshaler.value == 1 }
+    shared_examples "top level" do |label, input, output|
+      it "marshals #{label} (quoted for json)" do
+        marshaler = TransitMarshaler.new(:quote_scalars => true)
+        marshaler.marshal_top(input)
+        assert { marshaler.value == {"~#'" => output } }
+      end
+
+      it "marshals #{label} (unquoted for msgpack)" do
+        marshaler = TransitMarshaler.new(:quote_scalars => false)
+        marshaler.marshal_top(input)
+        assert { marshaler.value == output }
+      end
     end
 
-    it 'escapes a string' do
-      marshaler.marshal_top("~this")
-      assert { marshaler.value == "~~this" }
+    describe "top level scalars" do
+      include_examples "top level", "nil", nil, nil
+      include_examples "top level", "a keyword", :this, "~:this"
+      include_examples "top level", "a namespaced keyword", :"namespace/name", "~:namespace/name"
+      include_examples "top level", "a string", "this", "this"
+      include_examples "top level", "a string that starts with ~", "~this", "~~this"
+      include_examples "top level", "a string that starts with ^", "^this", "~^this"
+      include_examples "top level", "a string that starts with `", "`this", "~`this"
+      include_examples "top level", "true", true, true
+      include_examples "top level", "false", false, false
+      include_examples "top level", "a float", 37.42, 37.42
+      include_examples "top level", "a BigDecimal", BigDecimal.new("37.42", 2), "~f37.42"
+      include_examples "top level", "a Date", Date.new(2014,1,2), "~t2014-01-02T00:00:00.000Z"
+      #    include_examples "top level", "a Time", Time.new(2014,1,2,3,4,5.678,"+00:00"), "~t2014-01-02T03:04:05.678Z"
+      include_examples "top level", "a DateTime", DateTime.new(2014,1,2,3,4,5.678,"+00:00"), "~t2014-01-02T03:04:05.678Z"
+      include_examples "top level", "a UUID", UUID.new("b1502078-57ed-40d1-a54c-0f4ba2e74b37"), "~ub1502078-57ed-40d1-a54c-0f4ba2e74b37"
+      include_examples "top level", "a URI", URI("http://example.com"), "~rhttp://example.com"
+      include_examples "top level", "an Addressable::URI", Addressable::URI.parse("http://example.com"), "~rhttp://example.com"
+      include_examples "top level", "a binary object (ByteArray)", ByteArray.new('abcdef\n\r\tghij'), "~bYWJjZGVmXG5cclx0Z2hpag==\n"
+      include_examples "top level", "a TransitSymbol", TransitSymbol.new("abc"), "~$abc"
+      include_examples "top level", "a Char", Char.new("a"), "~ca"
     end
 
-    it 'marshals 1 in an array' do
-      marshaler.marshal_top([1])
-      assert { marshaler.value == [1] }
+    describe "sequences" do
+      it "marshals a vector (Array) with one element" do
+        marshaler.marshal_top([1])
+        assert { marshaler.value == [1] }
+      end
+
+      it "marshals a vector (Array) with several elements including nesting" do
+        marshaler.marshal_top([1, "2", [3, ["~4"]]])
+        assert { marshaler.value == [1,"2",[3,["~~4"]]] }
+      end
+
+      it "marshals a set" do
+        marshaler.marshal_top(Set.new([1,"2","~3",:four]))
+        assert { marshaler.value == {"~#set" => [1,"2","~~3","~:four"]} }
+      end
+
+      it "marshals a list" do
+        marshaler.marshal_top(TransitList.new([1,"2","~3",:four]))
+        assert { marshaler.value == {"~#list" => [1,"2","~~3","~:four"]} }
+      end
+
+      it "marshals a typed int array" do
+        marshaler.marshal_top(IntsArray.new([1,2,3]))
+        assert { marshaler.value == {"~#ints" => [1,2,3]} }
+      end
+
+      it "marshals a typed float array" do
+        marshaler.marshal_top(FloatsArray.new([1.1,2.2,3.3]))
+        assert { marshaler.value == {"~#floats" => [1.1,2.2,3.3]} }
+      end
+
+      it "marshals a typed double array" do
+        marshaler.marshal_top(DoublesArray.new([1.1,2.2,3.3]))
+        assert { marshaler.value == {"~#doubles" => [1.1,2.2,3.3]} }
+      end
+
+      it "marshals a typed bool array" do
+        marshaler.marshal_top(BoolsArray.new([true, false, true]))
+        assert { marshaler.value == {"~#bools" => [true,false,true]} }
+      end
     end
 
-    it 'marshals 1 in a nested array' do
-      marshaler.marshal_top([[1]])
-      assert { marshaler.value == [[1]] }
+
+    describe "hashes" do
+      it 'marshals a map' do
+        marshaler.marshal_top({"a" => 1})
+        assert { marshaler.value == {"a" => 1} }
+      end
+
+      it 'marshals a nested map' do
+        marshaler.marshal_top({"a" => {"b" => 1}})
+        assert { marshaler.value == {"a" => {"b" => 1}} }
+      end
+
+      it 'marshals a big mess' do
+        input   = {"~a" => [1, {:b => [2,3]}, 4]}
+        output  = {"~~a" => [1, {"~:b" => [2,3]}, 4]}
+        marshaler.marshal_top(input)
+        assert { marshaler.value == output }
+      end
     end
 
-    it 'marshals a map' do
-      marshaler.marshal_top({"a" => 1})
-      assert { marshaler.value == {"a" => 1} }
-    end
+    describe "unrecognized encodings" do
+      it 'marshals a ` encoded string without the `' do
+        marshaler =  TransitMarshaler.new(:quote_scalars => false)
+        marshaler.marshal_top("`~xfoo")
+        assert { marshaler.value == "~xfoo" }
+      end
 
-    it 'marshals a nested map' do
-      marshaler.marshal_top({"a" => {"b" => 1}})
-      assert { marshaler.value == {"a" => {"b" => 1}} }
-    end
-
-    it 'marshals a big mess' do
-      input   = {"~a" => [1, {:b => [2,3]}, 4]}
-      output  = {"~~a" => [1, {"~:b" => [2,3]}, 4]}
-      marshaler.marshal_top(input)
-      assert { marshaler.value == output }
-    end
-
-    it 'marshals a top-level scalar in a map when requested' do
-      marshaler =  TransitMarshaler.new(:quote_scalars => true)
-      marshaler.marshal_top(1)
-      assert { marshaler.value == {"~#'"=>1} }
-    end
-
-    it 'marshals a ` encoded string without the `' do
-      marshaler =  TransitMarshaler.new(:quote_scalars => false)
-      marshaler.marshal_top("`~xfoo")
-      assert { marshaler.value == "~xfoo" }
-    end
-
-    it 'marshals a TaggedValue' do
-      marshaler =  TransitMarshaler.new
-      marshaler.marshal_top(TaggedValue.new("~#unrecognized", [:a, 1]))
-      assert { marshaler.value == {"~#unrecognized" => ["~:a", 1]} }
+      it 'marshals a TaggedValue' do
+        marshaler =  TransitMarshaler.new
+        marshaler.marshal_top(TaggedValue.new("~#unrecognized", [:a, 1]))
+        assert { marshaler.value == {"~#unrecognized" => ["~:a", 1]} }
+      end
     end
 
     describe "json-specific rules" do
