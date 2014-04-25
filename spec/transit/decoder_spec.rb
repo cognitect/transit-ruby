@@ -195,13 +195,7 @@ module Transit
       describe 'overrides' do
         it 'supports override of default string decoders' do
           decoder = Decoder.new
-          decoder.register("r") {|u| "DECODED: #{u}"}
-          assert { decoder.decode("~rhttp://foo.com") == "DECODED: http://foo.com" }
-        end
-
-        it 'supports override of default string decoders' do
-          decoder = Decoder.new
-          decoder.register("r", :string) {|u| "DECODED: #{u}"}
+          decoder.register("r") {|r| "DECODED: #{r}"}
           assert { decoder.decode("~rhttp://foo.com") == "DECODED: http://foo.com" }
         end
 
@@ -232,28 +226,12 @@ module Transit
           decoder = Decoder.new
           decoder.register("D") {|s| Date.parse(s)}
           assert { decoder.decode("~D2014-03-15") == Date.new(2014,3,15) }
-        end
-
-        it 'supports string-based extensions with :string key' do
-          decoder = Decoder.new
-          decoder.register("D", :string) {|s| Date.parse(s)}
-          assert { decoder.decode("~D2014-03-15") == Date.new(2014,3,15) }
-        end
-
-        it 'raises when specifying :string w/ a tag length > 1' do
-          decoder = Decoder.new
-          assert { rescuing { decoder.register("DATE", :string) {|_|} }.message =~ /string decoder/ }
+          assert { decoder.decode({"~#D"=> "2014-03-15"}) == Date.new(2014,3,15) }
         end
 
         it 'supports hash based extensions' do
           decoder = Decoder.new
           decoder.register("Times2") {|d| d * 2}
-          assert { decoder.decode({"~#Times2" => 44}) == 88 }
-        end
-
-        it 'supports hash based extensions with :hash key' do
-          decoder = Decoder.new
-          decoder.register("Times2", :hash) {|d| d * 2}
           assert { decoder.decode({"~#Times2" => 44}) == 88 }
         end
 
