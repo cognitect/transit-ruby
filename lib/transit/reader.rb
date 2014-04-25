@@ -29,7 +29,7 @@ module Transit
     end
   end
 
-  class MsgpackUnmarshaler
+  class MessagePackUnmarshaler
     def initialize
       @decoder = Transit::Decoder.new
     end
@@ -57,7 +57,7 @@ module Transit
                   JsonUnmarshaler.new
                 else
                   require 'msgpack'
-                  MsgpackUnmarshaler.new
+                  MessagePackUnmarshaler.new
                 end
     end
 
