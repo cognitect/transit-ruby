@@ -18,7 +18,7 @@ module Transit
           "f" => ->(v){BigDecimal.new(v)},
           "c" => IDENTITY,
           "$" => ->(v){TransitSymbol.new(v)},
-          "t" => ->(v){String === v ? DateTime.iso8601(v) : Util.date_time_from_millis(v).new_offset(0)},
+          "t" => ->(v){String === v ? DateTime.iso8601(v) : DateTimeUtil.from_millis(v)},
           "u" => ->(v){UUID.new(v)},
           "r" => ->(v){Addressable::URI.parse(v)},
           "'" => ->(v){v},

@@ -16,7 +16,7 @@ module Transit
 end
 
 require 'transit/version'
-require 'transit/util'
+require 'transit/date_time_util'
 require 'transit/transit_types'
 require 'transit/class_hash'
 require 'transit/rolling_cache'

@@ -58,9 +58,9 @@ module Transit
 
     describe "tagged hashes" do
       it 'decodes instants to DateTime objects' do
-        expected = DateTime.parse("1985-04-12T23:20:50.052Z")
-        actual = decode({"~#t" => Util.date_time_to_millis(expected)})
-        assert { Util.date_time_to_millis(actual) == Util.date_time_to_millis(expected) }
+        expected = DateTime.iso8601("1985-04-12T23:20:50.052Z")
+        actual = decode({"~#t" => DateTimeUtil.to_millis(expected)})
+        assert { DateTimeUtil.to_millis(actual) == DateTimeUtil.to_millis(expected) }
       end
 
       it 'decodes uuids from strings' do
@@ -149,10 +149,10 @@ module Transit
       end
 
       it 'decodes millis to GMT DateTime objects' do
-        dt = DateTime.new(1985,4,12,23,20,50.052).new_offset(0)
-        millis_before = Transit::Util.date_time_to_millis(dt)
+        dt = DateTime.new(1985,4,12,23,20,50.052)
+        millis_before = Transit::DateTimeUtil.to_millis(dt)
         decoded = decode({"~#t" => millis_before})
-        millis_after = Transit::Util.date_time_to_millis(decoded)
+        millis_after = Transit::DateTimeUtil.to_millis(decoded)
         assert { millis_after == millis_before }
       end
 

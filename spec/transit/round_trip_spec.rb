@@ -11,58 +11,56 @@ def round_trip(obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, deco
 end
 
 def assert_equal_times(actual,expected)
-  assert { actual.year   == expected.year }
-  assert { actual.month  == expected.month }
-  assert { actual.day    == expected.day }
-  assert { actual.hour   == expected.hour }
-  assert { actual.minute == expected.minute }
-  assert { actual.second == expected.second }
+  assert { actual.zone == expected.zone }
+  assert { Transit::DateTimeUtil.to_millis(actual) == Transit::DateTimeUtil.to_millis(expected) }
 end
 
-def round_trips(label, obj, type, opts={}) # type_to_handle=nil, handler=nil, decoder_key=nil, decoder_fn=nil)
+def round_trips(label, obj, type, opts={})
+  expected = opts[:expected] || obj
+
   it "round trips #{label} at top level", :focus => !!opts[:focus], :pending => opts[:pending] do
-    if DateTime === obj
-      assert_equal_times(round_trip(obj, type), obj)
+    case obj
+    when Date, Time, DateTime
+      assert_equal_times(round_trip(obj, type), expected)
     else
-      assert { round_trip(obj, type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn]) ==
-        (opts[:expected] || obj) }
+      actual = round_trip(obj, type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn])
+      assert { actual == expected }
     end
   end
 
   case obj
-  when DateTime
+  when Date, Time, DateTime
     it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
-      before = {obj => 0}
-      after = round_trip(before, type)
-      assert_equal_times(after.keys.first, before.keys.first)
+      after = round_trip({obj => 0}, type)
+      assert_equal_times(after.keys.first, expected)
     end
   when Hash, Array, Transit::TransitList, Set, Transit::TypedArray
   else
     it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
-      assert { round_trip({obj => 0}, type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn]) ==
-        {(opts[:expected] || obj) => 0} }
+      actual = round_trip({obj => 0}, type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn])
+      assert { actual == {expected => 0} }
     end
   end
 
   it "round trips #{label} as a map value", :focus => !!opts[:focus], :pending => opts[:pending] do
-    if DateTime === obj
-      before = {:a => obj}
-      after = round_trip(before, type)
-      assert_equal_times(after.values.first, before.values.first)
+    case obj
+    when Date, Time, DateTime
+      after = round_trip({:a => obj}, type)
+      assert_equal_times(after.values.first, expected)
     else
-      assert { round_trip({a: obj}, type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn]) ==
-        {a: (opts[:expected] || obj)} }
+      actual = round_trip({a: obj}, type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn])
+      assert { actual == {a: expected} }
     end
   end
 
   it "round trips #{label} as an array value", :focus => !!opts[:focus], :pending => opts[:pending] do
-    if DateTime === obj
-      before = [obj]
-      after = round_trip(before, type)
-      assert_equal_times(after.first, before.first)
+    case obj
+    when Date, Time, DateTime
+      after = round_trip([obj], type)
+      assert_equal_times(after.first, expected)
     else
-      assert { round_trip([obj], type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn]) ==
-        [(opts[:expected] || obj)] }
+      actual = round_trip([obj], type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn])
+      assert { actual == [expected] }
     end
   end
 end
@@ -94,7 +92,14 @@ module Transit
     round_trips("a very big int", 123456789012345679012345678890, type)
     round_trips("a float", 1234.56, type)
     round_trips("a bigdec", BigDecimal.new("123.45"), type)
-    round_trips("an instant (DateTime)", DateTime.now.new_offset(0), type)
+    round_trips("an instant (DateTime local)", DateTime.new(2014,1,2,3,4,5.6789, "-5"), type,
+                :expected => DateTime.new(2014,1,2, (3+5) ,4,5.6789))
+    round_trips("an instant (DateTime gmt)", DateTime.new(2014,1,2,3,4,5.6789), type)
+    round_trips("an instant (Time local)", Time.new(2014,1,2,3,4,5.6789, "-05:00"), type,
+                :expected => DateTime.new(2014,1,2, (3+5) ,4,5.6789, "+0"))
+    round_trips("an instant (Time gmt)", Time.new(2014,1,2,3,4,5.6789, "+00:00"), type,
+                :expected => DateTime.new(2014,1,2,3,4,5.6789))
+    round_trips("a Date", Date.new(2014,1,2), type, :expected => DateTime.new(2014,1,2))
     round_trips("a uuid", UUID.new, type)
     round_trips("a uri (url)", Addressable::URI.parse("http://example.com"), type)
     round_trips("a uri (file)", Addressable::URI.parse("file:///path/to/file.txt"), type)
@@ -129,7 +134,7 @@ module Transit
   end
 
   describe "Transit using json" do
-   include_examples "round trips", :json
+    include_examples "round trips", :json
   end
 
   describe "Transit using msgpack" do

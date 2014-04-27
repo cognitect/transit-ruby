@@ -176,21 +176,21 @@ module Transit
         t = Time.now
         marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => false)
         marshaler.marshal_top(t)
-        assert { marshaler.value == {"~#t" => Util.date_time_to_millis(t)} }
+        assert { marshaler.value == {"~#t" => DateTimeUtil.to_millis(t)} }
       end
 
       it 'marshals DateTime as a map' do
         dt = DateTime.now
         marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => false)
         marshaler.marshal_top(dt)
-        assert { marshaler.value == {"~#t" => Util.date_time_to_millis(dt)} }
+        assert { marshaler.value == {"~#t" => DateTimeUtil.to_millis(dt)} }
       end
 
       it 'marshals a Date as a map' do
         d = Date.new(2014,1,2)
         marshaler =  TransitMarshaler.new(:quote_scalars => false, :prefer_strings => false)
         marshaler.marshal_top(d)
-        assert { marshaler.value == {"~#t" => Util.date_time_to_millis(d) } }
+        assert { marshaler.value == {"~#t" => DateTimeUtil.to_millis(d) } }
       end
 
       it 'marshals 2**64 - 1 as an int' do
