@@ -10,12 +10,12 @@ module Transit
     end
 
     IS_UNRECOGNIZED = /^#{RES}#{ESC}/
-    IS_ESCAPED      = /^(#{Regexp.escape(SUB)}|#{ESC}|#{RES}).+/
+    IS_ESCAPABLE    = /^(#{Regexp.escape(SUB)}|#{ESC}|#{RES})/
 
     def escape(s)
       case s
       when IS_UNRECOGNIZED then s[1..-1]
-      when IS_ESCAPED      then "#{ESC}#{s}"
+      when IS_ESCAPABLE    then "#{ESC}#{s}"
       else s
       end
     end
@@ -29,12 +29,7 @@ module Transit
     end
 
     def emit_string(prefix, tag, string, as_map_key, cache)
-      str = "#{prefix}#{tag}#{escape(string)}"
-      if cache.cacheable?(str, as_map_key)
-        emit_object(cache.encode(str, as_map_key), as_map_key)
-      else
-        emit_object(str, as_map_key)
-      end
+      emit_object(cache.encode("#{prefix}#{tag}#{escape(string)}", as_map_key), as_map_key)
     end
 
     def emit_boolean(b, as_map_key, cache)
@@ -77,7 +72,7 @@ module Transit
 
     def emit_cmap(m, _, cache)
       emit_map_start(1)
-      emit_object("~#cmap", true)
+      emit_string(ESC, "#", "cmap", true, cache)
       marshal(m.reduce([]) {|a, kv| a.concat(kv)}, false, cache)
       emit_map_end
     end

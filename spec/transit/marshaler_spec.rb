@@ -230,7 +230,7 @@ module Transit
       it "writes Chars with escape characters" do
         chars = %w[` ~ ^ #].map {|c| Char.new(c)}
         marshaler.marshal_top(chars)
-        assert { marshaler.value == ["~c`", "~c~", "~c^", "~c#"] }
+        assert { marshaler.value == ["~c~`", "~c~~", "~c~^", "~c#"] }
       end
     end
 

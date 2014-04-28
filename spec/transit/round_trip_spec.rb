@@ -34,11 +34,11 @@ def round_trips(label, obj, type, opts={})
       after = round_trip({obj => 0}, type)
       assert_equal_times(after.keys.first, expected)
     end
-  when Hash, Array, Transit::TransitList, Set, Transit::TypedArray
   else
     it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
       actual = round_trip({obj => 0}, type, opts[:type_to_handle], opts[:handler], opts[:decoder_key], opts[:decoder_fn])
-      assert { actual == {expected => 0} }
+      wrapped_expected = {expected => 0}
+      assert { actual == wrapped_expected }
     end
   end
 
@@ -116,6 +116,9 @@ module Transit
     round_trips("an array of bools", BoolsArray.new([true,false,false,true]), type, :expected => [true,false,false,true])
     round_trips("an array of maps w/ cacheable keys", [{"this" => "a"},{"this" => "b"}], type)
     round_trips("a char", Char.new("x"), type, :expected => "x")
+
+    round_trips("edge case chars", %w[` ~ ^ #], type)
+
     round_trips("an extension scalar", PhoneNumber.new("555","867","5309"), type,
                 :type_to_handle => PhoneNumber,
                 :handler => PhoneNumberHandler,
