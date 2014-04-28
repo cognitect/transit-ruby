@@ -1,10 +1,16 @@
 require 'spec_helper'
 
 def round_trip(obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, decoder_fn=nil)
+  obj_before = obj
+
   io = StringIO.new('', 'w+')
   writer = Transit::Writer.new(io, type)
   writer.register(type_to_handle, handler) if handler
   writer.write(obj)
+
+  # ensure that we don't modify the object being written
+  assert { obj == obj_before }
+
   reader = Transit::Reader.new(type)
   reader.register(decoder_key, &decoder_fn) if decoder_key && decoder_fn
   reader.read(StringIO.new(io.string))
@@ -108,6 +114,7 @@ module Transit
     round_trips("a list", TransitList.new([1,2,3]), type, :expected => [1,2,3])
     round_trips("a hash w/ stringable keys", {"this" => "~hash", "1" => 2}, type)
     round_trips("a set", Set.new([1,2,3]), type)
+    round_trips("a set of sets", Set.new([Set.new([1,2]), Set.new([3,4])]), type)
     round_trips("an array", [1,2,3], type)
     round_trips("an array of ints", IntsArray.new([1,2,3]), type, :expected => [1,2,3])
     round_trips("an array of longs", LongsArray.new( [1,2,3]), type, :expected => [1,2,3])
@@ -138,6 +145,9 @@ module Transit
     round_trips("an unrecognized hash encoding", {"~#D" => "2014-01-02"}, type,
                 :expected => TaggedValue.new("~#D","2014-01-02"))
     round_trips("an unrecognized string encoding", "~Xunrecognized", type)
+
+    round_trips("a nested structure (map on top)", {a: [1, [{b: "~c"}]]}, type)
+    round_trips("a nested structure (array on top)", [37, {a: [1, [{b: "~c"}]]}], type)
   end
 
   describe "Transit using json" do
