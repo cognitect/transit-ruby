@@ -131,6 +131,10 @@ module Transit
     round_trips("a hash with 53 bit ints",  {2**53-1 => 2**53-2}, type)
     round_trips("a hash with 54 bit ints",  {2**53   => 2**53+1}, type)
     round_trips("a map with composite keys", {{a: :b} => {c: :d}}, type)
+    round_trips("a TaggedValue", TaggedValue.new("~#D","2014-01-02"), type)
+    round_trips("an unrecognized hash encoding", {"~#D" => "2014-01-02"}, type,
+                :expected => TaggedValue.new("~#D","2014-01-02"))
+    round_trips("an unrecognized string encoding", "~Xunrecognized", type)
   end
 
   describe "Transit using json" do

@@ -20,6 +20,10 @@ module Transit
       @value.eql?(other.value)
     end
 
+    def hash
+      value.hash
+    end
+
     def inspect
       "<#{self.class} \"#{to_s}\">"
     end
@@ -185,6 +189,10 @@ module Transit
     def eql?(other)
       return false unless other.is_a?(self.class)
       other.tag.eql?(tag) && other.value.eql?(value)
+    end
+
+    def hash
+      tag.hash + value.hash
     end
   end
 end
