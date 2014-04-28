@@ -21,7 +21,6 @@ module Transit
     end
 
     def stringable_keys?(m)
-      # TODO - handler keys that have no handler
       m.keys.all? {|k| (@handlers[k].tag(k).length == 1) }
     end
 
@@ -124,18 +123,18 @@ module Transit
       tag = handler.tag(obj)
       rep = as_map_key ? handler.string_rep(obj) : handler.rep(obj)
       case tag
-      when "s"
-        emit_string(nil, nil, rep, as_map_key, cache)
-      when "'"
-        emit_quoted(rep, as_map_key, cache)
-      when "i"
-        emit_int(rep, as_map_key, cache)
-      when "d"
-        emit_double(rep, as_map_key, cache)
       when "_"
         emit_nil(rep, as_map_key, cache)
       when "?"
         emit_boolean(rep, as_map_key, cache)
+      when "s"
+        emit_string(nil, nil, rep, as_map_key, cache)
+      when "i"
+        emit_int(rep, as_map_key, cache)
+      when "d"
+        emit_double(rep, as_map_key, cache)
+      when "'"
+        emit_quoted(rep, as_map_key, cache)
       when :array
         emit_array(rep, as_map_key, cache)
       when :map
