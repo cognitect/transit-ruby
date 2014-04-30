@@ -29,6 +29,19 @@ def random_symbol(max_length=10)
   random_string(max_length).to_sym
 end
 
+def ints_centered_on(m, n=5)
+  ((m-n)..(m+n)).to_a
+end
+
+def array_of_symbols(m, n=m)
+  seeds = (0...m).map {|i| ("key%04d" % i).to_sym}
+  seeds.cycle.take(n)
+end
+
+def hash_of_size(n)
+  Hash[array_of_symbols(n).zip((0..n).to_a)]
+end
+
 Person = Struct.new("Person", :first_name, :last_name, :birthdate)
 
 class PersonHandler
