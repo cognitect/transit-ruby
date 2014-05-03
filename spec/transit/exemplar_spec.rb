@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'spec_helper'
 require 'pry'
 
@@ -48,7 +49,7 @@ EXEMPLARS = [
   Exemplar.new('one_string', 'hello'),
   Exemplar.new('one_keyword', :hello),
   Exemplar.new('one_symbol',  Transit::TransitSymbol.new('hello')),
-  Exemplar.new('one_date', Transit::DateTimeUtil.from_millis(946728000000)),
+  Exemplar.new('one_date', DateTime.new(2000,1,1,12)), # Transit::DateTimeUtil.from_millis(946728000000)),
   Exemplar.new("vector_simple", ARRAY_SIMPLE),
   Exemplar.new("vector_empty", []),
   Exemplar.new("vector_mixed", ARRAY_MIXED),
@@ -91,7 +92,7 @@ EXEMPLARS = [
   Exemplar.new("maps_two_char_string_keys", [{'aa'=>1, 'bb'=>2}, {'aa'=>3, 'bb'=>4}, {'aa'=>5, 'bb'=>6}]),
   Exemplar.new("maps_three_char_string_keys", [{'aaa'=>1, 'bbb'=>2}, {'aaa'=>3, 'bbb'=>4}, {'aaa'=>5, 'bbb'=>6}]),
   Exemplar.new("maps_four_char_string_keys", [{'aaaa'=>1, 'bbbb'=>2}, {'aaaa'=>3, 'bbbb'=>4}, {'aaaa'=>5, 'bbbb'=>6}]),
-  Exemplar.new("maps_unrecognized_keys", 
+  Exemplar.new("maps_unrecognized_keys",
                [Transit::TaggedValue.new("~#abcde", :anything), Transit::TaggedValue.new("~#fghij", :"anything-else")]),
   Exemplar.new("map_unrecognized_vals", {key: "`~notrecognized"}),
   Exemplar.new("vector_unrecognized_vals", ["`~notrecognized"]),
@@ -101,7 +102,7 @@ EXEMPLARS = [
   ]
 
 [10, 90, 91, 92, 93, 94, 95].each do |i|
-    EXEMPLARS << Exemplar.new( "map_#{i}_nested", {f: hash_of_size(i), s: hash_of_size(i)})
+  EXEMPLARS << Exemplar.new( "map_#{i}_nested", {f: hash_of_size(i), s: hash_of_size(i)})
 end
 
 def verify_exemplar(exemplar, type, suffix)
