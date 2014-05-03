@@ -9,7 +9,7 @@ module Transit
       else
         t = v.getutc
       end
-      (t.to_i * 1000) + (t.usec / 1000.0).to_i
+      (t.to_i * 1000) + (t.usec / 1000).to_i
     end
 
     def from_millis(millis)
