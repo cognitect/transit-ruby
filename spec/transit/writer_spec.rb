@@ -40,13 +40,35 @@ module Transit
       marshals_structure("a TaggedValue", TaggedValue.new("tag", "value"), {"tag" => "value"})
     end
 
-    describe "illegal conditions" do
+    describe "handler registration" do
       it "raises when a handler provides nil as a tag" do
         handler = Class.new do
           def tag(_) nil end
         end
         writer.register(Date, handler)
         assert { rescuing { writer.write(Date.today) }.message =~ /must provide a non-nil tag/ }
+      end
+
+      it "supports registration of handlers for core types" do
+        handler = Class.new do
+          def tag(_) "s" end
+          def rep(s) "MYSTRING: #{s}" end
+          def string_rep(s) rep(s) end
+        end
+        writer.register(String, handler)
+        writer.write("this")
+        assert { JSON.parse(io.string).values.first == "MYSTRING: this" }
+      end
+
+      it "supports registration of handlers for custom types" do
+        handler = Class.new do
+          def tag(_) "person" end
+          def rep(s) {:first_name => s.first_name} end
+          def string_rep(s) s.first_name end
+        end
+        writer.register(Person, handler)
+        writer.write(Person.new("Russ"))
+        assert { JSON.parse(io.string) == {"~#person" => { "~:first_name" => "Russ" } } }
       end
     end
   end

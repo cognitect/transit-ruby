@@ -8,8 +8,8 @@ module Transit
       reader.read(StringIO.new(value.to_json, 'r+'))
     end
 
-    describe 'registration' do
-      it 'requires a 1-arg lambda' do
+    describe 'decoder registration' do
+      it 'requires a lambda w/ arity 1' do
         assert { rescuing { reader.register("~D") {|s,t|} }.
           message =~ /arity/ }
       end
