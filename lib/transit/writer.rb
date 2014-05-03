@@ -201,9 +201,7 @@ module Transit
   end
 
   class MessagePackMarshaler < Marshaler
-    # see http://wiki.msgpack.org/display/MSGPACK/Format+specification#Formatspecification-uint64
-    # see http://wiki.msgpack.org/display/MSGPACK/Format+specification#Formatspecification-int64
-    MSGPACK_MAX_INT = 2**64 - 1
+    MSGPACK_MAX_INT = 2**63
     MSGPACK_MIN_INT = -2**63
 
     def default_opts
