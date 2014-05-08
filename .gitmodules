@@ -1,0 +1,6 @@
+[submodule "transit-ruby"]
+	path = transit-ruby
+	url = git@github.com:cognitect/transit-ruby.git
+[submodule "transit"]
+	path = transit
+	url = git@github.com:cognitect/transit.git
