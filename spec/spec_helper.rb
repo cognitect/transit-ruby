@@ -7,6 +7,9 @@ as follows:
     git submodule init
     git submodule update
 
+This actually installs the entire transit repo as a submodule at
+the project root, putting the examplars in ./transit/simple-examples.
+
 MSG
   exit
 end
