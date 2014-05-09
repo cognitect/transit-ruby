@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 require 'spec_helper'
-require 'pry'
 
 # Assumes that the examples are in the simple_examples dir at the top.
 
@@ -106,8 +105,7 @@ EXEMPLARS = [
 end
 
 def verify_exemplar(exemplar, type, suffix)
-  path = "#{TOP_DIR}/simple-examples/#{exemplar.name}.#{suffix}"
-
+  path = "#{TOP_DIR}/transit/simple-examples/#{exemplar.name}.#{suffix}"
   it "reads what we expect from #{path}" do
     raise "Can't open #{path}" unless File.exist?(path)
     File.open(path) do |io|
