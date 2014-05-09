@@ -27,14 +27,16 @@ reader.read(io) {|o| do_something_with(o)}
 * jruby >= ???
 * rbx >= ???
 
-# Set Up
+# Development
+
+## Setup
 
 Transit Ruby uses transit as a submodule to get at the transit
 exemplar files. The tests will not run without the exemplar files.
 You need to run a couple of git commands to set up the transit
 git submodule:
 
-````sh
+```sh
 git submodule init
 git submodule update
-
+```

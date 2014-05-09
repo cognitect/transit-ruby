@@ -1,3 +1,16 @@
+unless Dir.exist?('transit/simple-examples')
+  puts <<-MSG
+Before you can run the rspec examples, you need to install the
+exemplar files from the https://github.com/cognitect/transit repo
+as follows:
+
+    git submodule init
+    git submodule update
+
+MSG
+  exit
+end
+
 require 'rspec'
 require 'wrong/adapters/rspec'
 require 'transit'
