@@ -211,6 +211,7 @@ module Transit
     end
 
     def initialize(io, opts={})
+      @io = io
       @packer = MessagePack::Packer.new(io)
       super(default_opts.merge(opts))
     end
@@ -237,6 +238,7 @@ module Transit
 
     def flush
       @packer.flush
+      @io.flush
     end
   end
 
