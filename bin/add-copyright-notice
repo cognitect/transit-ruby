@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+paths = `find . -name "*.rb"`.split("\n")
+paths.map do |p|
+  content = File.read(p)
+  unless content =~ /^# Copyright/
+    File.open(p, 'w+') do |f|
+      f.write "# Copyright (c) Cognitect, Inc.\n"
+      f.write "# All rights reserved.\n\n"
+      f.write content
+    end
+  end
+end

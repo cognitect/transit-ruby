@@ -1,3 +1,6 @@
+# Copyright (c) Cognitect, Inc.
+# All rights reserved.
+
 # -*- coding: utf-8 -*-
 require 'spec_helper'
 

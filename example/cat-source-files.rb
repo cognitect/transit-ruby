@@ -1,3 +1,6 @@
+# Copyright (c) Cognitect, Inc.
+# All rights reserved.
+
 #!/usr/bin/env ruby
 
 sleep_secs = ENV['SLEEP']

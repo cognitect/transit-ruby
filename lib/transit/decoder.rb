@@ -1,3 +1,6 @@
+# Copyright (c) Cognitect, Inc.
+# All rights reserved.
+
 module Transit
   class Decoder
     IDENTITY = ->(v){v}

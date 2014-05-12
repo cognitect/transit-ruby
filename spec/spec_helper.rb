@@ -1,3 +1,6 @@
+# Copyright (c) Cognitect, Inc.
+# All rights reserved.
+
 unless Dir.exist?('transit/simple-examples')
   puts <<-MSG
 Before you can run the rspec examples, you need to install the

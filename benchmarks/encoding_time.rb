@@ -1,3 +1,6 @@
+# Copyright (c) Cognitect, Inc.
+# All rights reserved.
+
 $LOAD_PATH << File.expand_path("../../lib", __FILE__)
 require 'transit'
 require 'benchmark'

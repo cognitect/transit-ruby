@@ -1,3 +1,6 @@
+# Copyright (c) Cognitect, Inc.
+# All rights reserved.
+
 require 'spec_helper'
 
 def round_trip(obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, decoder_fn=nil)
