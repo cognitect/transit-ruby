@@ -1,7 +1,7 @@
+#!/usr/bin/env ruby
 # Copyright (c) Cognitect, Inc.
 # All rights reserved.
 
-#!/usr/bin/env ruby
 
 $LOAD_PATH << 'lib'
 require 'transit'
