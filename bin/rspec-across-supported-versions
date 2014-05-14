@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# Copyright (c) Cognitect, Inc.
+# All rights reserved.
 
 # also consider:
 # jruby-1.7.0

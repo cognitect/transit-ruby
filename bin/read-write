@@ -2,7 +2,6 @@
 # Copyright (c) Cognitect, Inc.
 # All rights reserved.
 
-
 $LOAD_PATH << 'lib'
 require 'transit'
 

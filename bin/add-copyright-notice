@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# Copyright (c) Cognitect, Inc.
+# All rights reserved.
 
 paths = `find . -name "*.rb"`.split("\n")
 paths.map do |p|
