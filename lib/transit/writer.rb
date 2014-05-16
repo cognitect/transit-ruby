@@ -204,7 +204,7 @@ module Transit
   end
 
   class MessagePackMarshaler < Marshaler
-    MSGPACK_MAX_INT = 2**63
+    MSGPACK_MAX_INT = 2**63-1
     MSGPACK_MIN_INT = -2**63
 
     def default_opts
