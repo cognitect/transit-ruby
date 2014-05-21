@@ -23,6 +23,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "oj", "~> 2.7.1"
   spec.add_dependency "yajl-ruby", "~> 1.2.0"
   spec.add_development_dependency "rake",    "~> 10.1.1"
-  spec.add_development_dependency "rspec",   "3.0.0.beta2"
+  spec.add_development_dependency "rspec",   "3.0.0.rc1"
   spec.add_development_dependency "wrong",   "0.7.1"
 end
