@@ -47,10 +47,10 @@ module Transit
         @most_significant_bits, @least_significant_bits = parse_msb_lsb(uuid_or_most_significant_bits)
         super uuid_or_most_significant_bits
       when Numeric
-        @most_significant_bits, @least_significant_bits = uuid_or_most_significant_bits, least_significant_bits
+        @most_significant_bits, @least_significant_bits = twos_complement(uuid_or_most_significant_bits), twos_complement(least_significant_bits)
         super to_s
       when Array
-        @most_significant_bits, @least_significant_bits = *uuid_or_most_significant_bits
+        @most_significant_bits, @least_significant_bits = uuid_or_most_significant_bits.map{|i| twos_complement(i) }
         super to_s
       when nil
         super SecureRandom.uuid
@@ -83,20 +83,17 @@ module Transit
       (hi | (val & (hi - 1))).to_s(16)[1..-1]
     end
 
+    def twos_complement(integer_value, num_of_bits=64)
+      max_signed   = 2**(num_of_bits-1)
+      max_unsigned = 2**num_of_bits
+      (integer_value >= max_signed) ? integer_value - max_unsigned : integer_value
+    end
+
     def parse_msb_lsb(s)
-      components = s.split("-")
-      raise ArgumentError.new("Invalid UUID string: #{s}") unless components.size == 5
-      msb = components[0].hex
-      msb = msb << 16
-      msb = msb | components[1].hex
-      msb = msb << 16
-      msb = msb | components[2].hex
-
-      lsb = components[3].hex
-      lsb = lsb << 48
-      lsb = lsb | components[4].hex
-
-      return msb, lsb
+      str = s.delete("-")
+      msb = str[0..15]
+      lsb = str[16..31]
+      [twos_complement(msb.hex), twos_complement(lsb.hex)]
     end
   end
 
