@@ -27,9 +27,10 @@ RSpec.configure do |c|
   c.alias_example_to :fit, :focus => true
   c.filter_run_including :focus => true, :focused => true
   c.run_all_when_everything_filtered = true
+  c.mock_with :nothing
 end
 
-ALPHA_NUM = 'abcdefghijklmnopABCDESFHIJKLMNOP_0123456789'
+ALPHA_NUM = 'abcdefghijklmnopqrstuvwxyzABCDESFHIJKLMNOPQRSTUVWXYZ_0123456789'
 
 def random_alphanum
   ALPHA_NUM[rand(ALPHA_NUM.size)]
@@ -67,10 +68,4 @@ class PersonHandler
   def tag(_) "person"; end
   def rep(p) {:first_name => p.first_name, :last_name => p.last_name, :birthdate => p.birthdate} end
   def string_rep(p) nil end
-end
-
-class DateHandler
-  def tag(_); "D"; end
-  def rep(d) d.to_s end
-  def string_rep(d) rep(d) end
 end
