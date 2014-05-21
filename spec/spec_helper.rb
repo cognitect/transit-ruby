@@ -17,6 +17,7 @@ MSG
   exit
 end
 
+require 'json'
 require 'rspec'
 require 'wrong/adapters/rspec'
 require 'transit'
