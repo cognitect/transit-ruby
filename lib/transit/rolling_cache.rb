@@ -20,7 +20,6 @@ module Transit
       cacheable?(name, as_map_key) ? encache(name) : name
     end
 
-    # Always returns the name
     def decode(name, as_map_key=false)
       if val = @key_to_value[name]
         val
@@ -29,7 +28,6 @@ module Transit
       end
     end
 
-    # Returns the name the first time and the key after that
     def encode(name, as_map_key=false)
       if key = @value_to_key[name]
         key
