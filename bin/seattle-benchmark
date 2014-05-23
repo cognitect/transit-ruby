@@ -9,28 +9,33 @@ require 'stringio'
 require 'json'
 require 'transit'
 require 'yajl'
+require 'oj'
 
 def read_transit(data)
-  io = StringIO.new(data, 'r')
+  io = StringIO.new(data, 'r+')
   Transit::Reader.new(:json).read(io)
 end
 
+def write_transit(data)
+  io = StringIO.new('', 'w+')
+  Transit::Writer.new(io, :json).write(data)
+end
+
 def read_json(data)
-  io = StringIO.new(data, 'r')
+  io = StringIO.new(data, 'r+')
   Yajl::Parser.parse(io)
 end
 
 data = nil
-open("../transit/seattle-data0.tjs", 'r') do |f|
-  data = f.read
-end
+open("../transit/seattle-data0.tjs", 'r') {|f| data = f.read}
 
-n = 50
+n = 10
 
 include Benchmark
 
-Benchmark.benchmark(CAPTION, 15, FORMAT, "transit  (avg):", "yalj     (avg):") do |bm|
-  t = bm.report("transit (#{n} x):") { n.times { read_transit(data) } }
-  y = bm.report("yajl    (#{n} x):") { n.times { read_json(data) } }
-  [t/n, y/n]
+Benchmark.benchmark(CAPTION, 20, FORMAT, "avg read transit:", "avg read yalj:", "avg write transit:") do |bm|
+  t = bm.report("read transit (#{n} x):")   { n.times { read_transit(data) } }
+  y = bm.report("read yajl (#{n} x):")      { n.times { read_json(data) } }
+  w = bm.report("write transit (#{n} x):") { n.times { write_transit(data) } }
+  [t/n, y/n, w/n]
 end
