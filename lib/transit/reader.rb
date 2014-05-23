@@ -52,6 +52,10 @@ module Transit
   end
 
   class Reader
+    extend Forwardable
+
+    def_delegators :@reader, :read, :register
+
     def initialize(type=:json)
       @reader = if type == :json
                   require 'yajl'
@@ -60,14 +64,6 @@ module Transit
                   require 'msgpack'
                   MessagePackUnmarshaler.new
                 end
-    end
-
-    def read(io, &block)
-      @reader.read(io, &block)
-    end
-
-    def register(key, &decoder)
-      @reader.register(key, &decoder)
     end
   end
 end
