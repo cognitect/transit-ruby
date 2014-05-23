@@ -14,14 +14,12 @@ module Transit
       @decoder.register(key, &decoder)
     end
 
-    def read(io, &block)
-      if block
-        @yajl.on_parse_complete = Proc.new do |obj|
-          block.call(@decoder.decode(obj))
-        end
+    def read(io)
+      if block_given?
+        @yajl.on_parse_complete = ->(obj){ yield @decoder.decode(obj) }
         while true
           begin
-          @yajl << io.readpartial(CHUNK_SIZE)
+            @yajl << io.readpartial(CHUNK_SIZE)
           rescue EOFError => e
             break
           end
@@ -41,11 +39,11 @@ module Transit
       @decoder.register(key, &decoder)
     end
 
-    def read(io, &block)
+    def read(io)
       u = MessagePack::Unpacker.new(io)
-      if block
+      if block_given?
         u.each do |o|
-          block.call(@decoder.decode(o))
+          yield @decoder.decode(o)
         end
       else
         @decoder.decode(u.read)
