@@ -6,7 +6,7 @@ module Transit
     CHUNK_SIZE = 8192
 
     def initialize
-      @yajl = Yajl::Parser.new
+      @yajl    = Yajl::Parser.new
       @decoder = Transit::Decoder.new
     end
 
@@ -16,7 +16,7 @@ module Transit
 
     def read(io)
       if block_given?
-        @yajl.on_parse_complete = ->(obj){ yield @decoder.decode(obj) }
+        @yajl.on_parse_complete = ->(obj){yield @decoder.decode(obj)}
         while true
           begin
             @yajl << io.readpartial(CHUNK_SIZE)
@@ -42,9 +42,7 @@ module Transit
     def read(io)
       u = MessagePack::Unpacker.new(io)
       if block_given?
-        u.each do |o|
-          yield @decoder.decode(o)
-        end
+        u.each {|o| yield @decoder.decode(o)}
       else
         @decoder.decode(u.read)
       end
