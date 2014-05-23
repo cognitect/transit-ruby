@@ -81,7 +81,7 @@ module Transit
     end
 
     def parse_string(str, cache, as_map_key)
-      if /^#{ESC}/ =~ str
+      if str[0] == ESC
         case str[1]
         when ESC,SUB,RES then str[1..-1]
         when "#" then str
