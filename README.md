@@ -43,4 +43,6 @@ git submodule update
 
 ## Benchmarks
 
+```sh
 ./bin/seattle-benchmark
+```
