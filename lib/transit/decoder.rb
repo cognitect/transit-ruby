@@ -55,7 +55,7 @@ module Transit
     def decode_hash(hash, cache, as_map_key)
       if hash.size == 1
         key = decode(hash.keys.first, cache, true)
-        if String === key && /^#{TAG}/ =~ key
+        if String === key && key[0..1] == TAG
           if decoder = @decoders[key[2..-1]]
             decoder.call(decode(hash.values.first, cache, false))
           else
