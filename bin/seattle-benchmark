@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+## Copyright (c) Cognitect, Inc.
+## All rights reserved.
+
+$LOAD_PATH << File.expand_path("../../lib", __FILE__)
+require 'benchmark'
+require 'stringio'
+require 'json'
+require 'transit'
+
+def read_transit(data)
+  io = StringIO.new(data, 'r')
+
+  t = Time.now
+  Transit::Reader.new(:json).read(io)
+  et = Time.now
+end
+
+data = nil
+open("../transit/seattle-data0.tjs", 'r') do |f|
+  data = f.read
+end
+
+n = 1
+
+Benchmark.benchmark do |bm|
+  puts "Stats for #{n} runs (so divide by #{n})}" if n > 1
+
+  puts "Transit"
+  3.times do
+    bm.report do
+      n.times do
+        read_transit(data)
+      end
+    end
+  end
+
+  puts
+  puts "Raw json"
+  3.times do
+    bm.report do
+      n.times do
+        JSON.parse(data)
+      end
+    end
+  end
+end
