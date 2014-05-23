@@ -8,13 +8,16 @@ require 'benchmark'
 require 'stringio'
 require 'json'
 require 'transit'
+require 'yajl'
 
 def read_transit(data)
   io = StringIO.new(data, 'r')
-
-  t = Time.now
   Transit::Reader.new(:json).read(io)
-  et = Time.now
+end
+
+def read_json(data)
+  io = StringIO.new(data, 'r')
+  Yajl::Parser.parse(io)
 end
 
 data = nil
@@ -41,7 +44,7 @@ Benchmark.benchmark do |bm|
   3.times do
     bm.report do
       n.times do
-        JSON.parse(data)
+        read_json(data)
       end
     end
   end
