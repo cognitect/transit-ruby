@@ -51,7 +51,7 @@ module Transit
     ESCAPED = /^~(#|\$|:)/
 
     def cacheable?(str, as_map_key=false)
-      str && str.size >= MIN_SIZE_CACHEABLE && (as_map_key || ESCAPED =~ str)
+      str.size >= MIN_SIZE_CACHEABLE && (as_map_key || ESCAPED =~ str)
     end
 
     private

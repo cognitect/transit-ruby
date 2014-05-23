@@ -13,7 +13,9 @@ module Transit
 
     def [](clazz)
       clazz.ancestors.each do |a|
-        return @values[a] if @values[a]
+        if val = @values[a]
+          return val
+        end
       end
       nil
     end
