@@ -25,27 +25,12 @@ open("../transit/seattle-data0.tjs", 'r') do |f|
   data = f.read
 end
 
-n = 1
+n = 50
 
-Benchmark.benchmark do |bm|
-  puts "Stats for #{n} runs (so divide by #{n})}" if n > 1
+include Benchmark
 
-  puts "Transit"
-  3.times do
-    bm.report do
-      n.times do
-        read_transit(data)
-      end
-    end
-  end
-
-  puts
-  puts "Raw json"
-  3.times do
-    bm.report do
-      n.times do
-        read_json(data)
-      end
-    end
-  end
+Benchmark.benchmark(CAPTION, 15, FORMAT, "transit  (avg):", "yalj     (avg):") do |bm|
+  t = bm.report("transit (#{n} x):") { n.times { read_transit(data) } }
+  y = bm.report("yajl    (#{n} x):") { n.times { read_json(data) } }
+  [t/n, y/n]
 end
