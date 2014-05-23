@@ -11,28 +11,35 @@ module Transit
       clear
     end
 
+    def clear
+      @key_to_value = {}
+      @value_to_key = {}
+    end
+
+    def maybe_encache(name, as_map_key)
+      cacheable?(name, as_map_key) ? encache(name) : name
+    end
+
     # Always returns the name
     def decode(name, as_map_key=false)
-      return @key_to_value[name] if cache_key?(name)
-      return name unless cacheable?(name, as_map_key)
-      encache(name)
+      if val = @key_to_value[name]
+        val
+      else
+        maybe_encache(name, as_map_key)
+      end
     end
 
     # Returns the name the first time and the key after that
     def encode(name, as_map_key=false)
-      key = @value_to_key[name]
-      return key if key
-      return encache(name) if cacheable?(name, as_map_key)
-      name
+      if key = @value_to_key[name]
+        key
+      else
+        maybe_encache(name, as_map_key)
+      end
     end
 
     def cache_key?(name)
-      name[0] == '^'
-    end
-
-    def clear
-      @key_to_value = {}
-      @value_to_key = {}
+      @key_to_value.has_key?(name)
     end
 
     def size
@@ -54,14 +61,15 @@ module Transit
     def encache(name)
       clear if cache_full?
 
-      existing_key = @value_to_key[name]
-      return existing_key if existing_key
-
-      encode_key(@key_to_value.size).tap do |key|
-        @key_to_value[key] = name
-        @value_to_key[name] = key
+      if existing_key = @value_to_key[name]
+        existing_key
+      else
+        encode_key(@key_to_value.size).tap do |key|
+          @key_to_value[key]  = name
+          @value_to_key[name] = key
+        end
+        name
       end
-      name
     end
 
     def encode_key(i)
