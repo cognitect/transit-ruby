@@ -6,10 +6,10 @@ Transit marshalling for Ruby.
 ```ruby
 # io can be any Ruby IO
 
-writer = Transit::Writer.new(io, :json) # :msgpack coming soon ...
+writer = Transit::Writer.new(io, :json) # or :msgpack
 writer.write(obj)
 
-reader = Transit::Reader.new(:json)     # :msgpack coming soon ...
+reader = Transit::Reader.new(:json)     # or :msgpack
 reader.read(io)
 
 # or
@@ -40,3 +40,7 @@ git submodule:
 git submodule init
 git submodule update
 ```
+
+## Benchmarks
+
+./bin/seattle-benchmark
