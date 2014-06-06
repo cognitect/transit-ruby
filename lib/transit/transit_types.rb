@@ -24,7 +24,7 @@ module Transit
     end
 
     def hash
-      value.hash
+      @value.hash
     end
 
     def inspect
@@ -183,16 +183,16 @@ module Transit
 
     def ==(other)
       return false unless other.is_a?(self.class)
-      other.tag == tag && other.value == value
+      other.tag == @tag && other.value == @value
     end
 
     def eql?(other)
       return false unless other.is_a?(self.class)
-      other.tag.eql?(tag) && other.value.eql?(value)
+      other.tag.eql?(@tag) && other.value.eql?(@value)
     end
 
     def hash
-      tag.hash + value.hash
+      @tag.hash + @value.hash
     end
   end
 end
