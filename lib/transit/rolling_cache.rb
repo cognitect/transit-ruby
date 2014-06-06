@@ -51,15 +51,11 @@ module Transit
     def encache(name)
       clear if cache_full?
 
-      if existing_key = @value_to_key[name]
-        existing_key
-      else
-        encode_key(@key_to_value.size).tap do |key|
-          @key_to_value[key]  = name
-          @value_to_key[name] = key
-        end
-        name
-      end
+      @value_to_key[name] || begin
+                               key = encode_key(@key_to_value.size)
+                               @value_to_key[name] = key
+                               @key_to_value[key]  = name
+                             end
     end
 
     def encode_key(i)
