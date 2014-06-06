@@ -178,7 +178,8 @@ module Transit
   class TaggedValue
     attr_reader :tag, :value
     def initialize(tag, value)
-      @tag, @value = tag, value
+      @tag   = tag
+      @value = value
     end
 
     def ==(other)
