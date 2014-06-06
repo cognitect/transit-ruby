@@ -23,10 +23,6 @@ module Transit
       @value.eql?(other.value)
     end
 
-    def hash
-      @value.hash
-    end
-
     def inspect
       "<#{self.class} \"#{to_s}\">"
     end
