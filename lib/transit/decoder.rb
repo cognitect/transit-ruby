@@ -65,7 +65,10 @@ module Transit
           {key => decode(hash.values.first, cache, false)}
         end
       else
-        hash.reduce({}) {|h,kv| h.store(decode(kv[0], cache, true), decode(kv[1], cache)); h}
+        hash.keys.each do |k|
+          hash.store(decode(k, cache, true), decode(hash.delete(k), cache))
+        end
+        hash
       end
     end
 
