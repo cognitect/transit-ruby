@@ -21,19 +21,11 @@ module Transit
     end
 
     def decode(name, as_map_key=false)
-      if val = @key_to_value[name]
-        val
-      else
-        maybe_encache(name, as_map_key)
-      end
+      @key_to_value[name] || maybe_encache(name, as_map_key)
     end
 
     def encode(name, as_map_key=false)
-      if key = @value_to_key[name]
-        key
-      else
-        maybe_encache(name, as_map_key)
-      end
+      @value_to_key[name] || maybe_encache(name, as_map_key)
     end
 
     def cache_key?(name)
