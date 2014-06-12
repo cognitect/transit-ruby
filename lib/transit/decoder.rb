@@ -46,7 +46,7 @@ module Transit
       when Hash
         decode_hash(node, cache, as_map_key)
       when Array
-        node.map {|n| decode(n, cache, as_map_key)}
+        node.map! {|n| decode(n, cache, as_map_key)}
       else
         node
       end
