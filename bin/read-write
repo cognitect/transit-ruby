@@ -7,6 +7,6 @@ require 'transit'
 
 transport = ARGV[0] || "json"
 
-r = Transit::Reader.new(transport.to_sym)
+r = Transit::Reader.new(transport.gsub("-","_").to_sym)
 w = Transit::Writer.new(STDOUT, transport.to_sym)
 r.read(STDIN) {|o| w.write o}
