@@ -7,7 +7,7 @@ require 'json'
 module Transit
   describe Writer do
     let(:io) { StringIO.new }
-    let(:writer) { Writer.new(io, :json) }
+    let(:writer) { Writer.new(io, :json_verbose) }
 
     describe "marshaling transit types" do
       def self.bytes
@@ -72,6 +72,41 @@ module Transit
         writer.register(Person, handler)
         writer.write(Person.new("Russ"))
         assert { JSON.parse(io.string) == {"~#person" => { "~:first_name" => "Russ" } } }
+      end
+    end
+
+    describe "JSON formats" do
+      describe "JSON" do
+        let(:writer) { Writer.new(io, :json) }
+
+        it "writes a map as an array prefixed with '^ '" do
+          writer.write({:a => :b, 3 => 4})
+          assert { JSON.parse(io.string) == ["^ ", "~:a", "~:b", 3, 4] }
+        end
+
+        it "writes a tagged-value as a map"
+
+        it "writes a timestamp as an encoded hash with ms" do
+          pending("need to resolve implementation")
+          writer.write([DateTime.new(2014,1,2,3,4,5.678)])
+          assert { JSON.parse(io.string) == [{"~#t" => 1388631845678}] }
+        end
+      end
+
+      describe "JSON_VERBOSE" do
+        let(:writer) { Writer.new(io, :json_verbose) }
+
+        it "does not use the cache" do
+          writer.write([{"this" => "that"}, {"this" => "the other"}])
+          assert { JSON.parse(io.string) == [{"this" => "that"}, {"this" => "the other"}] }
+        end
+
+        it "writes a tagged-value as a map"
+
+        it "writes a timestamp as an encoded human-readable strings" do
+          writer.write([DateTime.new(2014,1,2,3,4,5.678)])
+          assert { JSON.parse(io.string) == ["~t2014-01-02T03:04:05.678Z"] }
+        end
       end
     end
   end

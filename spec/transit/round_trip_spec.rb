@@ -14,7 +14,7 @@ def round_trip(obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, deco
   # ensure that we don't modify the object being written
   assert { obj == obj_before }
 
-  reader = Transit::Reader.new(type)
+  reader = Transit::Reader.new(type == :json_verbose ? :json : type)
   reader.register(decoder_key, &decoder_fn) if decoder_key && decoder_fn
   reader.read(StringIO.new(io.string))
 end
@@ -155,6 +155,10 @@ module Transit
 
   describe "Transit using json" do
     include_examples "round trips", :json
+  end
+
+  describe "Transit using json_verbose" do
+    include_examples "round trips", :json_verbose
   end
 
   describe "Transit using msgpack" do

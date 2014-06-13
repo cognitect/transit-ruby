@@ -13,7 +13,7 @@ module Transit
     end
 
     IS_UNRECOGNIZED = /^#{RES}#{ESC}/
-    IS_ESCAPABLE    = /^(#{Regexp.escape(SUB)}|#{ESC}|#{RES})/
+    IS_ESCAPABLE    = /^(#{Regexp.escape(SUB)}(?!\s)|#{ESC}|#{RES})/
 
     def escape(s)
       case s
@@ -163,10 +163,11 @@ module Transit
     end
   end
 
-  class JsonMarshaler < Marshaler
+  class BaseJsonMarshaler < Marshaler
     # see http://ecma262-5.com/ELS5_HTML.htm#Section_8.5
     JSON_MAX_INT = 2**53
     JSON_MIN_INT = -2**53
+
     def default_opts
       {:prefer_strings => true,
         :max_int       => JSON_MAX_INT,
@@ -200,6 +201,32 @@ module Transit
 
     def flush
       # no-op
+    end
+  end
+
+  class JsonMarshaler < BaseJsonMarshaler
+    def emit_map(m, _, cache)
+      emit_array(["^ ", *m.flat_map{|x|x}], _, cache)
+    end
+  end
+
+  class VerboseJsonMarshaler < BaseJsonMarshaler
+    def emit_string(prefix, tag, string, as_map_key, cache)
+      emit_object("#{prefix}#{tag}#{escape(string)}", as_map_key)
+    end
+
+    def emit_tagged_map(tag, rep, _, cache)
+      emit_map_start(1)
+      emit_object("#{ESC}##{tag}", true)
+      marshal(rep, false, cache)
+      emit_map_end
+    end
+
+    def emit_tagged_value(rep, as_map_key, cache)
+      emit_map_start(1)
+      emit_object(rep.keys.first, true)
+      marshal(rep.values.first, false, cache)
+      emit_map_end
     end
   end
 
@@ -246,10 +273,16 @@ module Transit
   end
 
   class Writer
-    def initialize(io, type)
-      @marshaler = if type == :json
+    def initialize(io, type=:json)
+      @marshaler = case type
+                   when :json
                      require 'oj'
                      JsonMarshaler.new(io,
+                                       :quote_scalars  => true,
+                                       :prefer_strings => true)
+                   when :json_verbose
+                     require 'oj'
+                     VerboseJsonMarshaler.new(io,
                                        :quote_scalars  => true,
                                        :prefer_strings => true)
                    else
