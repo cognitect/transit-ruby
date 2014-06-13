@@ -18,5 +18,13 @@ module Transit
         assert { decode([{"a" => "~^!"},{"b" => "~^?"}]) == [{"a" => "^!"},{"b" => "^?"}] }
       end
     end
+
+    describe "formats" do
+      describe "JSON_M" do
+        it "converts an array starting with '^ ' to a map" do
+          assert { decode(["^ ", :a, :b, :c, :d]) == {:a => :b, :c => :d} }
+        end
+      end
+    end
   end
 end

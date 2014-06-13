@@ -3,7 +3,8 @@
 
 module Transit
   class Decoder
-    IDENTITY = ->(v){v}
+    IDENTITY       = ->(v){v}
+    JSON_M_MAP_KEY = "^ "
 
     def initialize(options={})
       @options = default_options.merge(options)
@@ -46,7 +47,11 @@ module Transit
       when Hash
         decode_hash(node, cache, as_map_key)
       when Array
-        node.map! {|n| decode(n, cache, as_map_key)}
+        if node[0] == JSON_M_MAP_KEY
+          decode_hash(Hash[*node.drop(1)], cache, as_map_key)
+        else
+          node.map! {|n| decode(n, cache, as_map_key)}
+        end
       else
         node
       end
