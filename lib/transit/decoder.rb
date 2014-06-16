@@ -78,11 +78,9 @@ module Transit
     end
 
     def decode_string(string, cache, as_map_key)
-      if cache.cacheable?(string, as_map_key)
-        cache.encode(string, as_map_key)
-        parse_string(string, cache, as_map_key)
-      elsif cache.cache_key?(string)
-        decode(cache.decode(string, as_map_key), cache, as_map_key)
+      cache.encode(string, as_map_key)
+      if cache.cache_key?(string)
+        parse_string(cache.decode(string, as_map_key), cache, as_map_key)
       else
         parse_string(string, cache, as_map_key)
       end
