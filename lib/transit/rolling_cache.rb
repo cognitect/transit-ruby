@@ -43,7 +43,7 @@ module Transit
     ESCAPED = /^~(#|\$|:)/
 
     def cacheable?(str, as_map_key=false)
-      str.size >= MIN_SIZE_CACHEABLE && (as_map_key || ESCAPED =~ str)
+      str.size >= MIN_SIZE_CACHEABLE && (as_map_key || str.start_with?("~#","~$","~:"))
     end
 
     private
