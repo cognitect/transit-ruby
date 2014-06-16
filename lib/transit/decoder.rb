@@ -95,10 +95,10 @@ module Transit
     def parse_string(str, cache, as_map_key)
       if !str.start_with?(ESC) || str.start_with?(TAG)
         str
-      elsif str.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
-        str[1..-1]
       elsif decoder = @decoders[str[1]]
         decoder.call(str[2..-1])
+      elsif str.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
+        str[1..-1]
       else
         @options[:default_string_decoder].call(str)
       end
