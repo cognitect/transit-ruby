@@ -60,7 +60,7 @@ module Transit
     def decode_hash(hash, cache, as_map_key)
       if hash.size == 1
         key = decode(hash.keys.first, cache, true)
-        if String === key && key[0..1] == TAG
+        if String === key && key.start_with?(TAG)
           if decoder = @decoders[key[2..-1]]
             decoder.call(decode(hash.values.first, cache, false))
           else
@@ -88,20 +88,19 @@ module Transit
       end
     end
 
+    ESC_ESC = "#{ESC}#{ESC}"
+    ESC_SUB = "#{ESC}#{SUB}"
+    ESC_RES = "#{ESC}#{RES}"
+
     def parse_string(str, cache, as_map_key)
-      if str[0] == ESC
-        case str[1]
-        when ESC,SUB,RES then str[1..-1]
-        when "#" then str
-        else
-          if decoder = @decoders[str[1]]
-            decoder.call(str[2..-1])
-          else
-            @options[:default_string_decoder].call(str)
-          end
-        end
-      else
+      if !str.start_with?(ESC) || str.start_with?(TAG)
         str
+      elsif str.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
+        str[1..-1]
+      elsif decoder = @decoders[str[1]]
+        decoder.call(str[2..-1])
+      else
+        @options[:default_string_decoder].call(str)
       end
     end
 
