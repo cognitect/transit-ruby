@@ -7,7 +7,7 @@ require 'json'
 module Transit
   describe Writer do
     let(:io) { StringIO.new }
-    let(:writer) { Writer.new(io, :json_verbose) }
+    let(:writer) { Writer.new(:json_verbose, io) }
 
     describe "marshaling transit types" do
       def self.bytes
@@ -77,7 +77,7 @@ module Transit
 
     describe "JSON formats" do
       describe "JSON" do
-        let(:writer) { Writer.new(io, :json) }
+        let(:writer) { Writer.new(:json, io) }
 
         it "writes a map as an array prefixed with '^ '" do
           writer.write({:a => :b, 3 => 4})
@@ -94,7 +94,7 @@ module Transit
       end
 
       describe "JSON_VERBOSE" do
-        let(:writer) { Writer.new(io, :json_verbose) }
+        let(:writer) { Writer.new(:json_verbose, io) }
 
         it "does not use the cache" do
           writer.write([{"this" => "that"}, {"this" => "the other"}])

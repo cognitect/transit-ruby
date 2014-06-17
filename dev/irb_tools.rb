@@ -12,7 +12,7 @@ end
 class Object
   def to_transit(format=:json)
     sio = StringIO.new
-    Transit::Writer.new(sio, format).write(self)
+    Transit::Writer.new(format, sio).write(self)
     sio.string
   end
 end

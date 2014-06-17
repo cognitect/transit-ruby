@@ -8,5 +8,5 @@ require 'transit'
 transport = ARGV[0] || "json"
 
 r = Transit::Reader.new(transport.gsub("-","_").to_sym)
-w = Transit::Writer.new(STDOUT, transport.to_sym)
+w = Transit::Writer.new(transport.to_sym, STDOUT)
 r.read(STDIN) {|o| w.write o}

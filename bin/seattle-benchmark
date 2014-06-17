@@ -18,7 +18,7 @@ end
 
 def write_transit(data)
   io = StringIO.new('', 'w+')
-  Transit::Writer.new(io, :json).write(data)
+  Transit::Writer.new(:json, io).write(data)
 end
 
 def read_json(data)

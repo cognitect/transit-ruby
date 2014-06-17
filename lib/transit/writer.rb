@@ -273,7 +273,7 @@ module Transit
   end
 
   class Writer
-    def initialize(io, type=:json)
+    def initialize(type, io)
       @marshaler = case type
                    when :json
                      require 'oj'
