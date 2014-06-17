@@ -5,7 +5,7 @@ require 'spec_helper'
 
 module Transit
   describe DateTimeUtil do
-    describe "time_[to|from]_millis" do
+    describe "[to|from]_millis" do
       it "round trips properly" do
         100.times do
           n = DateTime.now
@@ -20,10 +20,17 @@ module Transit
       end
     end
 
-    describe "time_to_millis" do
-      it "(at least sometimes) has non-zero millis" do
-        a = 1.upto(20).map { sleep(0.0001); Transit::DateTimeUtil.to_millis(DateTime.now) % 1000 }
-        assert { a.reduce(&:+) > 0 }
+    describe "to_millis" do
+      it "supports DateTime" do
+        assert { Transit::DateTimeUtil.to_millis(DateTime.new(2014,1,2,3,4,5.678).new_offset(0)) == 1388631845678 }
+      end
+
+      it "supports Time" do
+        assert { Transit::DateTimeUtil.to_millis(Time.new(2014,1,2,3,4,5.678, "+00:00")) == 1388631845678 }
+      end
+
+      it "supports Date" do
+        assert { Transit::DateTimeUtil.to_millis(Date.new(2014,1,2)) == 1388620800000 }
       end
     end
 
@@ -33,6 +40,12 @@ module Transit
         m = Transit::DateTimeUtil.to_millis(t)
         f = Transit::DateTimeUtil.from_millis(m)
         assert { f.zone == '+00:00' }
+      end
+
+      it "handles millis properly" do
+        assert { Transit::DateTimeUtil.from_millis(1388631845674) == DateTime.new(2014,1,2,3,4,5.674).new_offset(0) }
+        assert { Transit::DateTimeUtil.from_millis(1388631845675) == DateTime.new(2014,1,2,3,4,5.675).new_offset(0) }
+        assert { Transit::DateTimeUtil.from_millis(1388631845676) == DateTime.new(2014,1,2,3,4,5.676).new_offset(0) }
       end
     end
   end

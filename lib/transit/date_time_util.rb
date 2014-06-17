@@ -9,10 +9,12 @@ module Transit
         t = v.new_offset(0).to_time
       when Date
         t = Time.gm(v.year, v.month, v.day)
-      else
+      when Time
         t = v.getutc
+      else
+        raise "Don't know how to get millis from #{t.inspect}"
       end
-      (t.to_i * 1000) + (t.usec / 1000).to_i
+      (t.to_i * 1000) + (t.usec / 1000.0).round
     end
 
     def from_millis(millis)
