@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) Cognitect, Inc.
 # All rights reserved.
 
 # -*- coding: utf-8 -*-
 require 'spec_helper'
+require 'pry'
 
 # Assumes that the examples are in the simple_examples dir at the top.
 
@@ -108,7 +110,7 @@ EXEMPLARS = [
 end
 
 def verify_exemplar(exemplar, type, suffix)
-  path = "#{TOP_DIR}/transit/simple-examples/#{exemplar.name}.#{suffix}"
+  path = "#{TOP_DIR}/transit/simple-examples/#{exemplar.name}#{suffix}"
   it "reads what we expect from #{path}" do
     raise "Can't open #{path}" unless File.exist?(path)
     File.open(path) do |io|
@@ -125,11 +127,15 @@ module Transit
     EXEMPLARS.each {|ex| verify_exemplar(ex, type, suffix)}
   end
 
-  describe "Json exemplars" do
-    include_examples "exemplars", :json, 'json'
+  describe "JSON exemplars" do
+    include_examples "exemplars", :json, '.json'
+  end
+
+  describe "JSON-VERBOSE exemplars" do
+    include_examples "exemplars", :json_verbose, '_verbose.json'
   end
 
   describe "MessagePack exemplars" do
-    include_examples "exemplars", :msgpack, 'mp'
+    include_examples "exemplars", :msgpack, '.mp'
   end
 end

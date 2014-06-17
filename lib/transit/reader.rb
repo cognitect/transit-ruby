@@ -55,7 +55,8 @@ module Transit
     def_delegators :@reader, :read, :register
 
     def initialize(type=:json)
-      @reader = if type == :json
+      @reader = case type
+                when :json, :json_verbose
                   require 'yajl'
                   JsonUnmarshaler.new
                 else
