@@ -5,7 +5,7 @@ module Transit
   class Marshaler
     def initialize(opts={})
       @opts = opts
-      @handlers = Handler.new
+      @handlers = Handlers.new
     end
 
     def register(type, handler_class)

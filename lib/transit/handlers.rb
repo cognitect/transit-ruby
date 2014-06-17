@@ -2,7 +2,7 @@
 # All rights reserved.
 
 module Transit
-  class Handler
+  class Handlers
     extend Forwardable
 
     def_delegators :@handlers, :[]=
