@@ -5,7 +5,7 @@ module Transit
   class Handlers
     extend Forwardable
 
-    def_delegators :@handlers, :[]=
+    def_delegators :@handlers, :[]=, :each, :store, :keys
 
     def initialize
       @handlers = ClassHash.new
@@ -43,6 +43,10 @@ module Transit
 
     def [](obj)
       @handlers[obj.class]
+    end
+
+    def for_class(c)
+      @handlers[c]
     end
 
     class TaggedMap
@@ -119,27 +123,45 @@ module Transit
     # - we don't care about truncate v round for dates (which have 000 ms)
     # - date.to_datetime.strftime(...) is considerably faster than date.to_time.strftime(...)
     class TimeHandler
-      def tag(_) "t" end
+      def tag(_) "m" end
       def rep(t) DateTimeUtil.to_millis(t) end
-      def string_rep(t)
-        # .getutc because we don't want to modify t
-        t.getutc.strftime(Transit::TIME_FORMAT)
-      end
+      def string_rep(t) rep(t).to_s end
+      def verbose_handler() VerboseTimeHandler end
     end
 
-    class DateTimeHandler
+    class DateTimeHandler < TimeHandler
+      def verbose_handler() VerboseDateTimeHandler end
+    end
+
+    class DateHandler     < TimeHandler
+      def verbose_handler() VerboseDateHandler end
+    end
+
+    INCOMPLETE_TIME_FORMAT = "%FT%H:%M:%S."
+
+    class VerboseTimeHandler
       def tag(_) "t" end
-      def rep(t) DateTimeUtil.to_millis(t) end
-      def string_rep(t)
+      def rep(t)
+        # .getutc because we don't want to modify t
+        u = t.getutc
+        # Time#strftime truncates fractions, so ...
+        # Time.new(2014,1,2,3,4,5.678,"+00:00").strftime("%L")
+        # => "677"
+        ms = (u.usec / 1000.0).round
+        "#{u.strftime(INCOMPLETE_TIME_FORMAT)}#{ms}Z"
+      end
+      def string_rep(t) rep(t) end
+    end
+
+    class VerboseDateTimeHandler < VerboseTimeHandler
+      def rep(t)
         # .utc because to_time already creates a new object
         t.to_time.utc.strftime(Transit::TIME_FORMAT)
       end
     end
 
-    class DateHandler
-      def tag(_) "t" end
-      def rep(d) DateTimeUtil.to_millis(d) end
-      def string_rep(d)
+    class VerboseDateHandler < VerboseTimeHandler
+      def rep(d)
         # to_datetime because DateTime's strftime is faster
         # thank Time's, and millis are 000 so it doesn't matter
         # if we truncate or round.

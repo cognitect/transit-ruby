@@ -5,7 +5,17 @@ module Transit
   class Marshaler
     def initialize(opts={})
       @opts = opts
-      @handlers = Handlers.new
+      @handlers = (@opts[:verbose] ? verbose_handlers(Handlers.new) : Handlers.new)
+    end
+
+    def verbose_handlers(handlers)
+      handlers.keys.each do |k|
+        v = handlers.for_class(k)
+        if v.respond_to?(:verbose_handler) && vh = v.verbose_handler
+          handlers.store(k, vh.new)
+        end
+      end
+      handlers
     end
 
     def register(type, handler_class)
@@ -279,17 +289,20 @@ module Transit
                      require 'oj'
                      JsonMarshaler.new(io,
                                        :quote_scalars  => true,
-                                       :prefer_strings => true)
+                                       :prefer_strings => true,
+                                       :verbose        => false)
                    when :json_verbose
                      require 'oj'
                      VerboseJsonMarshaler.new(io,
-                                       :quote_scalars  => true,
-                                       :prefer_strings => true)
+                                              :quote_scalars  => true,
+                                              :prefer_strings => true,
+                                              :verbose        => true)
                    else
                      require 'msgpack'
                      MessagePackMarshaler.new(io,
                                               :quote_scalars  => false,
-                                              :prefer_strings => false)
+                                              :prefer_strings => false,
+                                              :verbose        => false)
                    end
     end
 

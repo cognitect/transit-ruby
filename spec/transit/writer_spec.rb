@@ -86,10 +86,19 @@ module Transit
 
         it "writes a tagged-value as a map"
 
-        it "writes a timestamp as an encoded hash with ms" do
-          pending("need to resolve implementation")
+        it "writes a Date as an encoded hash with ms" do
+          writer.write([Date.new(2014,1,2)])
+          assert { JSON.parse(io.string) == ["~m1388620800000"] }
+        end
+
+        it "writes a Time as an encoded hash with ms" do
+          writer.write([Time.new(2014,1,2,3,4,5.678,"+00:00")])
+          assert { JSON.parse(io.string) == ["~m1388631845678"] }
+        end
+
+        it "writes a DateTime as an encoded hash with ms" do
           writer.write([DateTime.new(2014,1,2,3,4,5.678)])
-          assert { JSON.parse(io.string) == [{"~#t" => 1388631845678}] }
+          assert { JSON.parse(io.string) == ["~m1388631845678"] }
         end
       end
 
@@ -103,7 +112,17 @@ module Transit
 
         it "writes a tagged-value as a map"
 
-        it "writes a timestamp as an encoded human-readable strings" do
+        it "writes a Date as an encoded human-readable strings" do
+          writer.write([Date.new(2014,1,2)])
+          assert { JSON.parse(io.string) == ["~t2014-01-02T00:00:00.000Z"] }
+        end
+
+        it "writes a Time as an encoded human-readable strings" do
+          writer.write([Time.new(2014,1,2,3,4,5.678,"+00:00")])
+          assert { JSON.parse(io.string) == ["~t2014-01-02T03:04:05.678Z"] }
+        end
+
+        it "writes a DateTime as an encoded human-readable strings" do
           writer.write([DateTime.new(2014,1,2,3,4,5.678)])
           assert { JSON.parse(io.string) == ["~t2014-01-02T03:04:05.678Z"] }
         end

@@ -20,8 +20,8 @@ def round_trip(obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, deco
 end
 
 def assert_equal_times(actual,expected)
-  assert { actual.zone == expected.zone }
   assert { Transit::DateTimeUtil.to_millis(actual) == Transit::DateTimeUtil.to_millis(expected) }
+  assert { actual.zone == expected.zone }
 end
 
 def round_trips(label, obj, type, opts={})
@@ -101,13 +101,13 @@ module Transit
     round_trips("a very big int", 123456789012345679012345678890, type)
     round_trips("a float", 1234.56, type)
     round_trips("a bigdec", BigDecimal.new("123.45"), type)
-    round_trips("an instant (DateTime local)", DateTime.new(2014,1,2,3,4,5.6789, "-5"), type,
-                :expected => DateTime.new(2014,1,2, (3+5) ,4,5.6789))
-    round_trips("an instant (DateTime gmt)", DateTime.new(2014,1,2,3,4,5.6789), type)
-    round_trips("an instant (Time local)", Time.new(2014,1,2,3,4,5.6789, "-05:00"), type,
-                :expected => DateTime.new(2014,1,2, (3+5) ,4,5.6789, "+0"))
-    round_trips("an instant (Time gmt)", Time.new(2014,1,2,3,4,5.6789, "+00:00"), type,
-                :expected => DateTime.new(2014,1,2,3,4,5.6789))
+    round_trips("an instant (DateTime local)", DateTime.new(2014,1,2,3,4,5.678, "-5"), type,
+                :expected => DateTime.new(2014,1,2, (3+5) ,4,5.678, "+00:00"))
+    round_trips("an instant (DateTime gmt)", DateTime.new(2014,1,2,3,4,5.678), type)
+    round_trips("an instant (Time local)", Time.new(2014,1,2,3,4,5.678, "-05:00"), type,
+                :expected => DateTime.new(2014,1,2, (3+5) ,4,5.678, "+00:00"))
+    round_trips("an instant (Time gmt)", Time.new(2014,1,2,3,4,5.678, "+00:00"), type,
+                :expected => DateTime.new(2014,1,2,3,4,5.678, "+00:00"))
     round_trips("a Date", Date.new(2014,1,2), type, :expected => DateTime.new(2014,1,2))
     round_trips("a uuid", UUID.new, type)
     round_trips("a uri (url)", Addressable::URI.parse("http://example.com"), type)
