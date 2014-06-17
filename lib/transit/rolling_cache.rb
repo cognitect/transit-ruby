@@ -61,7 +61,7 @@ module Transit
     end
 
     def decode_key(s)
-      s[1].ord - FIRST_ORD
+      s.chr.ord - FIRST_ORD
     end
   end
 end
