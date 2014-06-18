@@ -137,18 +137,11 @@ module Transit
       def verbose_handler() VerboseDateHandler end
     end
 
-    INCOMPLETE_TIME_FORMAT = "%FT%H:%M:%S."
-
     class VerboseTimeHandler
       def tag(_) "t" end
       def rep(t)
         # .getutc because we don't want to modify t
-        u = t.getutc
-        # Time#strftime truncates fractions, so ...
-        # Time.new(2014,1,2,3,4,5.678,"+00:00").strftime("%L")
-        # => "677"
-        ms = (u.usec / 1000.0).round
-        "#{u.strftime(INCOMPLETE_TIME_FORMAT)}#{ms}Z"
+        t.getutc.strftime(Transit::TIME_FORMAT)
       end
       def string_rep(t) rep(t) end
     end

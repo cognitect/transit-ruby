@@ -22,11 +22,11 @@ module Transit
 
     describe "to_millis" do
       it "supports DateTime" do
-        assert { Transit::DateTimeUtil.to_millis(DateTime.new(2014,1,2,3,4,5.678).new_offset(0)) == 1388631845678 }
+        assert { Transit::DateTimeUtil.to_millis(DateTime.new(2014,1,2,3,4,5.678r).new_offset(0)) == 1388631845678 }
       end
 
       it "supports Time" do
-        assert { Transit::DateTimeUtil.to_millis(Time.new(2014,1,2,3,4,5.678, "+00:00")) == 1388631845678 }
+        assert { Transit::DateTimeUtil.to_millis(Time.new(2014,1,2,3,4,5.678r, "+00:00")) == 1388631845678 }
       end
 
       it "supports Date" do
@@ -43,9 +43,9 @@ module Transit
       end
 
       it "handles millis properly" do
-        assert { Transit::DateTimeUtil.from_millis(1388631845674) == DateTime.new(2014,1,2,3,4,5.674).new_offset(0) }
-        assert { Transit::DateTimeUtil.from_millis(1388631845675) == DateTime.new(2014,1,2,3,4,5.675).new_offset(0) }
-        assert { Transit::DateTimeUtil.from_millis(1388631845676) == DateTime.new(2014,1,2,3,4,5.676).new_offset(0) }
+        assert { Transit::DateTimeUtil.from_millis(1388631845674) == DateTime.new(2014,1,2,3,4,5.674r).new_offset(0) }
+        assert { Transit::DateTimeUtil.from_millis(1388631845675) == DateTime.new(2014,1,2,3,4,5.675r).new_offset(0) }
+        assert { Transit::DateTimeUtil.from_millis(1388631845676) == DateTime.new(2014,1,2,3,4,5.676r).new_offset(0) }
       end
     end
   end

@@ -92,12 +92,12 @@ module Transit
         end
 
         it "writes a Time as an encoded hash with ms" do
-          writer.write([Time.new(2014,1,2,3,4,5.678,"+00:00")])
+          writer.write([Time.new(2014,1,2,3,4,5.678r,"+00:00")])
           assert { JSON.parse(io.string) == ["~m1388631845678"] }
         end
 
         it "writes a DateTime as an encoded hash with ms" do
-          writer.write([DateTime.new(2014,1,2,3,4,5.678)])
+          writer.write([DateTime.new(2014,1,2,3,4,5.678r)])
           assert { JSON.parse(io.string) == ["~m1388631845678"] }
         end
       end
@@ -118,12 +118,12 @@ module Transit
         end
 
         it "writes a Time as an encoded human-readable strings" do
-          writer.write([Time.new(2014,1,2,3,4,5.678,"+00:00")])
+          writer.write([Time.new(2014,1,2,3,4,5.678r,"+00:00")])
           assert { JSON.parse(io.string) == ["~t2014-01-02T03:04:05.678Z"] }
         end
 
         it "writes a DateTime as an encoded human-readable strings" do
-          writer.write([DateTime.new(2014,1,2,3,4,5.678)])
+          writer.write([DateTime.new(2014,1,2,3,4,5.678r)])
           assert { JSON.parse(io.string) == ["~t2014-01-02T03:04:05.678Z"] }
         end
       end
