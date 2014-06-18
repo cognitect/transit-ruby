@@ -60,15 +60,16 @@ module Transit
 
     def decode_hash(hash, cache, as_map_key)
       if hash.size == 1
-        key = decode(hash.keys.first, cache, true)
-        if String === key && key.start_with?(TAG)
-          if decoder = @decoders[key[2..-1]]
-            decoder.call(decode(hash.values.first, cache, false))
+        k = decode(hash.keys.first,   cache, true)
+        v = decode(hash.values.first, cache, false)
+        if String === k && k.start_with?(TAG)
+          if decoder = @decoders[k[2..-1]]
+            decoder.call(v)
           else
-            @options[:default_hash_decoder].call({key => decode(hash.values.first, cache, false)})
+            @options[:default_hash_decoder].call({k => v})
           end
         else
-          {key => decode(hash.values.first, cache, false)}
+          {k => v}
         end
       else
         hash.keys.each do |k|
