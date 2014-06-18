@@ -97,7 +97,7 @@ EXEMPLARS = [
   Exemplar.new("maps_three_char_string_keys", [{'aaa'=>1, 'bbb'=>2}, {'aaa'=>3, 'bbb'=>4}, {'aaa'=>5, 'bbb'=>6}]),
   Exemplar.new("maps_four_char_string_keys", [{'aaaa'=>1, 'bbbb'=>2}, {'aaaa'=>3, 'bbbb'=>4}, {'aaaa'=>5, 'bbbb'=>6}]),
   Exemplar.new("maps_unrecognized_keys",
-               [Transit::TaggedValue.new("~#abcde", :anything), Transit::TaggedValue.new("~#fghij", :"anything-else")]),
+               [Transit::TaggedValue.new("abcde", :anything), Transit::TaggedValue.new("fghij", :"anything-else")]),
   Exemplar.new("map_unrecognized_vals", {key: "`~notrecognized"}),
   Exemplar.new("vector_unrecognized_vals", ["`~notrecognized"]),
   Exemplar.new("vector_93_keywords_repeated_twice", array_of_symbols(93, 186)),

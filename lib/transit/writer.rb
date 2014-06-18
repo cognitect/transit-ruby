@@ -93,14 +93,14 @@ module Transit
 
     def emit_tagged_map(tag, rep, _, cache)
       emit_map_start(1)
-      emit_object(cache.encode("#{ESC}##{tag}", true), true)
+      emit_string(ESC, "#", tag, true, cache)
       marshal(rep, false, cache)
       emit_map_end
     end
 
     def emit_tagged_value(rep, as_map_key, cache)
       emit_map_start(1)
-      emit_object(cache.encode(rep.keys.first, true), true)
+      emit_string(ESC, "#", rep.keys.first, true, cache)
       marshal(rep.values.first, false, cache)
       emit_map_end
     end
@@ -224,20 +224,6 @@ module Transit
   class VerboseJsonMarshaler < BaseJsonMarshaler
     def emit_string(prefix, tag, string, as_map_key, cache)
       emit_object("#{prefix}#{tag}#{escape(string)}", as_map_key)
-    end
-
-    def emit_tagged_map(tag, rep, _, cache)
-      emit_map_start(1)
-      emit_object("#{ESC}##{tag}", true)
-      marshal(rep, false, cache)
-      emit_map_end
-    end
-
-    def emit_tagged_value(rep, as_map_key, cache)
-      emit_map_start(1)
-      emit_object(rep.keys.first, true)
-      marshal(rep.values.first, false, cache)
-      emit_map_end
     end
   end
 

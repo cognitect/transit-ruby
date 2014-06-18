@@ -63,10 +63,11 @@ module Transit
         k = decode(hash.keys.first,   cache, true)
         v = decode(hash.values.first, cache, false)
         if String === k && k.start_with?(TAG)
-          if decoder = @decoders[k[2..-1]]
+          tag = k[2..-1]
+          if decoder = @decoders[tag]
             decoder.call(v)
           else
-            @options[:default_hash_decoder].call({k => v})
+            @options[:default_hash_decoder].call({tag => v})
           end
         else
           {k => v}

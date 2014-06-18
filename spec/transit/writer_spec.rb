@@ -40,7 +40,7 @@ module Transit
       marshals_structure("an array of ints", FloatsArray.new([1.1,2.2,3.3]), {"~#floats" => [1.1,2.2,3.3]})
       marshals_structure("an array of ints", DoublesArray.new([1.1,2.2,3.3]), {"~#doubles" => [1.1,2.2,3.3]})
       marshals_structure("an array of ints", BoolsArray.new([true,false,true]), {"~#bools" => [true,false,true]})
-      marshals_structure("a TaggedValue", TaggedValue.new("tag", "value"), {"tag" => "value"})
+      marshals_structure("a TaggedValue", TaggedValue.new("tag", "value"), {"~#tag" => "value"})
     end
 
     describe "handler registration" do
