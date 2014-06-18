@@ -22,14 +22,15 @@ module Transit
       @handlers[type] = handler_class.new
     end
 
-    IS_UNRECOGNIZED = /^#{RES}#{ESC}/
-    IS_ESCAPABLE    = /^(#{Regexp.escape(SUB)}(?!\s)|#{ESC}|#{RES})/
-
     def escape(s)
-      case s
-      when IS_UNRECOGNIZED then s[1..-1]
-      when IS_ESCAPABLE    then "#{ESC}#{s}"
-      else s
+      if s.nil?
+        s
+      elsif s.start_with?("#{RES}#{ESC}")
+        s[1..-1]
+      elsif s.start_with?(SUB,ESC,RES) && !s.start_with?("#{SUB}\s")
+        "#{ESC}#{s}"
+      else
+        s
       end
     end
 
