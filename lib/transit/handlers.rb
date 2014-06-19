@@ -37,7 +37,6 @@ module Transit
       @handlers[BoolsArray]    = BoolsArrayHandler.new
       @handlers[Char]          = CharHandler.new
       @handlers[Quote]         = QuoteHandler.new
-      @handlers[TaggedMap]     = TaggedMapHandler.new
       @handlers[TaggedValue]   = TaggedValueHandler.new
     end
 
@@ -47,15 +46,6 @@ module Transit
 
     def for_class(c)
       @handlers[c]
-    end
-
-    class TaggedMap
-      attr_reader :tag, :rep, :string_rep
-      def initialize(tag, rep, str)
-        @tag = tag
-        @rep = rep
-        @string_rep = str
-      end
     end
 
     class NilHandler
@@ -193,26 +183,26 @@ module Transit
     end
 
     class ArrayHandler
-      def tag(_) :array end
+      def tag(_) "array" end
       def rep(a) a end
       def string_rep(_) nil end
     end
 
     class MapHandler
-      def tag(m) :map end
+      def tag(m) "map" end
       def rep(m) m end
       def string_rep(_) nil end
     end
 
     class SetHandler
       def tag(_) "set" end
-      def rep(s) TaggedMap.new(:array, s.to_a, nil) end
+      def rep(s) TaggedValue.new("array", s.to_a) end
       def string_rep(_) nil end
     end
 
     class ListHandler
       def tag(_) "list" end
-      def rep(l) TaggedMap.new(:array, l.to_a, nil) end
+      def rep(l) TaggedValue.new("array", l.to_a) end
       def string_rep(_) nil end
     end
 
@@ -221,7 +211,7 @@ module Transit
         @type = type
       end
       def tag(_) @type end
-      def rep(a) TaggedMap.new(:array, a.to_a, nil) end
+      def rep(a) TaggedValue.new("array", a.to_a) end
       def string_rep(_) nil end
     end
 
@@ -272,15 +262,9 @@ module Transit
       def string_rep(s) nil end
     end
 
-    class TaggedMapHandler
-      def tag(tm) tm.tag end
-      def rep(tm) tm.rep end
-      def string_rep(tm) tm.to_s end
-    end
-
     class TaggedValueHandler
-      def tag(tv) :tagged_value end
-      def rep(tv) {tv.tag => tv.value} end
+      def tag(tv) tv.tag end
+      def rep(tv) tv.rep end
       def string_rep(_) nil end
     end
   end

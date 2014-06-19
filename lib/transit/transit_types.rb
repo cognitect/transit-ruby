@@ -172,24 +172,24 @@ module Transit
   class Quote < Wrapper; end
 
   class TaggedValue
-    attr_reader :tag, :value
-    def initialize(tag, value)
-      @tag   = tag
-      @value = value
+    attr_reader :tag, :rep
+    def initialize(tag, rep)
+      @tag = tag
+      @rep = rep
     end
 
     def ==(other)
-      return false unless other.is_a?(self.class)
-      other.tag == @tag && other.value == @value
+      return false unless TaggedValue === other
+      other.tag == @tag && other.rep == @rep
     end
 
     def eql?(other)
-      return false unless other.is_a?(self.class)
-      other.tag.eql?(@tag) && other.value.eql?(@value)
+      return false unless TaggedValue === other
+      other.tag.eql?(@tag) && other.rep.eql?(@rep)
     end
 
     def hash
-      @tag.hash + @value.hash
+      @tag.hash + @rep.hash
     end
   end
 end

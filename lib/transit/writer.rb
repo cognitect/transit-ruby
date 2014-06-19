@@ -98,13 +98,6 @@ module Transit
       emit_map_end
     end
 
-    def emit_tagged_value(rep, as_map_key, cache)
-      emit_map_start(1)
-      emit_string(ESC, "#", rep.keys.first, true, cache)
-      marshal(rep.values.first, false, cache)
-      emit_map_end
-    end
-
     def emit_encoded(tag, handler, obj, as_map_key, cache)
       rep = handler.rep(obj)
       if tag.length == 1
@@ -144,16 +137,14 @@ module Transit
         emit_double(rep, as_map_key, cache)
       when "'"
         emit_quoted(rep, as_map_key, cache)
-      when :array
+      when "array"
         emit_array(rep, as_map_key, cache)
-      when :map
+      when "map"
         if stringable_keys?(rep)
           emit_map(rep, as_map_key, cache)
         else
           emit_cmap(rep, as_map_key, cache)
         end
-      when :tagged_value
-        emit_tagged_value(rep, as_map_key, cache)
       else
         emit_encoded(tag, handler, obj, as_map_key, cache)
       end
