@@ -29,8 +29,21 @@ module Transit
   end
 
   class TransitSymbol < Wrapper
+    attr_reader :name, :namespace
     def initialize(sym)
-      super sym.to_sym
+      sym = sym.to_sym
+      super sym
+      @namespace, @name = self.class.parse(sym)
+    end
+
+    def self.parse(sym)
+      nsname = sym.to_str
+      int i = nsname.index '/'
+      if (i == -1 || nsname == "/")
+        [nil, nsname]
+      else
+        [nsname.slice(0, i), nsname.slice(i + 1)]
+      end
     end
   end
 
