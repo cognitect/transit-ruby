@@ -37,9 +37,9 @@ module Transit
     end
 
     def self.parse(sym)
-      nsname = sym.to_str
-      int i = nsname.index '/'
-      if (i == -1 || nsname == "/")
+      nsname = sym.to_s
+      i = nsname.index('/') || -1
+      if (i == -1)
         [nil, nsname]
       else
         [nsname.slice(0, i), nsname.slice(i + 1)]
