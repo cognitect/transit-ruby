@@ -84,7 +84,15 @@ module Transit
           assert { JSON.parse(io.string) == ["^ ", "~:a", "~:b", 3, 4] }
         end
 
-        it "writes a tagged-value as a map"
+        it "writes a single-char tagged-value as a string" do
+          writer.write([TaggedValue.new("a","bc")])
+          assert { JSON.parse(io.string) == ["~abc"] }
+        end
+
+        it "writes a multi-char tagged-value as a map" do
+          writer.write(TaggedValue.new("abc","def"))
+          assert { JSON.parse(io.string) == {"~#abc" => "def"} }
+        end
 
         it "writes a Date as an encoded hash with ms" do
           writer.write([Date.new(2014,1,2)])
@@ -110,7 +118,15 @@ module Transit
           assert { JSON.parse(io.string) == [{"this" => "that"}, {"this" => "the other"}] }
         end
 
-        it "writes a tagged-value as a map"
+        it "writes a single-char tagged-value as a string" do
+          writer.write([TaggedValue.new("a","bc")])
+          assert { JSON.parse(io.string) == ["~abc"] }
+        end
+
+        it "writes a multi-char tagged-value as a map" do
+          writer.write(TaggedValue.new("abc","def"))
+          assert { JSON.parse(io.string) == {"~#abc" => "def"} }
+        end
 
         it "writes a Date as an encoded human-readable strings" do
           writer.write([Date.new(2014,1,2)])

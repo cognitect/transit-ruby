@@ -26,5 +26,11 @@ module Transit
         end
       end
     end
+
+    describe "unrecognized input" do
+      it "decodes an unrecognized string to a TaggedValue" do
+        assert { decode("~Unrecognized") == TaggedValue.new("U", "nrecognized") }
+      end
+    end
   end
 end

@@ -36,8 +36,7 @@ module Transit
           "bools"   => IDENTITY,
           "cmap"    => ->(v){Hash[*v]}
         },
-        :default_string_decoder => ->(s){"`#{s}"},
-        :default_hash_decoder   => ->(h){TaggedValue.new(h.keys.first, h.values.first)}
+        :default_decoder => ->(tag,val){TaggedValue.new(tag, val)}
       }
     end
 
@@ -67,7 +66,7 @@ module Transit
           if decoder = @decoders[tag]
             decoder.call(v)
           else
-            @options[:default_hash_decoder].call({tag => v})
+            @options[:default_decoder].call(tag,v)
           end
         else
           {k => v}
@@ -101,24 +100,28 @@ module Transit
       elsif str.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
         str[1..-1]
       else
-        @options[:default_string_decoder].call(str)
+        @options[:default_decoder].call(str[1], str[2..-1])
       end
     end
 
     def register(tag_or_key, &b)
-      raise ArgumentError.new(DECODER_ARITY_MESSAGE) unless b.arity == 1
-      if tag_or_key == :default_string_decoder
-        @options[:default_string_decoder] = b
-      elsif tag_or_key == :default_hash_decoder
-        @options[:default_hash_decoder] = b
+      if tag_or_key == :default_decoder
+        raise ArgumentError.new(DEFAULT_DECODER_ARITY_MESSAGE) unless b.arity == 2
+        @options[:default_decoder] = b
       else
+        raise ArgumentError.new(TYPE_DECODER_ARITY_MESSAGE) unless b.arity == 1
         @decoders[tag_or_key] = b
       end
     end
 
-    DECODER_ARITY_MESSAGE = <<-MSG
-Decoder functions require arity 1
+    TYPE_DECODER_ARITY_MESSAGE = <<-MSG
+Custom type-specific decoder functions require arity 1
 - the string or hash to decode
+MSG
+
+    DEFAULT_DECODER_ARITY_MESSAGE = <<-MSG
+Default decoder functions require arity 2
+- the tag and the value
 MSG
 
   end
