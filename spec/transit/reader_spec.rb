@@ -31,14 +31,14 @@ module Transit
           assert { read({"~#u" => my_uuid.to_s}) == my_uuid }
         end
 
-        it 'supports override of the default default string encoder' do
-          reader.register(:default_string_decoder) {|s| raise "Unacceptable: #{s}"}
+        it 'supports override of the default encoder for strings' do
+          reader.register(:default_decoder) {|tag,val| raise "Unacceptable: #{s}"}
           assert { rescuing { read("~Xabc") }.message =~ /Unacceptable/ }
         end
 
-        it 'supports override of the default default hash encoder' do
-          reader.register(:default_hash_decoder) {|s| raise "Unacceptable: #{s}"}
-          assert { rescuing { read({"~#X" => :anything}) }.message =~ /Unacceptable/ }
+        it 'supports override of the default encoder for hashes' do
+          reader.register(:default_decoder) {|tag,val| raise "Unacceptable: #{s}"}
+          assert { rescuing { read({"~#XYZ" => "abc"}) }.message =~ /Unacceptable/ }
         end
       end
 
