@@ -34,11 +34,11 @@ module Transit
     end
 
     def namespace
-      @namespace ||= parsed.size == 1 ? nil : parsed[0]
+      @namespace ||= parsed[-2]
     end
 
     def name
-      @name ||= parsed.last || "/"
+      @name ||= parsed[-1] || "/"
     end
 
     private
