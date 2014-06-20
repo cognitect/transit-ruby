@@ -115,7 +115,7 @@ def verify_exemplar(exemplar, type, suffix)
     raise "Can't open #{path}" unless File.exist?(path)
     File.open(path) do |io|
       actual_value = Transit::Reader.new(type).read(io)
-      binding.pry unless actual_value == exemplar.expected_value
+      binding.pry if ENV["PRY"] unless actual_value == exemplar.expected_value
       assert { exemplar.expected_value == actual_value }
     end
   end
