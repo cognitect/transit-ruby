@@ -30,20 +30,30 @@ module Transit
 
   class TransitSymbol < Wrapper
     attr_reader :name, :namespace
+
     def initialize(sym)
-      sym = sym.to_sym
-      super sym
-      @namespace, @name = self.class.parse(sym)
+      super sym.to_sym
     end
 
-    def self.parse(sym)
-      nsname = sym.to_s
-      i = nsname.index('/') || -1
-      if (i == -1)
-        [nil, nsname]
-      else
-        [nsname.slice(0, i), nsname.slice(i + 1)]
-      end
+    def namespace
+      @namespace ||= parsed[0]
+    end
+
+    def name
+      @name ||= parsed[1]
+    end
+
+    private
+
+    def parsed
+      @parsed ||= begin
+                    parts = @value.to_s.split("/")
+                    if parts.size == 1
+                      [nil].concat(parts)
+                    else
+                      parts
+                    end
+                  end
     end
   end
 

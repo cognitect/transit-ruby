@@ -38,6 +38,16 @@ module Transit
         assert { value == i }
       end
     end
+
+    it "provides namespace" do
+      assert { TransitSymbol.new("foo/bar").namespace == "foo" }
+      assert { TransitSymbol.new("foo").namespace == nil }
+    end
+
+    it "provides name" do
+#      assert { TransitSymbol.new("foo").name == "foo" }
+      assert { TransitSymbol.new("foo/bar").name == "bar" }
+    end
   end
 
   describe Char do
