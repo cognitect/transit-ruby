@@ -5,7 +5,7 @@ module Transit
   class Handlers
     extend Forwardable
 
-    def_delegators :@handlers, :[]=, :each, :store, :keys
+    def_delegators :@handlers, :[]=, :size, :each, :store, :keys, :values
 
     def initialize
       @handlers = ClassHash.new
@@ -189,8 +189,22 @@ module Transit
     end
 
     class MapHandler
-      def tag(m) "map" end
-      def rep(m) m end
+      def handlers=(handlers)
+        @handlers = handlers
+      end
+
+      def stringable_keys?(m)
+        m.keys.all? {|k| (@handlers[k].tag(k).length == 1) }
+      end
+
+      def tag(m)
+        stringable_keys?(m) ? "map" : "cmap"
+      end
+
+      def rep(m)
+        stringable_keys?(m) ? m : m.reduce([]) {|a, kv| a.concat(kv)}
+      end
+
       def string_rep(_) nil end
     end
 

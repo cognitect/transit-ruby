@@ -6,11 +6,15 @@ module Transit
     def initialize(opts={})
       @opts = opts
       @handlers = (@opts[:verbose] ? verbose_handlers(Handlers.new) : Handlers.new)
+      @handlers.values.each do |h|
+        if h.respond_to?(:handlers=)
+          h.handlers=(@handlers)
+        end
+      end
     end
 
     def verbose_handlers(handlers)
-      handlers.keys.each do |k|
-        v = handlers.for_class(k)
+      handlers.each do |k, v|
         if v.respond_to?(:verbose_handler) && vh = v.verbose_handler
           handlers.store(k, vh.new)
         end
@@ -140,11 +144,7 @@ module Transit
       when "array"
         emit_array(rep, as_map_key, cache)
       when "map"
-        if stringable_keys?(rep)
-          emit_map(rep, as_map_key, cache)
-        else
-          emit_cmap(rep, as_map_key, cache)
-        end
+        emit_map(rep, as_map_key, cache)
       else
         emit_encoded(tag, handler, obj, as_map_key, cache)
       end
