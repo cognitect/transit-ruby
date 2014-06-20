@@ -38,7 +38,7 @@ module Transit
     end
 
     def name
-      @name ||= parsed.last
+      @name ||= parsed.last || "/"
     end
 
     private

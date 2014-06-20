@@ -45,8 +45,13 @@ module Transit
     end
 
     it "provides name" do
-#      assert { TransitSymbol.new("foo").name == "foo" }
+      assert { TransitSymbol.new("foo").name == "foo" }
       assert { TransitSymbol.new("foo/bar").name == "bar" }
+    end
+
+    it "special cases '/'" do
+      assert { TransitSymbol.new("/").name == "/" }
+      assert { TransitSymbol.new("/").namespace == nil }
     end
   end
 
