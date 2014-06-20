@@ -29,31 +29,22 @@ module Transit
   end
 
   class TransitSymbol < Wrapper
-    attr_reader :name, :namespace
-
     def initialize(sym)
       super sym.to_sym
     end
 
     def namespace
-      @namespace ||= parsed[0]
+      @namespace ||= parsed.size == 1 ? nil : parsed[0]
     end
 
     def name
-      @name ||= parsed[1]
+      @name ||= parsed.last
     end
 
     private
 
     def parsed
-      @parsed ||= begin
-                    parts = @value.to_s.split("/")
-                    if parts.size == 1
-                      [nil].concat(parts)
-                    else
-                      parts
-                    end
-                  end
+      @parsed ||= @value.to_s.split("/")
     end
   end
 
