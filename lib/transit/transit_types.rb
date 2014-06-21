@@ -48,45 +48,86 @@ module Transit
     end
   end
 
-  class UUID < Wrapper
-    attr_reader :most_significant_bits, :least_significant_bits
+  class UUID
+    def self.random
+      new
+    end
 
     def initialize(uuid_or_most_significant_bits=nil,least_significant_bits=nil)
       case uuid_or_most_significant_bits
       when String
-        @most_significant_bits, @least_significant_bits = parse_msb_lsb(uuid_or_most_significant_bits)
-        super uuid_or_most_significant_bits
-      when Numeric
-        @most_significant_bits, @least_significant_bits = twos_complement(uuid_or_most_significant_bits), twos_complement(least_significant_bits)
-        super to_s
+        @string_rep = uuid_or_most_significant_bits
       when Array
-        @most_significant_bits, @least_significant_bits = uuid_or_most_significant_bits.map{|i| twos_complement(i) }
-        super to_s
+        @numeric_rep = uuid_or_most_significant_bits.map {|n| twos_complement(n)}
+      when Numeric
+        @numeric_rep = [twos_complement(uuid_or_most_significant_bits), twos_complement(least_significant_bits)]
       when nil
-        super SecureRandom.uuid
-        @most_significant_bits, @least_significant_bits = parse_msb_lsb(@value)
+        @string_rep = SecureRandom.uuid
       else
         raise "Can't build UUID from #{uuid_or_most_significant_bits.inspect}"
       end
     end
 
-    def self.random
-      new
+    def to_s
+      @string_rep ||= numbers_to_string
     end
 
-    def to_s
-      @value ||= digits(@most_significant_bits >> 32, 8) + "-" +
-        digits(@most_significant_bits >> 16, 4) + "-" +
-        digits(@most_significant_bits, 4)       + "-" +
-        digits(@least_significant_bits >> 48, 4) + "-" +
-        digits(@least_significant_bits, 12)
+    def most_significant_bits
+      @most_significant_bits ||= numeric_rep[0]
+    end
+
+    def least_significant_bits
+      @least_significant_bits ||= numeric_rep[1]
     end
 
     def inspect
-      "<#{self.class} \"#{to_s}\">"
+      @inspect ||= "<#{self.class} \"#{to_s}\">"
+    end
+
+    def ==(other)
+      return false unless self.class === other
+      if @numeric_rep
+        other.most_significant_bits == most_significant_bits &&
+          other.least_significant_bits == least_significant_bits
+      else
+        other.to_s == @string_rep
+      end
+    end
+
+    def eql?(other)
+      return false unless self.class === other
+      if @numeric_rep
+        other.most_significant_bits.eql?(most_significant_bits) &&
+          other.least_significant_bits.eql?(least_significant_bits)
+      else
+        other.to_s.eql?(@string_rep)
+      end
+    end
+
+    def hash
+      most_significant_bits.hash + least_significant_bits.hash
     end
 
     private
+
+    def numeric_rep
+      @numeric_rep ||= string_to_numbers
+    end
+
+    def numbers_to_string
+      most_significant_bits = @numeric_rep[0]
+      least_significant_bits = @numeric_rep[1]
+      digits(most_significant_bits >> 32, 8) + "-" +
+        digits(most_significant_bits >> 16, 4) + "-" +
+        digits(most_significant_bits, 4)       + "-" +
+        digits(least_significant_bits >> 48, 4) + "-" +
+        digits(least_significant_bits, 12)
+    end
+
+    def string_to_numbers
+      str = @string_rep.delete("-")
+      [twos_complement(str[ 0..15].hex), twos_complement(str[16..31].hex)]
+    end
 
     def digits(val, digits)
       hi = 1 << (digits*4)
@@ -97,13 +138,6 @@ module Transit
       max_signed   = 2**(num_of_bits-1)
       max_unsigned = 2**num_of_bits
       (integer_value >= max_signed) ? integer_value - max_unsigned : integer_value
-    end
-
-    def parse_msb_lsb(s)
-      str = s.delete("-")
-      msb = str[0..15]
-      lsb = str[16..31]
-      [twos_complement(msb.hex), twos_complement(lsb.hex)]
     end
   end
 

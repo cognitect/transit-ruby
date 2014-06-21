@@ -63,19 +63,16 @@ module Transit
 
   describe UUID do
     it 'round trips strings' do
-      100.times do
+      10.times do
         uuid = UUID.random
-        s    = uuid.to_s
-        assert { UUID.new(s)  == uuid }
+        assert { UUID.new(uuid.to_s) == uuid }
       end
     end
 
     it 'round trips ints' do
-      100.times do
+      10.times do
         uuid = UUID.random
-        msb, lsb = uuid.most_significant_bits, uuid.least_significant_bits
-        assert { UUID.new(msb,lsb) == uuid }
-        assert { UUID.new([msb,lsb]) == uuid }
+        assert { UUID.new(uuid.most_significant_bits, uuid.least_significant_bits) == uuid }
       end
     end
   end
