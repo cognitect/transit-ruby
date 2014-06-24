@@ -98,8 +98,8 @@ EXEMPLARS = [
   Exemplar.new("maps_four_char_string_keys", [{'aaaa'=>1, 'bbbb'=>2}, {'aaaa'=>3, 'bbbb'=>4}, {'aaaa'=>5, 'bbbb'=>6}]),
   Exemplar.new("maps_unrecognized_keys",
                [Transit::TaggedValue.new("abcde", :anything), Transit::TaggedValue.new("fghij", :"anything-else")]),
-  Exemplar.new("map_unrecognized_vals", {key: "`~notrecognized"}),
-  Exemplar.new("vector_unrecognized_vals", ["`~notrecognized"]),
+  Exemplar.new("map_unrecognized_vals", {key: "~Unrecognized"}),
+  Exemplar.new("vector_unrecognized_vals", ["~Unrecognized"]),
   Exemplar.new("vector_93_keywords_repeated_twice", array_of_symbols(93, 186)),
   Exemplar.new("vector_94_keywords_repeated_twice", array_of_symbols(94, 188)),
   Exemplar.new("vector_95_keywords_repeated_twice", array_of_symbols(95, 190))
@@ -132,7 +132,7 @@ module Transit
   end
 
   describe "JSON-VERBOSE exemplars" do
-    include_examples "exemplars", :json_verbose, '_verbose.json'
+    include_examples "exemplars", :json_verbose, '.json-verbose'
   end
 
   describe "MessagePack exemplars" do
