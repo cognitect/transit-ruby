@@ -69,6 +69,14 @@ module Transit
       end
     end
 
+    def emit_bigint(i, as_map_key, cache)
+      if as_map_key || i > @opts[:max_int] || i < @opts[:min_int]
+        emit_string(ESC, "n", i.to_s, as_map_key, cache)
+      else
+        emit_object(i, as_map_key)
+      end
+    end
+
     def emit_double(d, as_map_key, cache)
       as_map_key ? emit_string(ESC, "d", d, true, cache) : emit_object(d)
     end
@@ -137,6 +145,8 @@ module Transit
         emit_string(nil, nil, rep, as_map_key, cache)
       when "i"
         emit_int(rep, as_map_key, cache)
+      when "n"
+        emit_bigint(rep, as_map_key, cache)
       when "d"
         emit_double(rep, as_map_key, cache)
       when "'"
