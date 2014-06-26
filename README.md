@@ -19,13 +19,7 @@ reader.read(io) {|o| do_something_with(o)}
 
 # Supported Rubies
 
-* MRI 2.1.1, 2.1.0, 1.9.3
-
-# Future targets
-
-* MRI 1.8.7 (???)
-* jruby >= ???
-* rbx >= ???
+* MRI 1.9.3, 2.0.0, 2.1.0, 2.1.1, 2.1.2
 
 # Development
 
