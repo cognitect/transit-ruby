@@ -4,7 +4,6 @@
 
 # -*- coding: utf-8 -*-
 require 'spec_helper'
-require 'pry'
 
 # Assumes that the examples are in the simple_examples dir at the top.
 
@@ -115,12 +114,10 @@ def verify_exemplar(exemplar, type, suffix)
     raise "Can't open #{path}" unless File.exist?(path)
     File.open(path) do |io|
       actual_value = Transit::Reader.new(type).read(io)
-      binding.pry if ENV["PRY"] unless actual_value == exemplar.expected_value
       assert { exemplar.expected_value == actual_value }
     end
   end
 end
-
 
 module Transit
   shared_examples "exemplars" do |type, suffix|
