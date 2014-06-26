@@ -1,15 +1,5 @@
-* 1.8.7-ify
-** problems to solve
-- no SecureRandom.uuid - need to find (or build) alternate solution
-  - or not support generation - just wrapping
-- :array and :map keys in Handler need to be Strings or need to to_s
-  tags
-- date formats are all different, need to re-implement for 1.8
-- caching is broken (not sure why yet)
-- escaping is broken (not sure why yet)
-* jruby
-- can't use oj or msgpack-ruby, which both use C extensions
-* rbx ???
-* check stringable_keys?
-does it handle the diffs between msgpack and json?
-* move most of writer_spec to marshaler_spec
+* sign?
+* big integer change
+* extended cache codes
+* support link type
+* align handler and decoder registration with java kit
