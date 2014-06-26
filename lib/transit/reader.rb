@@ -3,10 +3,37 @@
 
 module Transit
   class JsonUnmarshaler
-    CHUNK_SIZE = 8192
+    class Handler
+      def each(&block)
+        @each = block
+      end
+
+      def hash_start
+        {}
+      end
+
+      def hash_set(h,k,v)
+        h.store(k,v)
+      end
+
+      def array_start
+        []
+      end
+
+      def array_append(a,v)
+        a << v
+      end
+
+      def add_value(v)
+        @each[v] if @each
+      end
+
+      def error(message, line, column)
+        raise Exception.new(message, line, column)
+      end
+    end
 
     def initialize
-      @yajl    = Yajl::Parser.new
       @decoder = Transit::Decoder.new
     end
 
@@ -15,18 +42,13 @@ module Transit
     end
 
     def read(io)
+      handler = Handler.new
       if block_given?
-        @yajl.on_parse_complete = ->(obj){yield @decoder.decode(obj)}
-        while true
-          begin
-            @yajl << io.readpartial(CHUNK_SIZE)
-          rescue EOFError => e
-            break
-          end
-        end
+        handler.each {|v| yield @decoder.decode(v)}
       else
-        @decoder.decode(@yajl.parse(io))
+        handler.each {|v| return @decoder.decode(v)}
       end
+      Oj.sc_parse(handler, io)
     end
   end
 
@@ -40,11 +62,11 @@ module Transit
     end
 
     def read(io)
-      u = MessagePack::Unpacker.new(io)
+      unpacker = MessagePack::Unpacker.new(io)
       if block_given?
-        u.each {|o| yield @decoder.decode(o)}
+        unpacker.each {|v| yield @decoder.decode(v)}
       else
-        @decoder.decode(u.read)
+        @decoder.decode(unpacker.read)
       end
     end
   end
@@ -57,7 +79,7 @@ module Transit
     def initialize(type=:json)
       @reader = case type
                 when :json, :json_verbose
-                  require 'yajl'
+                  require 'oj'
                   JsonUnmarshaler.new
                 else
                   require 'msgpack'

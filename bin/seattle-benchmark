@@ -8,7 +8,6 @@ require 'benchmark'
 require 'stringio'
 require 'json'
 require 'transit'
-require 'yajl'
 require 'oj'
 
 def read_transit(data)
@@ -23,7 +22,7 @@ end
 
 def read_json(data)
   io = StringIO.new(data, 'r+')
-  Yajl::Parser.parse(io)
+  Oj::load(data)
 end
 
 data = nil
@@ -33,9 +32,9 @@ n = 10
 
 include Benchmark
 
-Benchmark.benchmark(CAPTION, 20, FORMAT, "avg read transit:", "avg read yalj:", "avg write transit:") do |bm|
-  t = bm.report("read transit (#{n} x):")   { n.times { read_transit(data) } }
-  y = bm.report("read yajl (#{n} x):")      { n.times { read_json(data) } }
+Benchmark.benchmark(CAPTION, 20, FORMAT, "avg read transit:", "avg read oj:", "avg write transit:") do |bm|
+  t = bm.report("read transit (#{n} x):")  { n.times { read_transit(data) } }
+  y = bm.report("read oj (#{n} x):")       { n.times { read_json(data) } }
   w = bm.report("write transit (#{n} x):") { n.times { write_transit(data) } }
   [t/n, y/n, w/n]
 end

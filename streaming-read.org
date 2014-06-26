@@ -1,8 +1,0 @@
-* libs that support
-- https://github.com/dgraham/json-stream
-  - pure ruby
-  - >= 1.9.2
-  - reading seattle (w/ no transform) 0.043615 (3x slower than reading
-    and transforming to json w/ yajl
-* libs that do not support
-- https://github.com/brianmario/yajl-ruby

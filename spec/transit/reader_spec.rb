@@ -7,8 +7,18 @@ module Transit
   describe Reader do
     let(:reader) { Reader.new(:json) }
 
-    def read(value)
-      reader.read(StringIO.new(value.to_json, 'r+'))
+    def read(value, &block)
+      reader.read(StringIO.new(value.to_json, 'r+'), &block)
+    end
+
+    it 'reads without a block' do
+      assert { read([1,2,3]) == [1,2,3] }
+    end
+
+    it 'reads with a block' do
+      result = nil
+      read([1,2,3]) {|v| result = v}
+      assert { result == [1,2,3] }
     end
 
     describe 'decoder registration' do
