@@ -6,7 +6,7 @@ Transit marshalling for Ruby.
 ```ruby
 # io can be any Ruby IO
 
-writer = Transit::Writer.new(io, :json) # or :msgpack
+writer = Transit::Writer.new(:json, io) # or :json-verbose, :msgpack
 writer.write(obj)
 
 reader = Transit::Reader.new(:json)     # or :msgpack
