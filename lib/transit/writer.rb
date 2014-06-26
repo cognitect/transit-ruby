@@ -63,7 +63,8 @@ module Transit
 
     def emit_int(i, as_map_key, cache)
       if as_map_key || i > @opts[:max_int] || i < @opts[:min_int]
-        emit_string(ESC, "n", i.to_s, as_map_key, cache)
+        emit_string(ESC, "i", i.to_s, as_map_key, cache) if i.is_a?(Fixnum)
+        emit_string(ESC, "n", i.to_s, as_map_key, cache) if i.is_a?(Bignum)
       else
         emit_object(i, as_map_key)
       end
