@@ -61,10 +61,9 @@ module Transit
       emit_map_end
     end
 
-    def emit_int(i, as_map_key, cache)
+    def emit_int(tag, i, as_map_key, cache)
       if as_map_key || i > @opts[:max_int] || i < @opts[:min_int]
-        emit_string(ESC, "i", i.to_s, as_map_key, cache) if i.is_a?(Fixnum)
-        emit_string(ESC, "n", i.to_s, as_map_key, cache) if i.is_a?(Bignum)
+        emit_string(ESC, tag, i.to_s, as_map_key, cache)
       else
         emit_object(i, as_map_key)
       end
@@ -136,10 +135,8 @@ module Transit
         emit_boolean(rep, as_map_key, cache)
       when "s"
         emit_string(nil, nil, rep, as_map_key, cache)
-      when "i"
-        emit_int(rep, as_map_key, cache)
-      when "n"
-        emit_int(rep, as_map_key, cache)
+      when "i", "n"
+        emit_int(tag, rep, as_map_key, cache)
       when "d"
         emit_double(rep, as_map_key, cache)
       when "'"
