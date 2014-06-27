@@ -20,6 +20,6 @@ end
 class String
   def from_transit(format=:json)
     sio = StringIO.new(self)
-    Transit::Reader.new(format).read(sio)
+    Transit::Reader.new(format, sio).read
   end
 end

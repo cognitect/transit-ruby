@@ -17,9 +17,9 @@ def round_trip(obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, deco
   # ensure that we don't modify the object being written
   assert { obj == obj_before }
 
-  reader = Transit::Reader.new(type == :json_verbose ? :json : type)
+  reader = Transit::Reader.new(type, StringIO.new(io.string))
   reader.register(decoder_key, &decoder_fn) if decoder_key && decoder_fn
-  reader.read(StringIO.new(io.string))
+  reader.read
 end
 
 def assert_equal_times(actual,expected)

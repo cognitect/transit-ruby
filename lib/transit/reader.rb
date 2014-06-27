@@ -33,40 +33,41 @@ module Transit
       end
     end
 
-    def initialize
+    def initialize(io)
+      @io = io
       @decoder = Transit::Decoder.new
+      @handler = Handler.new
     end
 
     def register(key, &decoder)
       @decoder.register(key, &decoder)
     end
 
-    def read(io)
-      handler = Handler.new
+    def read
       if block_given?
-        handler.each {|v| yield @decoder.decode(v)}
+        @handler.each {|v| yield @decoder.decode(v)}
       else
-        handler.each {|v| return @decoder.decode(v)}
+        @handler.each {|v| return @decoder.decode(v)}
       end
-      Oj.sc_parse(handler, io)
+      Oj.sc_parse(@handler, @io)
     end
   end
 
   class MessagePackUnmarshaler
-    def initialize
+    def initialize(io)
       @decoder = Transit::Decoder.new
+      @unpacker = MessagePack::Unpacker.new(io)
     end
 
     def register(key, &decoder)
       @decoder.register(key, &decoder)
     end
 
-    def read(io)
-      unpacker = MessagePack::Unpacker.new(io)
+    def read
       if block_given?
-        unpacker.each {|v| yield @decoder.decode(v)}
+        @unpacker.each {|v| yield @decoder.decode(v)}
       else
-        @decoder.decode(unpacker.read)
+        @decoder.decode(@unpacker.read)
       end
     end
   end
@@ -76,14 +77,14 @@ module Transit
 
     def_delegators :@reader, :read, :register
 
-    def initialize(type=:json)
+    def initialize(type, io, opts={})
       @reader = case type
                 when :json, :json_verbose
                   require 'oj'
-                  JsonUnmarshaler.new
+                  JsonUnmarshaler.new(io)
                 else
                   require 'msgpack'
-                  MessagePackUnmarshaler.new
+                  MessagePackUnmarshaler.new(io)
                 end
     end
   end

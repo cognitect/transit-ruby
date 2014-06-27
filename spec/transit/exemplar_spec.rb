@@ -113,7 +113,7 @@ def verify_exemplar(exemplar, type, suffix)
   it "reads what we expect from #{path}" do
     raise "Can't open #{path}" unless File.exist?(path)
     File.open(path) do |io|
-      actual_value = Transit::Reader.new(type).read(io)
+      actual_value = Transit::Reader.new(type, io).read
       assert { exemplar.expected_value == actual_value }
     end
   end

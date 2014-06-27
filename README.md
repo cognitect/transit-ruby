@@ -9,12 +9,12 @@ Transit marshalling for Ruby.
 writer = Transit::Writer.new(:json, io) # or :json-verbose, :msgpack
 writer.write(obj)
 
-reader = Transit::Reader.new(:json)     # or :msgpack
-reader.read(io)
+reader = Transit::Reader.new(:json, io) # or :msgpack
+reader.read
 
 # or
 
-reader.read(io) {|o| do_something_with(o)}
+reader.read {|o| do_something_with(o)}
 ```
 
 # Supported Rubies
