@@ -22,6 +22,7 @@ module Transit
       @handlers[DateTime]         = DateTimeHandler.new
       @handlers[Date]             = DateHandler.new
       @handlers[UUID]             = UuidHandler.new
+      @handlers[Link]             = LinkHandler.new
       @handlers[URI]              = UriHandler.new
       @handlers[Addressable::URI] = AddressableUriHandler.new
       @handlers[ByteArray]        = ByteArrayHandler.new
@@ -162,6 +163,15 @@ module Transit
       def tag(_) "u" end
       def rep(u) [u.most_significant_bits, u.least_significant_bits] end
       def string_rep(u) u.to_s end
+    end
+
+    class LinkHandler
+      def tag(_) "link" end
+      def rep(m)
+        map = m.instance_variable_get("@m")
+        [Link::HREF, Link::REL, Link::NAME, Link::RENDER, Link::PROMPT].map {|k| map[k]}
+      end
+      def string_rep(_) nil end
     end
 
     class UriHandler

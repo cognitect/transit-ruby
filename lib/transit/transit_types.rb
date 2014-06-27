@@ -136,11 +136,10 @@ module Transit
     LINK   = "link";
     IMAGE  = "image";
 
-    def initialize(href, rel, prompt=nil, name=nil, render=nil)
+    def initialize(href, rel, name=nil, render=nil, prompt=nil)
       @m = {}
       @m[HREF] = href
       @m[REL] = rel
-      @m[PROMPT] = prompt if prompt
       @m[NAME] = name if name
       if render
         case render.downcase
@@ -152,6 +151,7 @@ module Transit
           raise ArgumentError, "render must be either #{LINK} or #{IMAGE}"
         end
       end
+      @m[PROMPT] = prompt if prompt
       @m.freeze
     end
 
