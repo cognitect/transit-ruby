@@ -4,7 +4,7 @@
 module Transit
   class RollingCache
     FIRST_ORD = 33
-    CACHE_SIZE = 94
+    CACHE_SIZE = 94**2
     MIN_SIZE_CACHEABLE = 4
 
     def initialize
@@ -57,11 +57,21 @@ module Transit
     end
 
     def encode_key(i)
-      "^#{(i+FIRST_ORD).chr}"
+      hi = i / 94;
+      lo = i % 94;
+      if hi == 0
+        "^#{(lo+FIRST_ORD).chr}"
+      else
+        "^#{(hi+FIRST_ORD).chr}#{(lo+FIRST_ORD).chr}"
+      end
     end
 
     def decode_key(s)
-      s.chr.ord - FIRST_ORD
+      if s.length == 2
+        s.chr.ord - FIRST_ORD
+      else
+        ((s[0].ord - FIRST_ORD) * 94) + (s[1].ord - FIRST_ORD)
+      end
     end
   end
 end

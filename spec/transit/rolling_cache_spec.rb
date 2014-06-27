@@ -31,7 +31,7 @@ module Transit
       end
 
       it 'has a default CACHE_SIZE of 94' do
-        assert { RollingCache::CACHE_SIZE == 94 }
+        assert { RollingCache::CACHE_SIZE == 94**2 }
       end
 
       it 'can handle CACHE_SIZE different values' do
@@ -57,7 +57,7 @@ module Transit
         receiver = RollingCache.new
 
         names = random_strings(3, 500)
-        (RollingCache::CACHE_SIZE*20).times do |i|
+        (RollingCache::CACHE_SIZE*5).times do |i|
           name = names.sample
           receiver.decode(sender.encode(name))
           assert { sender.size <= RollingCache::CACHE_SIZE }
@@ -96,7 +96,7 @@ module Transit
 
         names = random_strings(200, 10)
 
-        2000.times do |i|
+        10000.times do |i|
           name = names.sample
           assert { receiver.decode(sender.encode(name)) == name }
         end
