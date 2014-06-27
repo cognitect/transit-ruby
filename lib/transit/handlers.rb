@@ -10,7 +10,7 @@ module Transit
     def initialize
       @handlers = ClassHash.new
       @handlers[NilClass]         = NilHandler.new
-      @handlers[Symbol]           = KeywordHandler.new
+      @handlers[::Symbol]         = KeywordHandler.new
       @handlers[String]           = StringHandler.new
       @handlers[TrueClass]        = TrueHandler.new
       @handlers[FalseClass]       = FalseHandler.new
@@ -25,7 +25,7 @@ module Transit
       @handlers[URI]              = UriHandler.new
       @handlers[Addressable::URI] = AddressableUriHandler.new
       @handlers[ByteArray]        = ByteArrayHandler.new
-      @handlers[TransitSymbol]    = TransitSymbolHandler.new
+      @handlers[Transit::Symbol]  = TransitSymbolHandler.new
       @handlers[Array]            = ArrayHandler.new
       @handlers[TransitList]      = ListHandler.new
       @handlers[Hash]             = MapHandler.new

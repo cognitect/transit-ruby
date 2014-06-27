@@ -113,7 +113,7 @@ module Transit
     round_trips("a uri (url)", Addressable::URI.parse("http://example.com"), type)
     round_trips("a uri (file)", Addressable::URI.parse("file:///path/to/file.txt"), type)
     round_trips("a bytearray", ByteArray.new(random_string(50)), type)
-    round_trips("a TransitSymbol", TransitSymbol.new(random_string), type)
+    round_trips("a Transit::Symbol", Transit::Symbol.new(random_string), type)
     round_trips("a list", TransitList.new([1,2,3]), type, :expected => [1,2,3])
     round_trips("a hash w/ stringable keys", {"this" => "~hash", "1" => 2}, type)
     round_trips("a set", Set.new([1,2,3]), type)
@@ -140,7 +140,7 @@ module Transit
                 :decoder_key => "person",
                 :decoder_fn => ->(p){Person.new(p[:first_name],p[:last_name],p[:birthdate])})
     round_trips("a hash with simple values", {'a' => 1, 'b' => 2, 'name' => 'russ'}, type)
-    round_trips("a hash with TransitSymbols", {TransitSymbol.new("foo") => TransitSymbol.new("bar")}, type)
+    round_trips("a hash with Transit::Symbols", {Transit::Symbol.new("foo") => Transit::Symbol.new("bar")}, type)
     round_trips("a hash with 53 bit ints",  {2**53-1 => 2**53-2}, type)
     round_trips("a hash with 54 bit ints",  {2**53   => 2**53+1}, type)
     round_trips("a map with composite keys", {{a: :b} => {c: :d}}, type)

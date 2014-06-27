@@ -4,25 +4,25 @@
 require 'spec_helper'
 
 module Transit
-  describe TransitSymbol do
+  describe Transit::Symbol do
     it 'can be made from a symbol' do
       500.times do
         sym = random_symbol
-        assert { TransitSymbol.new(sym).to_sym == sym }
+        assert { Transit::Symbol.new(sym).to_sym == sym }
       end
     end
 
     it 'can be made from a string' do
       500.times do
         str = random_string
-        assert { TransitSymbol.new(str).to_sym == str.to_sym }
+        assert { Transit::Symbol.new(str).to_sym == str.to_sym }
       end
     end
 
     it 'is equal to another rendition of itself' do
       500.times do
         sym = random_symbol
-        assert { TransitSymbol.new(sym) == TransitSymbol.new(sym)}
+        assert { Transit::Symbol.new(sym) == Transit::Symbol.new(sym)}
       end
     end
 
@@ -30,28 +30,28 @@ module Transit
       keys = Set.new(Array.new(1000).map {|x| random_symbol})
 
       test_hash = {}
-      keys.each_with_index {|k, i| test_hash[TransitSymbol.new(k)] = i}
+      keys.each_with_index {|k, i| test_hash[Transit::Symbol.new(k)] = i}
 
       keys.each_with_index do |k, i|
-        new_key = TransitSymbol.new(k)
+        new_key = Transit::Symbol.new(k)
         value = test_hash[new_key]
         assert { value == i }
       end
     end
 
     it "provides namespace" do
-      assert { TransitSymbol.new("foo/bar").namespace == "foo" }
-      assert { TransitSymbol.new("foo").namespace == nil }
+      assert { Transit::Symbol.new("foo/bar").namespace == "foo" }
+      assert { Transit::Symbol.new("foo").namespace == nil }
     end
 
     it "provides name" do
-      assert { TransitSymbol.new("foo").name == "foo" }
-      assert { TransitSymbol.new("foo/bar").name == "bar" }
+      assert { Transit::Symbol.new("foo").name == "foo" }
+      assert { Transit::Symbol.new("foo/bar").name == "bar" }
     end
 
     it "special cases '/'" do
-      assert { TransitSymbol.new("/").name == "/" }
-      assert { TransitSymbol.new("/").namespace == nil }
+      assert { Transit::Symbol.new("/").name == "/" }
+      assert { Transit::Symbol.new("/").namespace == nil }
     end
   end
 

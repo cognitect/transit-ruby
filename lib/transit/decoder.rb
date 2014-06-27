@@ -22,7 +22,7 @@ module Transit
           "f" => ->(v){BigDecimal.new(v)},
           "n" => ->(v){v.to_i},
           "c" => IDENTITY,
-          "$" => ->(v){TransitSymbol.new(v)},
+          "$" => ->(v){Transit::Symbol.new(v)},
           "t" => ->(v){DateTime.iso8601(v)},
           "m" => ->(v){DateTimeUtil.from_millis(v.to_i)},
           "u" => ->(v){UUID.new(v)},

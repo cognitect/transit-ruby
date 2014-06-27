@@ -10,7 +10,7 @@ require 'spec_helper'
 TOP_DIR=File.dirname(File.dirname(File.dirname(__FILE__)))
 
 ARRAY_SIMPLE = [1, 2, 3]
-ARRAY_MIXED = [0, 1, 2.0, true, false, 'five', :six, Transit::TransitSymbol.new(:seven), '~eight', nil]
+ARRAY_MIXED = [0, 1, 2.0, true, false, 'five', :six, Transit::Symbol.new(:seven), '~eight', nil]
 ARRAY_NESTED = [ARRAY_SIMPLE, ARRAY_MIXED]
 SMALL_STRINGS = ["","a","ab","abc","abcd","abcde","abcdef"]
 POWERS_OF_TWO = (0..65).map {|x| 2**x}
@@ -31,7 +31,7 @@ URIS = [
 DATES = [-6106017600000, 0, 946728000000, 1396909037000].map {|x| Transit::DateTimeUtil.from_millis(x)}
 
 SYMBOLS = [:a, :ab ,:abc ,:abcd, :abcde, :a1, :b2, :c3, :a_b]
-TRANSIT_SYMBOLS = SYMBOLS.map {|x| Transit::TransitSymbol.new(x)}
+TRANSIT_SYMBOLS = SYMBOLS.map {|x| Transit::Symbol.new(x)}
 
 SET_SIMPLE = Set.new(ARRAY_SIMPLE)
 SET_MIXED = Set.new(ARRAY_MIXED)
@@ -51,7 +51,7 @@ EXEMPLARS = [
   Exemplar.new('one', 1),
   Exemplar.new('one_string', 'hello'),
   Exemplar.new('one_keyword', :hello),
-  Exemplar.new('one_symbol',  Transit::TransitSymbol.new('hello')),
+  Exemplar.new('one_symbol',  Transit::Symbol.new('hello')),
   Exemplar.new('one_date', DateTime.new(2000,1,1,12)), # Transit::DateTimeUtil.from_millis(946728000000)),
   Exemplar.new("vector_simple", ARRAY_SIMPLE),
   Exemplar.new("vector_empty", []),
