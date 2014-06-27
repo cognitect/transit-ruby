@@ -9,35 +9,35 @@ module Transit
 
     def initialize
       @handlers = ClassHash.new
-      @handlers[NilClass]      = NilHandler.new
-      @handlers[Symbol]        = KeywordHandler.new
-      @handlers[String]        = StringHandler.new
-      @handlers[TrueClass]     = TrueHandler.new
-      @handlers[FalseClass]    = FalseHandler.new
-      @handlers[Fixnum]        = IntHandler.new
-      @handlers[Bignum]        = BigIntHandler.new
-      @handlers[Float]         = FloatHandler.new
-      @handlers[BigDecimal]    = BigDecimalHandler.new
-      @handlers[Time]          = TimeHandler.new
-      @handlers[DateTime]      = DateTimeHandler.new
-      @handlers[Date]          = DateHandler.new
-      @handlers[UUID]          = UuidHandler.new
-      @handlers[URI]           = UriHandler.new
+      @handlers[NilClass]         = NilHandler.new
+      @handlers[Symbol]           = KeywordHandler.new
+      @handlers[String]           = StringHandler.new
+      @handlers[TrueClass]        = TrueHandler.new
+      @handlers[FalseClass]       = FalseHandler.new
+      @handlers[Fixnum]           = IntHandler.new
+      @handlers[Bignum]           = BigIntHandler.new
+      @handlers[Float]            = FloatHandler.new
+      @handlers[BigDecimal]       = BigDecimalHandler.new
+      @handlers[Time]             = TimeHandler.new
+      @handlers[DateTime]         = DateTimeHandler.new
+      @handlers[Date]             = DateHandler.new
+      @handlers[UUID]             = UuidHandler.new
+      @handlers[URI]              = UriHandler.new
       @handlers[Addressable::URI] = AddressableUriHandler.new
-      @handlers[ByteArray]     = ByteArrayHandler.new
-      @handlers[TransitSymbol] = TransitSymbolHandler.new
-      @handlers[Array]         = ArrayHandler.new
-      @handlers[TransitList]   = ListHandler.new
-      @handlers[Hash]          = MapHandler.new
-      @handlers[Set]           = SetHandler.new
-      @handlers[IntsArray]     = IntsArrayHandler.new
-      @handlers[LongsArray]    = LongsArrayHandler.new
-      @handlers[DoublesArray]  = DoublesArrayHandler.new
-      @handlers[FloatsArray]   = FloatsArrayHandler.new
-      @handlers[BoolsArray]    = BoolsArrayHandler.new
-      @handlers[Char]          = CharHandler.new
-      @handlers[Quote]         = QuoteHandler.new
-      @handlers[TaggedValue]   = TaggedValueHandler.new
+      @handlers[ByteArray]        = ByteArrayHandler.new
+      @handlers[TransitSymbol]    = TransitSymbolHandler.new
+      @handlers[Array]            = ArrayHandler.new
+      @handlers[TransitList]      = ListHandler.new
+      @handlers[Hash]             = MapHandler.new
+      @handlers[Set]              = SetHandler.new
+      @handlers[IntsArray]        = IntsArrayHandler.new
+      @handlers[LongsArray]       = LongsArrayHandler.new
+      @handlers[DoublesArray]     = DoublesArrayHandler.new
+      @handlers[FloatsArray]      = FloatsArrayHandler.new
+      @handlers[BoolsArray]       = BoolsArrayHandler.new
+      @handlers[Char]             = CharHandler.new
+      @handlers[Quote]            = QuoteHandler.new
+      @handlers[TaggedValue]      = TaggedValueHandler.new
     end
 
     def [](obj)
