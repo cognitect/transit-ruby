@@ -17,8 +17,12 @@ def round_trip(obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, deco
   # ensure that we don't modify the object being written
   assert { obj == obj_before }
 
-  reader = Transit::Reader.new(type, StringIO.new(io.string))
-  reader.register(decoder_key, &decoder_fn) if decoder_key && decoder_fn
+  reader = if decoder_key && decoder_fn
+             Transit::Reader.new(type, StringIO.new(io.string),
+                                 :decoders => {decoder_key => decoder_fn})
+           else
+             Transit::Reader.new(type, StringIO.new(io.string))
+           end
   reader.read
 end
 

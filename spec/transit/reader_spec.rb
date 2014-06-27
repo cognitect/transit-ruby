@@ -20,69 +20,74 @@ module Transit
       assert { result == [1,2,3] }
     end
 
-    describe 'decoder registration', :pending => "reworking registration" do
+    describe 'decoder registration' do
       it 'requires a lambda w/ arity 1' do
-        assert { rescuing { reader.register("~D") {|s,t|} }.
+        assert { rescuing { Reader.new(:json, StringIO.new, :decoders => {"D" => ->(s,t){}}) }.
           message =~ /arity/ }
       end
 
       describe 'overrides' do
         it 'supports override of default string decoders' do
-          reader.register("r") {|r| "DECODED: #{r}"}
-          assert { read("~rhttp://foo.com") == "DECODED: http://foo.com" }
+          io = StringIO.new("[\"~rhttp://foo.com\"]","r+")
+          reader = Reader.new(:json, io, :decoders => {"r" => ->(r){"DECODED: #{r}"}})
+          assert { reader.read == ["DECODED: http://foo.com"] }
         end
 
         it 'supports override of default hash decoders' do
           my_uuid_class = Class.new(String)
           my_uuid = my_uuid_class.new(UUID.new.to_s)
-
-          reader.register("u") {|u| my_uuid_class.new(u)}
-          assert { read({"~#u" => my_uuid.to_s}) == my_uuid }
+          io = StringIO.new({"~#u" => my_uuid.to_s}.to_json)
+          reader = Reader.new(:json, io, :decoders => {"u" => ->(u){my_uuid_class.new(u)}})
+          assert { reader.read == my_uuid }
         end
 
-        it 'supports override of the default encoder for strings' do
-          reader.register(:default_decoder) {|tag,val| raise "Unacceptable: #{s}"}
-          assert { rescuing { read("~Xabc") }.message =~ /Unacceptable/ }
-        end
-
-        it 'supports override of the default encoder for hashes' do
-          reader.register(:default_decoder) {|tag,val| raise "Unacceptable: #{s}"}
-          assert { rescuing { read({"~#XYZ" => "abc"}) }.message =~ /Unacceptable/ }
+        it 'supports override of the default decoder' do
+          io = StringIO.new("~Xabc".to_json)
+          reader = Reader.new(:json, io, :default_decoder => ->(tag,val){raise "Unacceptable: #{s}"})
+          assert { rescuing { reader.read }.message =~ /Unacceptable/ }
         end
       end
 
       describe 'extensions' do
         it 'supports string-based extensions' do
-          reader.register("D") {|s| Date.parse(s)}
-          assert { read("~D2014-03-15") == Date.new(2014,3,15) }
+          io = StringIO.new("~D2014-03-15".to_json)
+          reader = Reader.new(:json, io, :decoders => {"D" => ->(s){Date.parse(s)}})
+          assert { reader.read == Date.new(2014,3,15) }
         end
 
         it 'supports hash based extensions' do
-          reader.register("Times2") {|d| d * 2}
-          assert { read({"~#Times2" => 44}) == 88 }
+          io = StringIO.new({"~#Times2" => 44}.to_json)
+          reader = Reader.new(:json, io, :decoders => {"Times2" => ->(d){d * 2}})
+          assert { reader.read == 88 }
         end
 
         it 'supports hash based extensions that return nil'  do
-          reader.register("Nil") {|_| nil}
-          assert { read({"~#Nil" => :anything }) == nil }
+          io = StringIO.new({"~#Nil" => :anything}.to_json)
+          reader = Reader.new(:json, io, :decoders => {"Nil" => ->(_){nil}})
+          assert { reader.read == nil }
         end
 
         it 'supports hash based extensions that return false' do
-          reader.register("False") {|_| false}
-          assert { read({"~#False" => :anything }) == false }
+          io = StringIO.new({"~#False" => :anything}.to_json)
+          reader = Reader.new(:json, io, :decoders => {"False" => ->(_){false}})
+          assert { reader.read == false }
         end
 
         it 'supports complex hash values' do
-          reader.register("person") {|p| Person.new(p[:first_name],p[:last_name],p[:birthdate])}
-          reader.register("D") {|s| Date.parse(s)}
+          io = StringIO.new([
+                             {"~#person"=>
+                               {"~:first_name" => "Transit","~:last_name" => "Ruby","~:birthdate" => "~D2014-01-02"}},
+                             {"^!"=>
+                               {"^\"" => "Transit","^#" => "Ruby","^$" => "~D2014-01-03"}}].to_json)
 
+          reader = Reader.new(:json, io,
+                              :decoders => {
+                                "person" => ->(p){Person.new(p[:first_name],p[:last_name],p[:birthdate])},
+                                "D"      => ->(s){Date.parse(s)}
+                              })
           expected = [Person.new("Transit", "Ruby", Date.new(2014,1,2)),
                       Person.new("Transit", "Ruby", Date.new(2014,1,3))]
-          actual   = read([
-                                     {"~#person"=>{"~:first_name" => "Transit","~:last_name" => "Ruby","~:birthdate" => "~D2014-01-02"}},
-                                     {"^!"=>{"^\"" => "Transit","^#" => "Ruby","^$" => "~D2014-01-03"}}
-                                    ])
-          assert { actual == expected }
+          assert { reader.read == expected }
         end
       end
     end

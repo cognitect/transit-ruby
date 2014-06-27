@@ -10,8 +10,19 @@ module Transit
     IDENTITY = ->(v){v}
 
     def initialize(options={})
+      @decoders = if options[:decoders]
+                    options[:decoders].each {|k,v| validate_decoder(k,v)}
+                    default_options[:decoders].merge(options[:decoders])
+                  else
+                    default_options[:decoders]
+                  end
+      @default_decoder = if options[:default_decoder]
+                           validate_default_decoder(options[:default_decoder])
+                           options[:default_decoder]
+                         else
+                           default_options[:default_decoder]
+                         end
       @options = default_options.merge(options)
-      @decoders = @options[:decoders]
     end
 
     def default_options
@@ -104,14 +115,12 @@ module Transit
       end
     end
 
-    def register(tag_or_key, &b)
-      if tag_or_key == :default_decoder
-        raise ArgumentError.new(DEFAULT_DECODER_ARITY_MESSAGE) unless b.arity == 2
-        @options[:default_decoder] = b
-      else
-        raise ArgumentError.new(TYPE_DECODER_ARITY_MESSAGE) unless b.arity == 1
-        @decoders[tag_or_key] = b
-      end
+    def validate_decoder(key, decoder)
+      raise ArgumentError.new(TYPE_DECODER_ARITY_MESSAGE) unless decoder.arity == 1
+    end
+
+    def validate_default_decoder(decoder)
+      raise ArgumentError.new(DEFAULT_DECODER_ARITY_MESSAGE) unless decoder.arity == 2
     end
 
     TYPE_DECODER_ARITY_MESSAGE = <<-MSG

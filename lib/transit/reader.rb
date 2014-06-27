@@ -33,14 +33,10 @@ module Transit
       end
     end
 
-    def initialize(io)
+    def initialize(io, opts)
       @io = io
-      @decoder = Transit::Decoder.new
+      @decoder = Transit::Decoder.new(opts)
       @handler = Handler.new
-    end
-
-    def register(key, &decoder)
-      @decoder.register(key, &decoder)
     end
 
     def read
@@ -54,13 +50,9 @@ module Transit
   end
 
   class MessagePackUnmarshaler
-    def initialize(io)
-      @decoder = Transit::Decoder.new
+    def initialize(io, opts)
+      @decoder = Transit::Decoder.new(opts)
       @unpacker = MessagePack::Unpacker.new(io)
-    end
-
-    def register(key, &decoder)
-      @decoder.register(key, &decoder)
     end
 
     def read
@@ -75,16 +67,16 @@ module Transit
   class Reader
     extend Forwardable
 
-    def_delegators :@reader, :read, :register
+    def_delegators :@reader, :read
 
     def initialize(type, io, opts={})
       @reader = case type
                 when :json, :json_verbose
                   require 'oj'
-                  JsonUnmarshaler.new(io)
+                  JsonUnmarshaler.new(io, opts)
                 else
                   require 'msgpack'
-                  MessagePackUnmarshaler.new(io)
+                  MessagePackUnmarshaler.new(io, opts)
                 end
     end
   end
