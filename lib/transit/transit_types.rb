@@ -141,7 +141,7 @@ module Transit
     end
   end
 
-  class TransitList < Wrapper
+  class List < Wrapper
     def to_a
       @value
     end

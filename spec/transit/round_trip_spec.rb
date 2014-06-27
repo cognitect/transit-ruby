@@ -114,7 +114,7 @@ module Transit
     round_trips("a uri (file)", Addressable::URI.parse("file:///path/to/file.txt"), type)
     round_trips("a bytearray", ByteArray.new(random_string(50)), type)
     round_trips("a Transit::Symbol", Transit::Symbol.new(random_string), type)
-    round_trips("a list", TransitList.new([1,2,3]), type, :expected => [1,2,3])
+    round_trips("a list", Transit::List.new([1,2,3]), type, :expected => [1,2,3])
     round_trips("a hash w/ stringable keys", {"this" => "~hash", "1" => 2}, type)
     round_trips("a set", Set.new([1,2,3]), type)
     round_trips("a set of sets", Set.new([Set.new([1,2]), Set.new([3,4])]), type)

@@ -27,7 +27,7 @@ module Transit
       @handlers[ByteArray]        = ByteArrayHandler.new
       @handlers[Transit::Symbol]  = TransitSymbolHandler.new
       @handlers[Array]            = ArrayHandler.new
-      @handlers[TransitList]      = ListHandler.new
+      @handlers[Transit::List]    = ListHandler.new
       @handlers[Hash]             = MapHandler.new
       @handlers[Set]              = SetHandler.new
       @handlers[IntsArray]        = IntsArrayHandler.new
