@@ -65,13 +65,5 @@ module Transit
         "^#{(hi+FIRST_ORD).chr}#{(lo+FIRST_ORD).chr}"
       end
     end
-
-    def decode_key(s)
-      if s.length == 2
-        s.chr.ord - FIRST_ORD
-      else
-        ((s[0].ord - FIRST_ORD) * 94) + (s[1].ord - FIRST_ORD)
-      end
-    end
   end
 end
