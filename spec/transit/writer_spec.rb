@@ -31,12 +31,12 @@ module Transit
       marshals_scalar("a UUID",
                       UUID.new("dda5a83f-8f9d-4194-ae88-5745c8ca94a7"),
                       "~udda5a83f-8f9d-4194-ae88-5745c8ca94a7")
-      marshals_scalar("a TransitSymbol", TransitSymbol.new("foo"), "~$foo" )
+      marshals_scalar("a Transit::Symbol", Transit::Symbol.new("foo"), "~$foo" )
       marshals_scalar("a Char", Char.new("a"), "~ca")
       marshals_scalar("a Fixnum", 9007199254740999, "~i9007199254740999")
       marshals_scalar("a Bignum", 9223372036854775806, "~n9223372036854775806")
       marshals_scalar("a ByteArray", ByteArray.new(bytes), "~b#{ByteArray.new(bytes).to_base64}")
-      marshals_structure("a list", TransitList.new([1,2,3]), {"~#list" => [1,2,3]})
+      marshals_structure("a list", Transit::List.new([1,2,3]), {"~#list" => [1,2,3]})
       marshals_structure("an array of ints", IntsArray.new([1,2,3]), {"~#ints" => [1,2,3]})
       marshals_structure("an array of ints", LongsArray.new([1,2,3]), {"~#longs" => [1,2,3]})
       marshals_structure("an array of ints", FloatsArray.new([1.1,2.2,3.3]), {"~#floats" => [1.1,2.2,3.3]})
