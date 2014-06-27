@@ -174,6 +174,16 @@ module Transit
     def render
       @m[RENDER]
     end
+
+    def ==(other)
+      return false unless other.is_a?(Link)
+      @m == other.instance_variable_get("@m")
+    end
+    alias eql? ==
+
+    def hash
+      @m.hash
+    end
   end
 
   class ByteArray < Wrapper
