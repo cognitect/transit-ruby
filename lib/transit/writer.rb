@@ -138,7 +138,7 @@ module Transit
         emit_boolean(rep, as_map_key, cache)
       when "s"
         emit_string(nil, nil, rep, as_map_key, cache)
-      when "i", "n"
+      when "i"
         emit_int(tag, rep, as_map_key, cache)
       when "d"
         emit_double(rep, as_map_key, cache)
