@@ -127,6 +127,55 @@ module Transit
     end
   end
 
+  class Link
+    HREF   = "href";
+    REL    = "rel";
+    PROMPT = "prompt";
+    NAME   = "name";
+    RENDER = "render";
+    LINK   = "link";
+    IMAGE  = "image";
+
+    def initialize(href, rel, prompt=nil, name=nil, render=nil)
+      @m = {}
+      @m[HREF] = href
+      @m[REL] = rel
+      @m[PROMPT] = prompt if prompt
+      @m[NAME] = name if name
+      if render
+        case render.downcase
+        when LINK
+          @m[RENDER] = LINK
+        when IMAGE
+          @m[RENDER] = IMAGE
+        else
+          raise ArgumentError, "render must be either #{LINK} or #{IMAGE}"
+        end
+      end
+      @m.freeze
+    end
+
+    def href
+      @m[HREF]
+    end
+
+    def rel
+      @m[REL]
+    end
+
+    def prompt
+      @m[PROMPT]
+    end
+
+    def name
+      @m[NAME]
+    end
+
+    def render
+      @m[RENDER]
+    end
+  end
+
   class ByteArray < Wrapper
     def self.from_base64(data)
       new(Base64.decode64(data))

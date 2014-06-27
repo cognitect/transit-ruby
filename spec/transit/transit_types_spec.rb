@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) Cognitect, Inc.
 # All rights reserved.
 
@@ -74,6 +75,45 @@ module Transit
         uuid = UUID.random
         assert { UUID.new(uuid.most_significant_bits, uuid.least_significant_bits) == uuid }
       end
+    end
+  end
+
+  describe Link, focus: true do
+    let(:href) { "http://example.org/search" }
+    let(:rel) { "search" }
+    let(:prompt) { "Enter search string" }
+    let(:name) { "search" }
+
+    it 'can be made from some given arugments' do
+      link = Link.new(href, rel)
+      assert { link.href == href }
+      assert { link.rel == rel }
+      assert { link.prompt == nil }
+      assert { link.name == nil }
+      assert { link.render == nil }
+    end
+
+    it 'can be made from all 5 given correct arguments' do
+      link = Link.new(href, rel, prompt, name, "Image")
+      assert { link.href == href }
+      assert { link.rel == rel }
+      assert { link.prompt == prompt }
+      assert { link.name == name }
+      assert { link.render == "image" }
+    end
+
+    it 'raises exception if href and rel are not given' do
+      expect { Link.new }.to raise_error
+    end
+
+    it 'raises exception if render is not correct value' do
+      expect { Link.new(href, rel, nil, nil, "document") }.to raise_error(ArgumentError)
+    end
+
+    it 'raises exception when map is modified later' do
+      link = Link.new(href, rel)
+      map = link.instance_variable_get("@m")
+      expect { map["render"] = "link" }.to raise_error
     end
   end
 end
