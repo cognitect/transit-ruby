@@ -3,8 +3,11 @@
 
 module Transit
   class Decoder
-    IDENTITY       = ->(v){v}
-    JSON_MAP_KEY = "^ "
+    ESC_ESC  = "#{ESC}#{ESC}"
+    ESC_SUB  = "#{ESC}#{SUB}"
+    ESC_RES  = "#{ESC}#{RES}"
+
+    IDENTITY = ->(v){v}
 
     def initialize(options={})
       @options = default_options.merge(options)
@@ -48,7 +51,7 @@ module Transit
       when Hash
         decode_hash(node, cache, as_map_key)
       when Array
-        if node[0] == JSON_MAP_KEY
+        if node[0] == MAP_AS_ARRAY
           decode_hash(Hash[*node.drop(1)], cache, as_map_key)
         else
           node.map! {|n| decode(n, cache, as_map_key)}
@@ -82,26 +85,21 @@ module Transit
 
     def decode_string(string, cache, as_map_key)
       if cache.has_key?(string)
-        parse_string(cache.read(string, as_map_key), cache, as_map_key)
+        cache.read(string)
       else
-        cache.write(string, as_map_key)
-        parse_string(string, cache, as_map_key)
-      end
-    end
-
-    ESC_ESC = "#{ESC}#{ESC}"
-    ESC_SUB = "#{ESC}#{SUB}"
-    ESC_RES = "#{ESC}#{RES}"
-
-    def parse_string(str, cache, as_map_key)
-      if !str.start_with?(ESC) || str.start_with?(TAG)
-        str
-      elsif decoder = @decoders[str[1]]
-        decoder.call(str[2..-1])
-      elsif str.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
-        str[1..-1]
-      else
-        @options[:default_decoder].call(str[1], str[2..-1])
+        parsed = begin
+                   if !string.start_with?(ESC) || string.start_with?(TAG)
+                     string
+                   elsif decoder = @decoders[string[1]]
+                     decoder.call(string[2..-1])
+                   elsif string.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
+                     string[1..-1]
+                   else
+                     @options[:default_decoder].call(string[1], string[2..-1])
+                   end
+                 end
+        cache.write(parsed) if cache.cacheable?(string, as_map_key)
+        parsed
       end
     end
 

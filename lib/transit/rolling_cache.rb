@@ -15,37 +15,32 @@ module Transit
       clear
     end
 
-    def read(name, as_map_key=false)
-      @key_to_value[name] || maybe_encache(name, as_map_key)
+    def read(key)
+      @key_to_value[key]
     end
 
-    def write(name, as_map_key=false)
-      @value_to_key[name] || maybe_encache(name, as_map_key)
+    def write(val)
+      @value_to_key[val] || begin
+                              clear if @key_to_value.size >= CACHE_SIZE
+                              key = next_key(@key_to_value.size)
+                              @value_to_key[val] = key
+                              @key_to_value[key] = val
+                            end
     end
 
-    private
+    def cache_key?(str, _=false)
+      str[0] == SUB && str != MAP_AS_ARRAY
+    end
 
     def cacheable?(str, as_map_key=false)
       str.size >= MIN_SIZE_CACHEABLE && (as_map_key || str.start_with?("~#","~$","~:"))
     end
 
+    private
+
     def clear
       @key_to_value = {}
       @value_to_key = {}
-    end
-
-    def maybe_encache(name, as_map_key)
-      cacheable?(name, as_map_key) ? encache(name) : name
-    end
-
-    def encache(name)
-      clear if @key_to_value.size >= CACHE_SIZE
-
-      @value_to_key[name] || begin
-                               key = next_key(@key_to_value.size)
-                               @value_to_key[name] = key
-                               @key_to_value[key]  = name
-                             end
     end
 
     def next_key(i)

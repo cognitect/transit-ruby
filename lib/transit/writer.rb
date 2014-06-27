@@ -5,6 +5,7 @@ module Transit
   class Marshaler
     def initialize(opts={})
       @opts = opts
+      @opts[:cache_enabled] = !@opts[:verbose]
       @handlers = (@opts[:verbose] ? verbose_handlers(Handlers.new) : Handlers.new)
       @handlers.values.each do |h|
         if h.respond_to?(:handlers=)
@@ -47,7 +48,12 @@ module Transit
     end
 
     def emit_string(prefix, tag, string, as_map_key, cache)
-      emit_object(cache.write("#{prefix}#{tag}#{escape(string)}", as_map_key), as_map_key)
+      encoded = "#{prefix}#{tag}#{escape(string)}"
+      if @opts[:cache_enabled] && cache.cacheable?(encoded, as_map_key)
+        emit_object(cache.write(encoded), as_map_key)
+      else
+        emit_object(encoded, as_map_key)
+      end
     end
 
     def emit_boolean(b, as_map_key, cache)
