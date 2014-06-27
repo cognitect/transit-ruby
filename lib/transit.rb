@@ -15,7 +15,8 @@ module Transit
   SUB = "^"
   RES = "`"
   TAG = "~#"
-  TIME_FORMAT = "%FT%H:%M:%S.%LZ"
+  MAP_AS_ARRAY = "^ "
+  TIME_FORMAT  = "%FT%H:%M:%S.%LZ"
 end
 
 require 'transit/version'
