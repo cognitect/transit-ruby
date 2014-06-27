@@ -7,8 +7,11 @@ def round_trip(obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, deco
   obj_before = obj
 
   io = StringIO.new('', 'w+')
-  writer = Transit::Writer.new(type, io)
-  writer.register(type_to_handle, handler) if handler
+  writer = if handler
+             Transit::Writer.new(type, io, type_to_handle => handler.new)
+           else
+             Transit::Writer.new(type, io)
+           end
   writer.write(obj)
 
   # ensure that we don't modify the object being written

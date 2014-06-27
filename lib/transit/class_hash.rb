@@ -5,7 +5,7 @@ module Transit
   class ClassHash
     extend Forwardable
 
-    def_delegators :@values, :[]=, :size, :each, :store, :keys, :values
+    def_delegators :@values, :[]=, :size, :each, :store, :keys, :values, :merge
 
     def initialize
       @values = {}

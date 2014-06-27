@@ -47,35 +47,66 @@ module Transit
       marshals_structure("a TaggedValue", TaggedValue.new("tag", "value"), {"~#tag" => "value"})
     end
 
-    describe "handler registration" do
+    describe "custom handlers" do
       it "raises when a handler provides nil as a tag" do
         handler = Class.new do
           def tag(_) nil end
         end
-        writer.register(Date, handler)
+        writer = Writer.new(:json_verbose, io, Date => handler.new)
         assert { rescuing { writer.write(Date.today) }.message =~ /must provide a non-nil tag/ }
       end
 
-      it "supports registration of handlers for core types" do
+      it "supports custom handlers for core types" do
         handler = Class.new do
           def tag(_) "s" end
           def rep(s) "MYSTRING: #{s}" end
           def string_rep(s) rep(s) end
         end
-        writer.register(String, handler)
+        writer = Writer.new(:json_verbose, io, String => handler.new)
         writer.write("this")
         assert { JSON.parse(io.string).values.first == "MYSTRING: this" }
       end
 
-      it "supports registration of handlers for custom types" do
+      it "supports custom handlers for custom types" do
         handler = Class.new do
           def tag(_) "person" end
           def rep(s) {:first_name => s.first_name} end
           def string_rep(s) s.first_name end
         end
-        writer.register(Person, handler)
+        writer = Writer.new(:json_verbose, io, Person => handler.new)
         writer.write(Person.new("Russ"))
         assert { JSON.parse(io.string) == {"~#person" => { "~:first_name" => "Russ" } } }
+      end
+
+      it "supports verbose handlers" do
+        phone_class = Class.new do
+          attr_reader :p
+          def initialize(p)
+            @p = p
+          end
+        end
+        handler = Class.new do
+          def tag(_) "phone" end
+          def rep(v) v.p end
+          def string_rep(v) v.p.to_s end
+          def verbose_handler
+            Class.new do
+              def tag(_) "phone" end
+              def rep(v) "PHONE: #{v.p}" end
+              def string_rep(v) rep(v) end
+            end
+          end
+        end
+
+        writer = Writer.new(:json, io, phone_class => handler.new)
+        writer.write(phone_class.new(123456789))
+        assert { JSON.parse(io.string) == {"~#phone" => 123456789} }
+
+        io.rewind
+
+        writer = Writer.new(:json_verbose, io, phone_class => handler.new)
+        writer.write(phone_class.new(123456789))
+        assert { JSON.parse(io.string) == {"~#phone" => "PHONE: 123456789"} }
       end
     end
 

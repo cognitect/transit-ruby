@@ -3,10 +3,11 @@
 
 module Transit
   class Marshaler
-    def initialize(opts={})
+    def initialize(opts, custom_handlers)
       @opts = opts
       @opts[:cache_enabled] = !@opts[:verbose]
-      @handlers = (@opts[:verbose] ? verbose_handlers(Handlers.new) : Handlers.new)
+      handlers = Handlers.new(custom_handlers)
+      @handlers = (@opts[:verbose] ? verbose_handlers(handlers) : handlers)
       @handlers.values.each do |h|
         if h.respond_to?(:handlers=)
           h.handlers=(@handlers)
@@ -21,10 +22,6 @@ module Transit
         end
       end
       handlers
-    end
-
-    def register(type, handler_class)
-      @handlers[type] = handler_class.new
     end
 
     def escape(s)
@@ -182,9 +179,9 @@ module Transit
         :min_int       => JSON_MIN_INT}
     end
 
-    def initialize(io, opts={})
+    def initialize(io, custom_handlers, opts)
       @oj = Oj::StreamWriter.new(io)
-      super(default_opts.merge(opts))
+      super(default_opts.merge(opts), custom_handlers)
     end
 
     def emit_array_start(size)
@@ -234,10 +231,10 @@ module Transit
         :min_int       => MSGPACK_MIN_INT}
     end
 
-    def initialize(io, opts={})
+    def initialize(io, custom_handlers, opts)
       @io = io
       @packer = MessagePack::Packer.new(io)
-      super(default_opts.merge(opts))
+      super(default_opts.merge(opts), custom_handlers)
     end
 
     def emit_array_start(size)
@@ -267,23 +264,26 @@ module Transit
   end
 
   class Writer
-    def initialize(type, io)
+    def initialize(type, io, custom_handlers={})
       @marshaler = case type
                    when :json
                      require 'oj'
                      JsonMarshaler.new(io,
+                                       custom_handlers,
                                        :quote_scalars  => true,
                                        :prefer_strings => true,
                                        :verbose        => false)
                    when :json_verbose
                      require 'oj'
                      VerboseJsonMarshaler.new(io,
+                                              custom_handlers,
                                               :quote_scalars  => true,
                                               :prefer_strings => true,
                                               :verbose        => true)
                    else
                      require 'msgpack'
                      MessagePackMarshaler.new(io,
+                                              custom_handlers,
                                               :quote_scalars  => false,
                                               :prefer_strings => false,
                                               :verbose        => false)
@@ -292,10 +292,6 @@ module Transit
 
     def write(obj)
       @marshaler.marshal_top(obj)
-    end
-
-    def register(type, handler_class)
-      @marshaler.register(type, handler_class)
     end
   end
 end

@@ -7,7 +7,7 @@ module Transit
 
     def_delegators :@handlers, :[]=, :size, :each, :store, :keys, :values
 
-    def initialize
+    def initialize(custom_handlers={})
       @handlers = ClassHash.new
       @handlers[NilClass]         = NilHandler.new
       @handlers[Symbol]           = KeywordHandler.new
@@ -39,6 +39,7 @@ module Transit
       @handlers[Char]             = CharHandler.new
       @handlers[Quote]            = QuoteHandler.new
       @handlers[TaggedValue]      = TaggedValueHandler.new
+      @handlers = @handlers.merge(custom_handlers)
     end
 
     def [](obj)
