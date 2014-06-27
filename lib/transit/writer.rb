@@ -3,10 +3,10 @@
 
 module Transit
   class Marshaler
-    def initialize(opts, custom_handlers)
+    def initialize(opts)
       @opts = opts
       @opts[:cache_enabled] = !@opts[:verbose]
-      handlers = Handlers.new(custom_handlers)
+      handlers = Handlers.new(opts[:handlers])
       @handlers = (@opts[:verbose] ? verbose_handlers(handlers) : handlers)
       @handlers.values.each do |h|
         if h.respond_to?(:handlers=)
@@ -179,9 +179,9 @@ module Transit
         :min_int       => JSON_MIN_INT}
     end
 
-    def initialize(io, custom_handlers, opts)
+    def initialize(io, opts)
       @oj = Oj::StreamWriter.new(io)
-      super(default_opts.merge(opts), custom_handlers)
+      super(default_opts.merge(opts))
     end
 
     def emit_array_start(size)
@@ -231,10 +231,10 @@ module Transit
         :min_int       => MSGPACK_MIN_INT}
     end
 
-    def initialize(io, custom_handlers, opts)
+    def initialize(io, opts)
       @io = io
       @packer = MessagePack::Packer.new(io)
-      super(default_opts.merge(opts), custom_handlers)
+      super(default_opts.merge(opts))
     end
 
     def emit_array_start(size)
@@ -264,29 +264,29 @@ module Transit
   end
 
   class Writer
-    def initialize(type, io, custom_handlers={})
+    def initialize(type, io, opts={})
       @marshaler = case type
                    when :json
                      require 'oj'
                      JsonMarshaler.new(io,
-                                       custom_handlers,
-                                       :quote_scalars  => true,
-                                       :prefer_strings => true,
-                                       :verbose        => false)
+                                       {:quote_scalars  => true,
+                                        :prefer_strings => true,
+                                        :verbose        => false,
+                                        :handlers       => {}}.merge(opts))
                    when :json_verbose
                      require 'oj'
                      VerboseJsonMarshaler.new(io,
-                                              custom_handlers,
-                                              :quote_scalars  => true,
-                                              :prefer_strings => true,
-                                              :verbose        => true)
+                                              {:quote_scalars  => true,
+                                               :prefer_strings => true,
+                                               :verbose        => true,
+                                               :handlers       => {}}.merge(opts))
                    else
                      require 'msgpack'
                      MessagePackMarshaler.new(io,
-                                              custom_handlers,
-                                              :quote_scalars  => false,
-                                              :prefer_strings => false,
-                                              :verbose        => false)
+                                              {:quote_scalars  => false,
+                                               :prefer_strings => false,
+                                               :verbose        => false,
+                                               :handlers       => {}}.merge(opts))
                    end
     end
 

@@ -8,7 +8,7 @@ def round_trip(obj, type, type_to_handle=nil, handler=nil, decoder_key=nil, deco
 
   io = StringIO.new('', 'w+')
   writer = if handler
-             Transit::Writer.new(type, io, type_to_handle => handler.new)
+             Transit::Writer.new(type, io, :handlers => {type_to_handle => handler.new})
            else
              Transit::Writer.new(type, io)
            end

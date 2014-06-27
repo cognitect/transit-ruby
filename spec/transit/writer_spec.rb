@@ -52,7 +52,7 @@ module Transit
         handler = Class.new do
           def tag(_) nil end
         end
-        writer = Writer.new(:json_verbose, io, Date => handler.new)
+        writer = Writer.new(:json_verbose, io, :handlers => {Date => handler.new})
         assert { rescuing { writer.write(Date.today) }.message =~ /must provide a non-nil tag/ }
       end
 
@@ -62,7 +62,7 @@ module Transit
           def rep(s) "MYSTRING: #{s}" end
           def string_rep(s) rep(s) end
         end
-        writer = Writer.new(:json_verbose, io, String => handler.new)
+        writer = Writer.new(:json_verbose, io, :handlers => {String => handler.new})
         writer.write("this")
         assert { JSON.parse(io.string).values.first == "MYSTRING: this" }
       end
@@ -73,7 +73,7 @@ module Transit
           def rep(s) {:first_name => s.first_name} end
           def string_rep(s) s.first_name end
         end
-        writer = Writer.new(:json_verbose, io, Person => handler.new)
+        writer = Writer.new(:json_verbose, io, :handlers => {Person => handler.new})
         writer.write(Person.new("Russ"))
         assert { JSON.parse(io.string) == {"~#person" => { "~:first_name" => "Russ" } } }
       end
@@ -98,13 +98,13 @@ module Transit
           end
         end
 
-        writer = Writer.new(:json, io, phone_class => handler.new)
+        writer = Writer.new(:json, io, :handlers => {phone_class => handler.new})
         writer.write(phone_class.new(123456789))
         assert { JSON.parse(io.string) == {"~#phone" => 123456789} }
 
         io.rewind
 
-        writer = Writer.new(:json_verbose, io, phone_class => handler.new)
+        writer = Writer.new(:json_verbose, io, :handlers => {phone_class => handler.new})
         writer.write(phone_class.new(123456789))
         assert { JSON.parse(io.string) == {"~#phone" => "PHONE: 123456789"} }
       end
