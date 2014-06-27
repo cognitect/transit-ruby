@@ -14,14 +14,9 @@ module Transit
     end
 
     def ==(other)
-      return false unless other.is_a?(self.class)
-      @value == other.value
+      other.is_a?(self.class) && @value == other.value
     end
-
-    def eql?(other)
-      return false unless other.is_a?(self.class)
-      @value.eql?(other.value)
-    end
+    alias eql? ==
 
     def inspect
       "<#{self.class} \"#{to_s}\">"
@@ -85,7 +80,7 @@ module Transit
     end
 
     def ==(other)
-      return false unless self.class === other
+      return false unless other.is_a?(self.class)
       if @numeric_rep
         other.most_significant_bits == most_significant_bits &&
           other.least_significant_bits == least_significant_bits
@@ -93,16 +88,7 @@ module Transit
         other.to_s == @string_rep
       end
     end
-
-    def eql?(other)
-      return false unless self.class === other
-      if @numeric_rep
-        other.most_significant_bits.eql?(most_significant_bits) &&
-          other.least_significant_bits.eql?(least_significant_bits)
-      else
-        other.to_s.eql?(@string_rep)
-      end
-    end
+    alias eql? ==
 
     def hash
       most_significant_bits.hash + least_significant_bits.hash
@@ -227,14 +213,9 @@ module Transit
     end
 
     def ==(other)
-      return false unless TaggedValue === other
-      other.tag == @tag && other.rep == @rep
+      other.is_a?(self.class) && other.tag == @tag && other.rep == @rep
     end
-
-    def eql?(other)
-      return false unless TaggedValue === other
-      other.tag.eql?(@tag) && other.rep.eql?(@rep)
-    end
+    alias eql? ==
 
     def hash
       @tag.hash + @rep.hash
