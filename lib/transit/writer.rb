@@ -47,7 +47,7 @@ module Transit
     end
 
     def emit_string(prefix, tag, string, as_map_key, cache)
-      emit_object(cache.encode("#{prefix}#{tag}#{escape(string)}", as_map_key), as_map_key)
+      emit_object(cache.write("#{prefix}#{tag}#{escape(string)}", as_map_key), as_map_key)
     end
 
     def emit_boolean(b, as_map_key, cache)

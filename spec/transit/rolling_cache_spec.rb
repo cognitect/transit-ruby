@@ -7,26 +7,26 @@ module Transit
   describe RollingCache do
     describe 'encoding' do
       it 'returns the value the first time it sees it' do
-        assert { RollingCache.new.encode('abcd', true) == 'abcd' }
+        assert { RollingCache.new.write('abcd', true) == 'abcd' }
       end
 
       it 'returns a key the 2nd thru n times it sees a value' do
         rc = RollingCache.new
-        assert { rc.encode('abcd', true) == 'abcd' }
+        assert { rc.write('abcd', true) == 'abcd' }
 
-        key = rc.encode('abcd', true)
+        key = rc.write('abcd', true)
         assert { key == '^!' }
 
         100.times do
-          assert { rc.encode('abcd', true) == key }
+          assert { rc.write('abcd', true) == key }
         end
       end
 
-      it 'keeps track of the number of values encoded' do
+      it 'keeps track of the number of values writed' do
         rc = RollingCache.new
-        rc.encode('abcd', true)
-        rc.encode('xxxx', true)
-        rc.encode('yyyy', true)
+        rc.write('abcd', true)
+        rc.write('xxxx', true)
+        rc.write('yyyy', true)
         assert {rc.size == 3}
       end
 
@@ -37,7 +37,7 @@ module Transit
       it 'can handle CACHE_SIZE different values' do
         rc = RollingCache.new
         RollingCache::CACHE_SIZE.times do |i|
-          assert { rc.encode("value#{i}", true) == "value#{i}" }
+          assert { rc.write("value#{i}", true) == "value#{i}" }
         end
 
         assert { rc.size == RollingCache::CACHE_SIZE }
@@ -46,7 +46,7 @@ module Transit
       it 'resets after CACHE_SIZE different values' do
         rc = RollingCache.new
         (RollingCache::CACHE_SIZE+1).times do |i|
-          assert{ rc.encode("value#{i}", true) == "value#{i}" }
+          assert{ rc.write("value#{i}", true) == "value#{i}" }
         end
 
         assert { rc.size == 1 }
@@ -59,7 +59,7 @@ module Transit
         names = random_strings(3, 500)
         (RollingCache::CACHE_SIZE*5).times do |i|
           name = names.sample
-          receiver.decode(sender.encode(name))
+          receiver.read(sender.write(name))
           assert { sender.size <= RollingCache::CACHE_SIZE }
           assert { receiver.size <= RollingCache::CACHE_SIZE }
         end
@@ -71,7 +71,7 @@ module Transit
         names = random_strings(3, 500)
         2000.times do |i|
           name = names.sample
-          assert { cache.encode(name) == name }
+          assert { cache.write(name) == name }
           assert { cache.size == 0 }
         end
       end
@@ -80,14 +80,14 @@ module Transit
     describe "decoding" do
       it 'returns the value, given a key that has a value in the cache' do
         rc = RollingCache.new
-        rc.encode 'abcd'
-        key = rc.encode 'abcd'
-        assert { rc.decode(key) == 'abcd' }
+        rc.write 'abcd'
+        key = rc.write 'abcd'
+        assert { rc.read(key) == 'abcd' }
       end
 
       it 'returns the key, given a key that has no matching value in the cache' do
         rc = RollingCache.new
-        assert { rc.decode('abcd') == 'abcd' }
+        assert { rc.read('abcd') == 'abcd' }
       end
 
       it 'always returns working keys' do
@@ -98,7 +98,7 @@ module Transit
 
         10000.times do |i|
           name = names.sample
-          assert { receiver.decode(sender.encode(name)) == name }
+          assert { receiver.read(sender.write(name)) == name }
         end
       end
     end
