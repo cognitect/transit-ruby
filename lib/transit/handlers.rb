@@ -88,7 +88,7 @@ module Transit
 
     class BigIntHandler
       def tag(_) "n" end
-      def rep(i) i end
+      def rep(i) i.to_s end
       def string_rep(i) i.to_s end
     end
 
