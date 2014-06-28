@@ -4,10 +4,14 @@
 module Transit
   class Marshaler
     def initialize(opts)
-      @opts = opts
-      @opts[:cache_enabled] = !@opts[:verbose]
+      @cache_enabled  = !opts[:verbose]
+      @quote_scalars  = opts[:quote_scalars]
+      @prefer_strings = opts[:prefer_strings]
+      @max_int        = opts[:max_int]
+      @min_int        = opts[:min_int]
+
       handlers = Handlers.new(opts[:handlers])
-      @handlers = (@opts[:verbose] ? verbose_handlers(handlers) : handlers)
+      @handlers = (opts[:verbose] ? verbose_handlers(handlers) : handlers)
       @handlers.values.each do |h|
         if h.respond_to?(:handlers=)
           h.handlers=(@handlers)
@@ -46,7 +50,7 @@ module Transit
 
     def emit_string(prefix, tag, string, as_map_key, cache)
       encoded = "#{prefix}#{tag}#{escape(string)}"
-      if @opts[:cache_enabled] && cache.cacheable?(encoded, as_map_key)
+      if @cache_enabled && cache.cacheable?(encoded, as_map_key)
         emit_object(cache.write(encoded), as_map_key)
       else
         emit_object(encoded, as_map_key)
@@ -65,7 +69,7 @@ module Transit
     end
 
     def emit_int(tag, i, as_map_key, cache)
-      if as_map_key || i > @opts[:max_int] || i < @opts[:min_int]
+      if as_map_key || i > @max_int || i < @min_int
         emit_string(ESC, tag, i.to_s, as_map_key, cache)
       else
         emit_object(i, as_map_key)
@@ -110,7 +114,7 @@ module Transit
       if tag.length == 1
         if String === rep
           emit_string(ESC, tag, rep, as_map_key, cache)
-        elsif as_map_key || @opts[:prefer_strings]
+        elsif as_map_key || @prefer_strings
           rep = handler.string_rep(obj)
           if String === rep
             emit_string(ESC, tag, rep, as_map_key, cache)
@@ -156,7 +160,7 @@ module Transit
     def marshal_top(obj, cache=RollingCache.new)
       handler = @handlers[obj]
       if tag = handler.tag(obj)
-        if @opts[:quote_scalars] && tag.length == 1
+        if @quote_scalars && tag.length == 1
           marshal(Quote.new(obj), false, cache)
         else
           marshal(obj, false, cache)
