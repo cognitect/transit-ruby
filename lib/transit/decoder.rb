@@ -9,51 +9,42 @@ module Transit
 
     IDENTITY = ->(v){v}
 
-    def initialize(options={})
-      @decoders = if options[:decoders]
-                    options[:decoders].each {|k,v| validate_decoder(k,v)}
-                    default_options[:decoders].merge(options[:decoders])
-                  else
-                    default_options[:decoders]
-                  end
-      @default_decoder = if options[:default_decoder]
-                           validate_default_decoder(options[:default_decoder])
-                           options[:default_decoder]
-                         else
-                           default_options[:default_decoder]
-                         end
-      @options = default_options.merge(options)
-    end
+    DEFAULT_DECODERS = {
+      "_" => ->(_){nil},
+      ":" => ->(v){v.to_sym},
+      "?" => ->(v){v == "t"},
+      "b" => ->(v){ByteArray.from_base64(v)},
+      "d" => ->(v){Float(v)},
+      "i" => ->(v){v.to_i},
+      "f" => ->(v){BigDecimal.new(v)},
+      "n" => ->(v){v.to_i},
+      "c" => IDENTITY,
+      "$" => ->(v){TransitSymbol.new(v)},
+      "t" => ->(v){DateTime.iso8601(v)},
+      "m" => ->(v){DateTimeUtil.from_millis(v.to_i)},
+      "u" => ->(v){UUID.new(v)},
+      "r" => ->(v){Addressable::URI.parse(v)},
+      "'" => ->(v){v},
+      "set"     => ->(v){Set.new(v)},
+      "link"    => ->(v){Link.new(*v)},
+      "list"    => IDENTITY,
+      "ints"    => IDENTITY,
+      "longs"   => IDENTITY,
+      "floats"  => IDENTITY,
+      "doubles" => IDENTITY,
+      "bools"   => IDENTITY,
+      "cmap"    => ->(v){Hash[*v]}
+    }.freeze
 
-    def default_options
-      {decoders: {
-          "_" => ->(_){nil},
-          ":" => ->(v){v.to_sym},
-          "?" => ->(v){v == "t"},
-          "b" => ->(v){ByteArray.from_base64(v)},
-          "d" => ->(v){Float(v)},
-          "i" => ->(v){v.to_i},
-          "f" => ->(v){BigDecimal.new(v)},
-          "n" => ->(v){v.to_i},
-          "c" => IDENTITY,
-          "$" => ->(v){TransitSymbol.new(v)},
-          "t" => ->(v){DateTime.iso8601(v)},
-          "m" => ->(v){DateTimeUtil.from_millis(v.to_i)},
-          "u" => ->(v){UUID.new(v)},
-          "r" => ->(v){Addressable::URI.parse(v)},
-          "'" => ->(v){v},
-          "set"     => ->(v){Set.new(v)},
-          "link"    => ->(v){Link.new(*v)},
-          "list"    => IDENTITY,
-          "ints"    => IDENTITY,
-          "longs"   => IDENTITY,
-          "floats"  => IDENTITY,
-          "doubles" => IDENTITY,
-          "bools"   => IDENTITY,
-          "cmap"    => ->(v){Hash[*v]}
-        },
-        :default_decoder => ->(tag,val){TaggedValue.new(tag, val)}
-      }
+    DEFAULT_DECODER = ->(tag,val){TaggedValue.new(tag, val)}
+
+    def initialize(options={})
+      custom_decoders = options[:decoders] || {}
+      custom_decoders.each {|k,v| validate_decoder(k,v)}
+      @decoders = DEFAULT_DECODERS.merge(custom_decoders)
+
+      validate_default_decoder(options[:default_decoder]) if options[:default_decoder]
+      @default_decoder = options[:default_decoder] || DEFAULT_DECODER
     end
 
     def decode(node, cache=RollingCache.new, as_map_key=false)
@@ -82,7 +73,7 @@ module Transit
           if decoder = @decoders[tag]
             decoder.call(v)
           else
-            @options[:default_decoder].call(tag,v)
+            @default_decoder.call(tag,v)
           end
         else
           {k => v}
@@ -107,7 +98,7 @@ module Transit
                    elsif string.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
                      string[1..-1]
                    else
-                     @options[:default_decoder].call(string[1], string[2..-1])
+                     @default_decoder.call(string[1], string[2..-1])
                    end
                  end
         cache.write(parsed) if cache.cacheable?(string, as_map_key)
