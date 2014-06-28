@@ -40,10 +40,6 @@ module Transit
       end
     end
 
-    def stringable_keys?(m)
-      m.keys.all? {|k| (@handlers[k].tag(k).length == 1) }
-    end
-
     def emit_nil(_, as_map_key, cache)
       as_map_key ? emit_string(ESC, "_", nil, true, cache) : emit_object(nil)
     end
