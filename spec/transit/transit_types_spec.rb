@@ -109,11 +109,5 @@ module Transit
     it 'raises exception if render is not correct value' do
       expect { Link.new(href, rel, nil, "document") }.to raise_error(ArgumentError)
     end
-
-    it 'raises exception when map is modified later' do
-      link = Link.new(href, rel)
-      map = link.instance_variable_get("@m")
-      expect { map["render"] = "link" }.to raise_error(RuntimeError)
-    end
   end
 end

@@ -128,61 +128,48 @@ module Transit
   end
 
   class Link
-    HREF   = "href";
-    REL    = "rel";
-    PROMPT = "prompt";
-    NAME   = "name";
-    RENDER = "render";
-    LINK   = "link";
-    IMAGE  = "image";
+    HREF   = "href"
+    REL    = "rel"
+    PROMPT = "prompt"
+    NAME   = "name"
+    RENDER = "render"
+    LINK   = "link"
+    IMAGE  = "image"
 
     def initialize(href, rel, name=nil, render=nil, prompt=nil)
-      @m = {}
-      @m[HREF] = href
-      @m[REL] = rel
-      @m[NAME] = name if name
+      @vals = {}
+      @vals[HREF] = href
+      @vals[REL]  = rel
+      @vals[NAME] = name if name
       if render
-        case render.downcase
-        when LINK
-          @m[RENDER] = LINK
-        when IMAGE
-          @m[RENDER] = IMAGE
-        else
-          raise ArgumentError, "render must be either #{LINK} or #{IMAGE}"
-        end
+        @vals[RENDER] = case render.downcase
+                        when LINK  then LINK
+                        when IMAGE then IMAGE
+                        else
+                          raise ArgumentError, "render must be either #{LINK} or #{IMAGE}"
+                        end
       end
-      @m[PROMPT] = prompt if prompt
-      @m.freeze
+      @vals[PROMPT] = prompt if prompt
+      @vals.freeze
     end
 
-    def href
-      @m[HREF]
-    end
+    def href;   @vals[HREF] end
+    def rel;    @vals[REL] end
+    def prompt; @vals[PROMPT] end
+    def name;   @vals[NAME] end
+    def render; @vals[RENDER] end
 
-    def rel
-      @m[REL]
-    end
-
-    def prompt
-      @m[PROMPT]
-    end
-
-    def name
-      @m[NAME]
-    end
-
-    def render
-      @m[RENDER]
+    def to_a
+      @to_a ||= [HREF, REL, NAME, RENDER, PROMPT].map {|k| @vals[k]}
     end
 
     def ==(other)
-      return false unless other.is_a?(Link)
-      @m == other.instance_variable_get("@m")
+      other.is_a?(Link) && to_a == other.to_a
     end
     alias eql? ==
 
     def hash
-      @m.hash
+      @vals.hash
     end
   end
 

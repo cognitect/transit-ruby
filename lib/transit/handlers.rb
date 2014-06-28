@@ -167,10 +167,7 @@ module Transit
 
     class LinkHandler
       def tag(_) "link" end
-      def rep(m)
-        map = m.instance_variable_get("@m")
-        [Link::HREF, Link::REL, Link::NAME, Link::RENDER, Link::PROMPT].map {|k| map[k]}
-      end
+      def rep(m) m.to_a end
       def string_rep(_) nil end
     end
 
