@@ -98,8 +98,7 @@ module Transit
       emit_map_end
     end
 
-    def emit_encoded(tag, handler, obj, as_map_key, cache)
-      rep = handler.rep(obj)
+    def emit_encoded(handler, tag, rep, obj, as_map_key, cache)
       if tag.length == 1
         if String === rep
           emit_string(ESC, tag, rep, as_map_key, cache)
@@ -142,7 +141,7 @@ module Transit
       when "map"
         emit_map(rep, as_map_key, cache)
       else
-        emit_encoded(tag, handler, obj, as_map_key, cache)
+        emit_encoded(handler, tag, rep, obj, as_map_key, cache)
       end
     end
 
