@@ -91,13 +91,6 @@ module Transit
       emit_map_end
     end
 
-    def emit_cmap(m, _, cache)
-      emit_map_start(1)
-      emit_string(ESC, "#", "cmap", true, cache)
-      marshal(m.reduce([]) {|a, kv| a.concat(kv)}, false, cache)
-      emit_map_end
-    end
-
     def emit_tagged_map(tag, rep, _, cache)
       emit_map_start(1)
       emit_string(ESC, "#", tag, true, cache)
