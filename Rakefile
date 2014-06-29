@@ -1,11 +1,9 @@
 #!/usr/bin/env rake
 require 'bundler'
-require 'rspec/core/rake_task'
-
 Bundler.setup
 
+require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
-
 task :default => :spec
 
 task :irb do
