@@ -25,7 +25,6 @@ module Transit
   JSON_MIN_INT = -JSON_MAX_INT
 end
 
-require 'transit/version'
 require 'transit/date_time_util'
 require 'transit/transit_types'
 require 'transit/class_hash'

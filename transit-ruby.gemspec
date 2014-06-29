@@ -1,11 +1,8 @@
 # coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'transit/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "transit-ruby"
-  spec.version       = Transit::VERSION
+  spec.version       = "0.0.0.dev"
   spec.authors       = ["Russ Olsen","David Chelimsky"]
   spec.email         = ["russ@cognitect.com", "dchelimsky@cognitect.com"]
   spec.summary       = %q{Transit marshalling for Ruby}
