@@ -17,7 +17,7 @@ module Transit
       "d" => ->(v){Float(v)},
       "i" => ->(v){v.to_i},
       "f" => ->(v){BigDecimal.new(v)},
-      "n" => ->(v){v.to_i},
+      "n" => ->(v){BigInteger.new(v)},
       "c" => IDENTITY,
       "$" => ->(v){TransitSymbol.new(v)},
       "t" => ->(v){DateTime.iso8601(v)},

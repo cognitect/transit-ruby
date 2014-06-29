@@ -34,7 +34,8 @@ module Transit
       marshals_scalar("a TransitSymbol", TransitSymbol.new("foo"), "~$foo" )
       marshals_scalar("a Char", Char.new("a"), "~ca")
       marshals_scalar("a Fixnum", 9007199254740999, "~i9007199254740999")
-      marshals_scalar("a Bignum", 9223372036854775806, "~n9223372036854775806")
+      marshals_scalar("a Bignum", 9223372036854775806, "~i9223372036854775806")
+      marshals_scalar("a BigInteger", BigInteger.new("9223372036854775806"), "~n9223372036854775806")
       marshals_scalar("a ByteArray", ByteArray.new(bytes), "~b#{ByteArray.new(bytes).to_base64}")
       marshals_structure("a list", TransitList.new([1,2,3]), {"~#list" => [1,2,3]})
       marshals_structure("a link", Link.new("href", "rel", nil, "link", nil),

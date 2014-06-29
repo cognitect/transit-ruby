@@ -15,7 +15,8 @@ module Transit
       @handlers[TrueClass]        = TrueHandler.new
       @handlers[FalseClass]       = FalseHandler.new
       @handlers[Fixnum]           = IntHandler.new
-      @handlers[Bignum]           = BigIntHandler.new
+      @handlers[Bignum]           = IntHandler.new
+      @handlers[BigInteger]       = BigIntegerHandler.new
       @handlers[Float]            = FloatHandler.new
       @handlers[BigDecimal]       = BigDecimalHandler.new
       @handlers[Time]             = TimeHandler.new
@@ -86,7 +87,7 @@ module Transit
       def string_rep(i) i.to_s end
     end
 
-    class BigIntHandler
+    class BigIntegerHandler
       def tag(_) "n" end
       def rep(i) i.to_s end
       def string_rep(i) i.to_s end
