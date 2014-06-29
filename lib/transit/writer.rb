@@ -161,10 +161,6 @@ module Transit
   end
 
   class BaseJsonMarshaler < Marshaler
-    # see http://ecma262-5.com/ELS5_HTML.htm#Section_8.5
-    JSON_MAX_INT = 2**53
-    JSON_MIN_INT = -2**53
-
     def default_opts
       {:prefer_strings => true,
         :max_int       => JSON_MAX_INT,
@@ -214,13 +210,10 @@ module Transit
   end
 
   class MessagePackMarshaler < Marshaler
-    MSGPACK_MAX_INT = 2**63-1
-    MSGPACK_MIN_INT = -2**63
-
     def default_opts
       {:prefer_strings => false,
-        :max_int       => MSGPACK_MAX_INT,
-        :min_int       => MSGPACK_MIN_INT}
+        :max_int       => MAX_INT,
+        :min_int       => MIN_INT}
     end
 
     def initialize(io, opts)

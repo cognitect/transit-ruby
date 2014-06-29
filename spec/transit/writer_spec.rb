@@ -180,18 +180,18 @@ module Transit
       end
 
       describe "ints" do
-        it "encodes <= 2**64-1 with 'i'" do
+        it "encodes ints <= max signed 64 bit with 'i'" do
           1.upto(5).to_a.reverse.each do |n|
             io.rewind
-            writer.write([(2**64) - n])
+            writer.write([(2**63) - n])
             assert { JSON.parse(io.string).first[1] == "i" }
           end
         end
 
-        it "encodes >= 2**64 with 'n'" do
+        it "encodes ints > max signed 64 bit with 'n'" do
           0.upto(4).each do |n|
             io.rewind
-            writer.write([(2**64) + n])
+            writer.write([(2**63) + n])
             assert { JSON.parse(io.string).first[1] == "n" }
           end
         end

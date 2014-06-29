@@ -17,6 +17,12 @@ module Transit
   TAG = "~#"
   MAP_AS_ARRAY = "^ "
   TIME_FORMAT  = "%FT%H:%M:%S.%LZ"
+
+  MAX_INT = 2**63 - 1
+  MIN_INT = -MAX_INT
+
+  JSON_MAX_INT = 2**53 - 1
+  JSON_MIN_INT = -JSON_MAX_INT
 end
 
 require 'transit/version'

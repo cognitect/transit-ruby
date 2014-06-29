@@ -41,7 +41,7 @@ module Transit
       end
       it "decodes i as an Integer" do
         1.upto(63).each do |pow|
-          assert { decode("~i#{2**pow}").kind_of? Integer }
+          assert { decode("~i#{2**pow - 1}").kind_of? Integer }
         end
       end
     end

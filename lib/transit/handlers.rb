@@ -81,8 +81,6 @@ module Transit
     end
 
     class IntHandler
-      MAX_INT = 2**64 - 1
-      MIN_INT = -(2**63 - 1)
       def tag(i)
         if i > MAX_INT || i < MIN_INT
           "n"
