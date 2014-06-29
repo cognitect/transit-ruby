@@ -23,7 +23,7 @@ module Transit
     end
   end
 
-  class TransitSymbol < Wrapper
+  class Symbol < Wrapper
     def initialize(sym)
       super sym.to_sym
     end
@@ -187,7 +187,7 @@ module Transit
     end
   end
 
-  class TransitList < Wrapper
+  class List < Wrapper
     def to_a
       @value
     end
