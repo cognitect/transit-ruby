@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "addressable",       "~> 2.3.6"
   spec.add_dependency "msgpack",           "~> 0.5.8"
   spec.add_dependency "oj",                "~> 2.9.8"
-  spec.add_development_dependency "rake",  "~> 10.1.1"
+  spec.add_development_dependency "rake",  "~> 10.1"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "wrong", "~> 0.7.1"
 end
