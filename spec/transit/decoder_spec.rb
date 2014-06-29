@@ -32,5 +32,18 @@ module Transit
         assert { decode("~Unrecognized") == TaggedValue.new("U", "nrecognized") }
       end
     end
+
+    describe "ints" do
+      it "decodes n as an Integer" do
+        1.upto(64).each do |pow|
+          assert { decode("~n#{2**pow}").kind_of? Integer }
+        end
+      end
+      it "decodes i as an Integer" do
+        1.upto(63).each do |pow|
+          assert { decode("~i#{2**pow}").kind_of? Integer }
+        end
+      end
+    end
   end
 end

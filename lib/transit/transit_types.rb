@@ -267,8 +267,4 @@ module Transit
       @tag.hash + @rep.hash
     end
   end
-
-  class BigInteger < Wrapper
-    def_delegators :@value, :to_
-  end
 end

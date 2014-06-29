@@ -16,7 +16,6 @@ module Transit
       @handlers[FalseClass]       = FalseHandler.new
       @handlers[Fixnum]           = IntHandler.new
       @handlers[Bignum]           = IntHandler.new
-      @handlers[BigInteger]       = BigIntegerHandler.new
       @handlers[Float]            = FloatHandler.new
       @handlers[BigDecimal]       = BigDecimalHandler.new
       @handlers[Time]             = TimeHandler.new
@@ -82,14 +81,22 @@ module Transit
     end
 
     class IntHandler
-      def tag(_) "i" end
-      def rep(i) i end
-      def string_rep(i) i.to_s end
-    end
-
-    class BigIntegerHandler
-      def tag(_) "n" end
-      def rep(i) i.to_s end
+      MAX_INT = 2**64 - 1
+      MIN_INT = -(2**63 - 1)
+      def tag(i)
+        if i > MAX_INT || i < MIN_INT
+          "n"
+        else
+          "i"
+        end
+      end
+      def rep(i)
+        if i > MAX_INT || i < MIN_INT
+          i.to_s
+        else
+          i
+        end
+      end
       def string_rep(i) i.to_s end
     end
 

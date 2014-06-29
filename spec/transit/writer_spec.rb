@@ -35,7 +35,6 @@ module Transit
       marshals_scalar("a Char", Char.new("a"), "~ca")
       marshals_scalar("a Fixnum", 9007199254740999, "~i9007199254740999")
       marshals_scalar("a Bignum", 9223372036854775806, "~i9223372036854775806")
-      marshals_scalar("a BigInteger", BigInteger.new("9223372036854775806"), "~n9223372036854775806")
       marshals_scalar("a ByteArray", ByteArray.new(bytes), "~b#{ByteArray.new(bytes).to_base64}")
       marshals_structure("a list", Transit::List.new([1,2,3]), {"~#list" => [1,2,3]})
       marshals_structure("a link", Link.new("href", "rel", nil, "link", nil),
@@ -177,6 +176,24 @@ module Transit
         it "writes a DateTime as an encoded human-readable strings" do
           writer.write([(Time.at(1388631845) + 0.678).to_datetime])
           assert { JSON.parse(io.string) == ["~t2014-01-02T03:04:05.678Z"] }
+        end
+      end
+
+      describe "ints" do
+        it "encodes <= 2**64-1 with 'i'" do
+          1.upto(5).to_a.reverse.each do |n|
+            io.rewind
+            writer.write([(2**64) - n])
+            assert { JSON.parse(io.string).first[1] == "i" }
+          end
+        end
+
+        it "encodes >= 2**64 with 'n'" do
+          0.upto(4).each do |n|
+            io.rewind
+            writer.write([(2**64) + n])
+            assert { JSON.parse(io.string).first[1] == "n" }
+          end
         end
       end
     end
