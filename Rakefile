@@ -1,5 +1,8 @@
 #!/usr/bin/env rake
+require 'bundler'
 require 'rspec/core/rake_task'
+
+Bundler.setup
 
 RSpec::Core::RakeTask.new(:spec)
 
@@ -20,7 +23,7 @@ end
 def build_version
   @build_version ||= begin
                        r = `build/revision`.chomp.to_i
-                       "0.0.#{r}"
+                       "0.1.#{r}"
                      end
 end
 
