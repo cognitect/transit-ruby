@@ -48,12 +48,12 @@ module Transit
       @default_decoder = options[:default_decoder] || DEFAULT_DECODER
     end
 
-    # Converts a transit value to an instance of a type
+    # Decodes a transit value to a corresponding object
     #
-    # @param node
+    # @param node a transit value to be decoded
     # @param cache
     # @param as_map_key
-    # @return 
+    # @return decoded object
     def decode(node, cache=RollingCache.new, as_map_key=false)
       case node
       when String
