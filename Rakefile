@@ -43,6 +43,7 @@ task :build do
       f.write gemspec_content.sub("0.1.dev", build_version)
     end
     sh "gem build #{gemspec_filename}"
+    sh "mkdir -p pkg"
     sh "mv #{gem_filename} #{gem_path}"
   ensure
     File.open(gemspec_filename, 'w+') do |f|
