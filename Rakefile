@@ -37,14 +37,17 @@ task :foo => [:ensure_committed]
 
 desc "Build #{gem_filename}.gem into the pkg directory"
 task :build do
-  gemspec_content = File.read(gemspec_filename)
-  File.open(gemspec_filename, 'w+') do |f|
-    f.write gemspec_content.sub("0.0.0.dev", build_version)
-  end
-  sh "gem build #{gemspec_filename}"
-  sh "mv #{gem_filename} #{gem_path}"
-  File.open(gemspec_filename, 'w+') do |f|
-    f.write gemspec_content
+  begin
+    gemspec_content = File.read(gemspec_filename)
+    File.open(gemspec_filename, 'w+') do |f|
+      f.write gemspec_content.sub("0.1.dev", build_version)
+    end
+    sh "gem build #{gemspec_filename}"
+    sh "mv #{gem_filename} #{gem_path}"
+  ensure
+    File.open(gemspec_filename, 'w+') do |f|
+      f.write gemspec_content
+    end
   end
 end
 
