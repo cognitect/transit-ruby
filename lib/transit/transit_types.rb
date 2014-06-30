@@ -128,39 +128,28 @@ module Transit
   end
 
   class Link
-    HREF   = "href"
-    REL    = "rel"
-    PROMPT = "prompt"
-    NAME   = "name"
-    RENDER = "render"
     LINK   = "link"
     IMAGE  = "image"
 
+    attr_reader :href, :rel, :name, :render, :prompt
+
     def initialize(href, rel, name=nil, render=nil, prompt=nil)
-      @vals = {}
-      @vals[HREF] = href
-      @vals[REL]  = rel
-      @vals[NAME] = name if name
-      if render
-        @vals[RENDER] = case render.downcase
-                        when LINK  then LINK
-                        when IMAGE then IMAGE
-                        else
-                          raise ArgumentError, "render must be either #{LINK} or #{IMAGE}"
-                        end
-      end
-      @vals[PROMPT] = prompt if prompt
-      @vals.freeze
+      @href = href
+      @rel  = rel
+      @name = name
+      @render = if render
+                  case render.downcase
+                  when LINK  then LINK
+                  when IMAGE then IMAGE
+                  else
+                    raise ArgumentError, "render must be either #{LINK} or #{IMAGE}"
+                  end
+                end
+      @prompt = prompt
     end
 
-    def href;   @vals[HREF] end
-    def rel;    @vals[REL] end
-    def prompt; @vals[PROMPT] end
-    def name;   @vals[NAME] end
-    def render; @vals[RENDER] end
-
     def to_a
-      @to_a ||= [HREF, REL, NAME, RENDER, PROMPT].map {|k| @vals[k]}
+      @to_a ||= [href, rel, name, render, prompt]
     end
 
     def ==(other)
@@ -169,7 +158,7 @@ module Transit
     alias eql? ==
 
     def hash
-      @vals.hash
+      @hash ||= to_a.hash
     end
   end
 
