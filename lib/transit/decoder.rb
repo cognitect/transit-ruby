@@ -2,6 +2,7 @@
 # All rights reserved.
 
 module Transit
+  # Converts a transit value to an instance of a type
   class Decoder
     ESC_ESC  = "#{ESC}#{ESC}"
     ESC_SUB  = "#{ESC}#{SUB}"
@@ -47,6 +48,12 @@ module Transit
       @default_decoder = options[:default_decoder] || DEFAULT_DECODER
     end
 
+    # Converts a transit value to an instance of a type
+    #
+    # @param node
+    # @param cache
+    # @param as_map_key
+    # @return 
     def decode(node, cache=RollingCache.new, as_map_key=false)
       case node
       when String

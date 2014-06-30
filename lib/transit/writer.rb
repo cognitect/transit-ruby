@@ -275,6 +275,9 @@ module Transit
                    end
     end
 
+    # Writes a single value to an output stream
+    #
+    # @param obj the value to write
     def write(obj)
       @marshaler.marshal_top(obj)
     end
