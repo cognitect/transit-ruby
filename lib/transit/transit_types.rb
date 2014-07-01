@@ -175,13 +175,8 @@ module Transit
 
     private
 
-    SCHEMES = ["http", "https", "file", "ftp"]
-
     def adjust_values
       @map["href"] = Addressable::URI.parse(@map["href"]) if @map["href"].is_a?(String)
-      unless SCHEMES.include?(@map["href"].scheme)
-        raise ArgumentError, "given uri is not supported"
-      end
 
       if @map["render"]
         render = @map["render"].downcase

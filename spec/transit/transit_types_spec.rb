@@ -113,10 +113,6 @@ module Transit
       expect { Link.new }.to raise_error
     end
 
-    it 'raises exception if given string is not supported uri' do
-      expect { Link.new("abc", rel) }.to raise_error(ArgumentError)
-    end
-
     it 'raises exception if render is not correct value' do
       expect { Link.new(href, rel, nil, "document") }.to raise_error(ArgumentError)
     end
