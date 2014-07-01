@@ -79,7 +79,8 @@ module Transit
   end
 
   describe Link do
-    let(:href) { "http://example.org/search" }
+    let(:href) { Addressable::URI.parse("http://example.org/search") }
+    let(:string_href) { "http://example.org/search" }
     let(:rel) { "search" }
     let(:prompt) { "Enter search string" }
     let(:name) { "search" }
@@ -100,6 +101,12 @@ module Transit
       assert { link.name == name }
       assert { link.render == "image" }
       assert { link.prompt == prompt }
+    end
+
+    it 'can be made with uri in string' do
+      link = Link.new(string_href, rel)
+      assert { link.href.class == Addressable::URI }
+      assert { link.href.to_s == Addressable::URI.parse(string_href).to_s }
     end
 
     it 'raises exception if href and rel are not given' do

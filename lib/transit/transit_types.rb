@@ -130,37 +130,62 @@ module Transit
   # Represents a hypermedia link, as per 
   # {http://amundsen.com/media-types/collection/format/#arrays-links}
   class Link
-    LINK   = "link"
-    IMAGE  = "image"
+    KEYS = ["href", "rel", "name", "render", "prompt"]
+    RENDER = ["link", "image"]
 
-    attr_reader :href, :rel, :name, :render, :prompt
+    attr_reader :map
 
-    def initialize(href, rel, name=nil, render=nil, prompt=nil)
-      @href = href
-      @rel  = rel
-      @name = name
-      @render = if render
-                  case render.downcase
-                  when LINK  then LINK
-                  when IMAGE then IMAGE
-                  else
-                    raise ArgumentError, "render must be either #{LINK} or #{IMAGE}"
-                  end
-                end
-      @prompt = prompt
+    def initialize(*args)
+      if args.length == 1 && args[0].is_a?(Hash) # read
+        create_from_map(args[0])
+      elsif args.length >= 2 &&
+          (args[0].is_a?(Addressable::URI) || args[0].is_a?(String))  # write
+        create_from_values(args)
+      else
+        raise ArgumentError, "The first argument is a uri or map. When the first argument is a uri, the second argument, rel, must present."
+      end
     end
 
-    def to_a
-      @to_a ||= [href, rel, name, render, prompt]
+    def create_from_values(args)
+      @map = Hash[KEYS.zip(args)]
+      adjust_values
+      @map.freeze
     end
+
+    def create_from_map(map)
+      @map = map
+      adjust_values
+      @map.freeze
+    end
+
+    def href; @href ||= @map["href"] end
+    def rel; @rel ||= @map["rel"] end
+    def name; @name ||= @map["name"] end
+    def render; @render ||= @map["render"] end
+    def prompt; @prompt ||= @map["prompt"] end
 
     def ==(other)
-      other.is_a?(Link) && to_a == other.to_a
+      other.is_a?(Link) && (self.hash == other.hash)
     end
     alias eql? ==
 
     def hash
-      @hash ||= to_a.hash
+      @map.hash
+    end
+
+    private
+
+    def adjust_values
+      @map["href"] = Addressable::URI.parse(@map["href"]) if @map["href"].is_a?(String)
+
+      if @map["render"]
+        render = @map["render"].downcase
+        if RENDER.include?(render)
+          @map["render"] = render
+        else
+          raise ArgumentError, "render must be either #{RENDER[0]} or #{RENDER[1]}"
+        end
+      end
     end
   end
 

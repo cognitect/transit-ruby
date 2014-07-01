@@ -27,7 +27,7 @@ module Transit
       "r" => ->(v){Addressable::URI.parse(v)},
       "'" => ->(v){v},
       "set"     => ->(v){Set.new(v)},
-      "link"    => ->(v){Link.new(*v)},
+      "link"    => ->(v){Link.new(v)},
       "list"    => IDENTITY,
       "ints"    => IDENTITY,
       "longs"   => IDENTITY,
