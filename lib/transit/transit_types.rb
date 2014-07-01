@@ -163,6 +163,31 @@ module Transit
       @map.freeze
     end
 
+    def href
+      @href ||= @map["href"]
+      @href.freeze unless @href.frozen?
+    end
+
+    def rel
+      @rel ||= @map["rel"]
+      @rel.freeze unless @rel.frozen?
+    end
+
+    def name
+      @name ||= @map["name"]
+      @name.freeze unless @name.frozen?
+    end
+
+    def render
+      @render ||= @map["render"]
+      @render.freeze unless @render.frozen?
+    end
+
+    def prompt
+      @prompt ||= @map["prompt"]
+      @prompt.freeze unless @prompt.frozen?
+    end
+
     def ==(other)
       other.is_a?(Link) && (self.hash == other.hash)
     end
@@ -170,14 +195,6 @@ module Transit
 
     def hash
       @map.hash
-    end
-
-    def method_missing(name, *args, &block)
-      if KEYS.include?(name.to_s)
-        @map[name.to_s]
-      else
-        super
-      end
     end
   end
 
