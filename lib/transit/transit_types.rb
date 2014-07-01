@@ -158,35 +158,11 @@ module Transit
       @map.freeze
     end
 
-    def href
-      @href ||= @map["href"]
-      @href.freeze unless @href.frozen?
-      @href
-    end
-
-    def rel
-      @rel ||= @map["rel"]
-      @rel.freeze unless @rel.frozen?
-      @rel
-    end
-
-    def name
-      @name ||= @map["name"]
-      @name.freeze unless @name.frozen?
-      @name
-    end
-
-    def render
-      @render ||= @map["render"]
-      @render.freeze unless @render.frozen?
-      @render
-    end
-
-    def prompt
-      @prompt ||= @map["prompt"]
-      @prompt.freeze unless @prompt.frozen?
-      @prompt
-    end
+    def href; @href ||= @map["href"] end
+    def rel; @rel ||= @map["rel"] end
+    def name; @name ||= @map["name"] end
+    def render; @render ||= @map["render"] end
+    def prompt; @prompt ||= @map["prompt"] end
 
     def ==(other)
       other.is_a?(Link) && (self.hash == other.hash)
