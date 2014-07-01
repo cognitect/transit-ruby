@@ -35,10 +35,18 @@ module Transit
       marshals_scalar("a Char", Char.new("a"), "~ca")
       marshals_scalar("a Fixnum", 9007199254740999, "~i9007199254740999")
       marshals_scalar("a Bignum", 9223372036854775806, "~i9223372036854775806")
+      marshals_scalar("a Very Bignum", 4256768765123454321897654321234567, "~n4256768765123454321897654321234567")
       marshals_scalar("a ByteArray", ByteArray.new(bytes), "~b#{ByteArray.new(bytes).to_base64}")
+      marshals_scalar("an URI", Addressable::URI.parse("http://example.com/search"), "~rhttp://example.com/search")
       marshals_structure("a list", Transit::List.new([1,2,3]), {"~#list" => [1,2,3]})
-      marshals_structure("a link", Link.new("href", "rel", nil, "link", nil),
-                         {"~#link" => ["href", "rel", nil, "link", nil]})
+      marshals_structure("a link",
+                         Link.new(Addressable::URI.parse("http://example.com/search"), "search", nil, "link", nil),
+                         {"~#link" =>
+                           {"href" => "~rhttp://example.com/search",
+                             "rel" => "search",
+                             "name" => nil,
+                             "render" => "link",
+                             "prompt" => nil}})
       marshals_structure("an array of ints", IntsArray.new([1,2,3]), {"~#ints" => [1,2,3]})
       marshals_structure("an array of ints", LongsArray.new([1,2,3]), {"~#longs" => [1,2,3]})
       marshals_structure("an array of ints", FloatsArray.new([1.1,2.2,3.3]), {"~#floats" => [1.1,2.2,3.3]})

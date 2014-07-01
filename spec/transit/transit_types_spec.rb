@@ -79,7 +79,7 @@ module Transit
   end
 
   describe Link do
-    let(:href) { "http://example.org/search" }
+    let(:href) { Addressable::URI.parse("http://example.org/search") }
     let(:rel) { "search" }
     let(:prompt) { "Enter search string" }
     let(:name) { "search" }
