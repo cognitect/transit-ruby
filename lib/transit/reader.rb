@@ -11,6 +11,9 @@ module Transit
       @decoder = Transit::Decoder.new(opts)
     end
 
+    # Reads a single value from an input source in Json format
+    #
+    # @return the value
     def read
       if block_given?
         @yajl.on_parse_complete = ->(obj){ yield @decoder.decode(obj) }
@@ -33,6 +36,9 @@ module Transit
       @unpacker = MessagePack::Unpacker.new(io)
     end
 
+    # Reads a single value from an input source in MessagePack format
+    #
+    # @return the value
     def read
       if block_given?
         @unpacker.each {|v| yield @decoder.decode(v)}
@@ -45,6 +51,9 @@ module Transit
   class Reader
     extend Forwardable
 
+    # @!method read
+    #   @see JsonUnmarshaler#read
+    #   @see MessagePackUnmarshaler#read
     def_delegators :@reader, :read
 
     def initialize(type, io, opts={})
