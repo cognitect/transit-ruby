@@ -119,6 +119,7 @@ module Transit
     round_trips("a uuid", UUID.new, type)
     round_trips("a link", Link.new(Addressable::URI.parse("http://example.org/search"), "search"), type)
     round_trips("a link", Link.new(Addressable::URI.parse("http://example.org/search"), "search", nil, "image"), type)
+    round_trips("a link with string uri", Link.new("http://example.org/search", "search", nil, "image"), type)
     round_trips("a uri (url)", Addressable::URI.parse("http://example.com"), type)
     round_trips("a uri (file)", Addressable::URI.parse("file:///path/to/file.txt"), type)
     round_trips("a bytearray", ByteArray.new(random_string(50)), type)

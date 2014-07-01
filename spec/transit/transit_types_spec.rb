@@ -80,6 +80,7 @@ module Transit
 
   describe Link do
     let(:href) { Addressable::URI.parse("http://example.org/search") }
+    let(:string_href) { "http://example.org/search" }
     let(:rel) { "search" }
     let(:prompt) { "Enter search string" }
     let(:name) { "search" }
@@ -102,8 +103,18 @@ module Transit
       assert { link.prompt == prompt }
     end
 
+    it 'can be made with uri in string' do
+      link = Link.new(string_href, rel)
+      assert { link.href.class == Addressable::URI }
+      assert { link.href.to_s == Addressable::URI.parse(string_href).to_s }
+    end
+
     it 'raises exception if href and rel are not given' do
       expect { Link.new }.to raise_error
+    end
+
+    it 'raises exception if given string is not supported uri' do
+      expect { Link.new("abc", rel) }.to raise_error(ArgumentError)
     end
 
     it 'raises exception if render is not correct value' do

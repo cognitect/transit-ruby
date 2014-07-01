@@ -138,7 +138,8 @@ module Transit
     def initialize(*args)
       if args.length == 1 && args[0].is_a?(Hash) # read
         create_from_map(args[0])
-      elsif args.length >= 2 && args[0].is_a?(Addressable::URI) # write
+      elsif args.length >= 2 &&
+          (args[0].is_a?(Addressable::URI) || args[0].is_a?(String))  # write
         create_from_values(args)
       else
         raise ArgumentError, "The first argument is a uri or map. When the first argument is a uri, the second argument, rel, must present."
@@ -147,45 +148,44 @@ module Transit
 
     def create_from_values(args)
       @map = Hash[KEYS.zip(args)]
-      if @map["render"]
-        render = @map["render"].downcase
-        if RENDER.include?(render)
-          @map["render"] = render
-        else
-          raise ArgumentError, "render must be either #{RENDER[0]} or #{RENDER[1]}"
-        end
-      end
+      adjust_values
       @map.freeze
     end
 
     def create_from_map(map)
       @map = map
+      adjust_values
       @map.freeze
     end
 
     def href
       @href ||= @map["href"]
       @href.freeze unless @href.frozen?
+      @href
     end
 
     def rel
       @rel ||= @map["rel"]
       @rel.freeze unless @rel.frozen?
+      @rel
     end
 
     def name
       @name ||= @map["name"]
       @name.freeze unless @name.frozen?
+      @name
     end
 
     def render
       @render ||= @map["render"]
       @render.freeze unless @render.frozen?
+      @render
     end
 
     def prompt
       @prompt ||= @map["prompt"]
       @prompt.freeze unless @prompt.frozen?
+      @prompt
     end
 
     def ==(other)
@@ -195,6 +195,26 @@ module Transit
 
     def hash
       @map.hash
+    end
+
+    private
+
+    SCHEMES = ["http", "https", "file", "ftp"]
+
+    def adjust_values
+      @map["href"] = Addressable::URI.parse(@map["href"]) if @map["href"].is_a?(String)
+      unless SCHEMES.include?(@map["href"].scheme)
+        raise ArgumentError, "given uri is not supported"
+      end
+
+      if @map["render"]
+        render = @map["render"].downcase
+        if RENDER.include?(render)
+          @map["render"] = render
+        else
+          raise ArgumentError, "render must be either #{RENDER[0]} or #{RENDER[1]}"
+        end
+      end
     end
   end
 
