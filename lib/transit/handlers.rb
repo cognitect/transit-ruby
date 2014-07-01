@@ -2,6 +2,7 @@
 # All rights reserved.
 
 module Transit
+  # Converts an instance of an type to a transit value
   class Handlers
     extend Forwardable
 
