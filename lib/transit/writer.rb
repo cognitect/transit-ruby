@@ -29,9 +29,7 @@ module Transit
     end
 
     def escape(s)
-      if s.nil?
-        s
-      elsif s.start_with?("#{RES}#{ESC}")
+      if s.start_with?("#{RES}#{ESC}")
         s[1..-1]
       elsif s.start_with?(SUB,ESC,RES) && !s.start_with?("#{SUB}\s")
         "#{ESC}#{s}"
