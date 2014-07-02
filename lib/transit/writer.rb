@@ -53,8 +53,8 @@ module Transit
       end
     end
 
-    def emit_boolean(b, as_map_key, cache)
-      as_map_key ? emit_string(ESC, "?", b.to_s[0], true, cache) : emit_object(b)
+    def emit_boolean(handler, b, as_map_key, cache)
+      as_map_key ? emit_string(ESC, "?", handler.string_rep(b), true, cache) : emit_object(b)
     end
 
     def emit_quoted(o, as_map_key, cache)
@@ -126,7 +126,7 @@ module Transit
       when "_"
         emit_nil(as_map_key, cache)
       when "?"
-        emit_boolean(handler.rep(obj), as_map_key, cache)
+        emit_boolean(handler, obj, as_map_key, cache)
       when "s"
         emit_string(nil, nil, escape(handler.rep(obj)), as_map_key, cache)
       when "i"
