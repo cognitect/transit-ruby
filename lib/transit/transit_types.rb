@@ -133,6 +133,20 @@ module Transit
     KEYS          = ["href", "rel", "name", "render", "prompt"]
     RENDER_VALUES = ["link", "image"]
 
+    # @overload Link.new(values)
+    #   @param [Hash] values
+    #   Valid keys are:
+    #     "href"   required, String or Addressable::URI
+    #     "rel"    required, String
+    #     "name"   optional, String
+    #     "render" optional, String (only "link" or "image")
+    #     "prompt" optional, String
+    # @overload Link.new(href, rel, name, render, prompt)
+    #   @param [String, Addressable::URI] href required
+    #   @param [String] rel required
+    #   @param [String] name optional
+    #   @param [String] render optional (only "link" or "image")
+    #   @param [String] prompt optional
     def initialize(*args)
       @values = if args[0].is_a?(Hash)
                   reconcile_values(args[0])
