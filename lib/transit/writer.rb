@@ -40,12 +40,12 @@ module Transit
       end
     end
 
-    def emit_nil(_, as_map_key, cache)
+    def emit_nil(as_map_key, cache)
       as_map_key ? emit_string(ESC, "_", nil, true, cache) : emit_object(nil)
     end
 
-    def emit_string(prefix, tag, string, as_map_key, cache)
-      encoded = "#{prefix}#{tag}#{escape(string)}"
+    def emit_string(prefix, tag, value, as_map_key, cache)
+      encoded = "#{prefix}#{tag}#{value}"
       if @cache_enabled && cache.cacheable?(encoded, as_map_key)
         emit_object(cache.write(encoded), as_map_key)
       else
@@ -54,7 +54,7 @@ module Transit
     end
 
     def emit_boolean(b, as_map_key, cache)
-      as_map_key ? emit_string(ESC, "?", b, true, cache) : emit_object(b)
+      as_map_key ? emit_string(ESC, "?", b.to_s[0], true, cache) : emit_object(b)
     end
 
     def emit_quoted(o, as_map_key, cache)
@@ -66,7 +66,7 @@ module Transit
 
     def emit_int(tag, i, as_map_key, cache)
       if as_map_key || i > @max_int || i < @min_int
-        emit_string(ESC, tag, i.to_s, as_map_key, cache)
+        emit_string(ESC, tag, i, as_map_key, cache)
       else
         emit_object(i, as_map_key)
       end
@@ -91,57 +91,56 @@ module Transit
       emit_map_end
     end
 
-    def emit_tagged_map(tag, rep, _, cache)
+    def emit_tagged_map(tag, rep, cache)
       emit_map_start(1)
       emit_string(ESC, "#", tag, true, cache)
       marshal(rep, false, cache)
       emit_map_end
     end
 
-    def emit_encoded(handler, tag, rep, obj, as_map_key, cache)
+    def emit_encoded(handler, tag, obj, as_map_key, cache)
       if tag.length == 1
+        rep = handler.rep(obj)
         if String === rep
           emit_string(ESC, tag, rep, as_map_key, cache)
         elsif as_map_key || @prefer_strings
-          rep = handler.string_rep(obj)
-          if String === rep
-            emit_string(ESC, tag, rep, as_map_key, cache)
+          if str_rep = handler.string_rep(obj)
+            emit_string(ESC, tag, str_rep, as_map_key, cache)
           else
             raise "Cannot be encoded as String: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
           end
         else
-          emit_tagged_map(tag, rep, false, cache)
+          emit_tagged_map(tag, handler.rep(obj), cache)
         end
       elsif as_map_key
         raise "Cannot be used as a map key: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
       else
-        emit_tagged_map(tag, rep, false, cache)
+        emit_tagged_map(tag, handler.rep(obj), cache)
       end
     end
 
     def marshal(obj, as_map_key, cache)
       handler = @handlers[obj]
       tag = handler.tag(obj)
-      rep = as_map_key ? handler.string_rep(obj) : handler.rep(obj)
       case tag
       when "_"
-        emit_nil(rep, as_map_key, cache)
+        emit_nil(as_map_key, cache)
       when "?"
-        emit_boolean(rep, as_map_key, cache)
+        emit_boolean(handler.rep(obj), as_map_key, cache)
       when "s"
-        emit_string(nil, nil, rep, as_map_key, cache)
+        emit_string(nil, nil, escape(handler.rep(obj)), as_map_key, cache)
       when "i"
-        emit_int(tag, rep, as_map_key, cache)
+        emit_int(tag, handler.rep(obj), as_map_key, cache)
       when "d"
-        emit_double(rep, as_map_key, cache)
+        emit_double(handler.rep(obj), as_map_key, cache)
       when "'"
-        emit_quoted(rep, as_map_key, cache)
+        emit_quoted(handler.rep(obj), as_map_key, cache)
       when "array"
-        emit_array(rep, as_map_key, cache)
+        emit_array(handler.rep(obj), as_map_key, cache)
       when "map"
-        emit_map(rep, as_map_key, cache)
+        emit_map(handler.rep(obj), as_map_key, cache)
       else
-        emit_encoded(handler, tag, rep, obj, as_map_key, cache)
+        emit_encoded(handler, tag, obj, as_map_key, cache)
       end
     end
 
@@ -204,8 +203,8 @@ module Transit
   end
 
   class VerboseJsonMarshaler < BaseJsonMarshaler
-    def emit_string(prefix, tag, string, as_map_key, cache)
-      emit_object("#{prefix}#{tag}#{escape(string)}", as_map_key)
+    def emit_string(prefix, tag, value, as_map_key, cache)
+      emit_object("#{prefix}#{tag}#{value}", as_map_key)
     end
   end
 
