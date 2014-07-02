@@ -231,13 +231,13 @@ module Transit
 
     class SetHandler
       def tag(_) "set" end
-      def rep(s) TaggedValue.new("array", s.to_a) end
+      def rep(s) s.to_a end
       def string_rep(_) nil end
     end
 
     class ListHandler
       def tag(_) "list" end
-      def rep(l) TaggedValue.new("array", l.to_a) end
+      def rep(l) l.to_a end
       def string_rep(_) nil end
     end
 
@@ -246,7 +246,7 @@ module Transit
         @type = type
       end
       def tag(_) @type end
-      def rep(a) TaggedValue.new("array", a.to_a) end
+      def rep(a) a.to_a end
       def string_rep(_) nil end
     end
 
