@@ -10,6 +10,8 @@ module Transit
 
     IDENTITY = ->(v){v}
 
+    GROUND_TAGS = %w[_ s ? i d b ' array map]
+
     DEFAULT_DECODERS = {
       "_" => ->(_){nil},
       ":" => ->(v){v.to_sym},
@@ -112,8 +114,6 @@ module Transit
         parsed
       end
     end
-
-    GROUND_TAGS = %w[- s ? i d b ' array map]
 
     def validate_decoder(key, decoder)
       raise ArgumentError.new(CAN_NOT_OVERRIDE_GROUND_TYPES_MESSAGE) if GROUND_TAGS.include?(key)

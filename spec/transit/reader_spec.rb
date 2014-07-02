@@ -28,7 +28,7 @@ module Transit
 
       describe 'overrides' do
         describe 'ground types' do
-          %w[- s ? i d b ' array map].each do |ground|
+          Decoder::GROUND_TAGS.each do |ground|
             it "prevents override of #{ground} decoder" do
               assert {
                 rescuing {
