@@ -3,8 +3,8 @@
 Gem::Specification.new do |spec|
   spec.name          = "transit-ruby"
   spec.version       = "0.1.dev"
-  spec.authors       = ["Russ Olsen","David Chelimsky"]
-  spec.email         = ["russ@cognitect.com", "dchelimsky@cognitect.com"]
+  spec.authors       = ["Russ Olsen","David Chelimsky","Yoko Harada"]
+  spec.email         = ["russ@cognitect.com","dchelimsky@cognitect.com","yoko@cognitect.com"]
   spec.summary       = %q{Transit marshalling for Ruby}
   spec.description   = %q{Transit marshalling for Ruby}
   spec.homepage      = "http://github.com/cognitect/transit-ruby"
