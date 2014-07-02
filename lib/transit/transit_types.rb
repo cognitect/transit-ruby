@@ -23,6 +23,8 @@ module Transit
     end
   end
 
+  class Quote < Wrapper; end
+
   class Symbol < Wrapper
     def initialize(sym)
       super sym.to_sym
@@ -40,6 +42,82 @@ module Transit
 
     def parsed
       @parsed ||= @value.to_s.split("/")
+    end
+  end
+
+  class ByteArray < Wrapper
+    def self.from_base64(data)
+      new(Base64.decode64(data))
+    end
+
+    def to_base64
+      Base64.encode64(@value)
+    end
+
+    def to_s
+      @value
+    end
+  end
+
+  class List < Wrapper
+    def to_a
+      @value
+    end
+  end
+
+  class TypedArray < Wrapper
+    def initialize(t, ary)
+      @type = t
+      super ary
+    end
+
+    def type
+      @type.to_s
+    end
+
+    def to_a
+      @value
+    end
+  end
+
+  class IntsArray < TypedArray
+    def initialize(ary)
+      super("ints", ary)
+    end
+  end
+
+  class LongsArray < TypedArray
+    def initialize(ary)
+      super("longs", ary)
+    end
+  end
+
+  class DoublesArray < TypedArray
+    def initialize(ary)
+      super("doubles", ary)
+    end
+  end
+
+  class FloatsArray < TypedArray
+    def initialize(ary)
+      super("floats", ary)
+    end
+  end
+
+  class BoolsArray < TypedArray
+    def initialize(ary)
+      super("bools", ary)
+    end
+  end
+
+  class Char < Wrapper
+    def initialize(c)
+      raise ArgumentError.new("Char can only contain one character.") if c.length > 1
+      super c
+    end
+
+    def to_s
+      @value
     end
   end
 
@@ -192,84 +270,6 @@ module Transit
       end.freeze
     end
   end
-
-  class ByteArray < Wrapper
-    def self.from_base64(data)
-      new(Base64.decode64(data))
-    end
-
-    def to_base64
-      Base64.encode64(@value)
-    end
-
-    def to_s
-      @value
-    end
-  end
-
-  class List < Wrapper
-    def to_a
-      @value
-    end
-  end
-
-  class TypedArray < Wrapper
-    def initialize(t, ary)
-      @type = t
-      super ary
-    end
-
-    def type
-      @type.to_s
-    end
-
-    def to_a
-      @value
-    end
-  end
-
-  class IntsArray < TypedArray
-    def initialize(ary)
-      super("ints", ary)
-    end
-  end
-
-  class LongsArray < TypedArray
-    def initialize(ary)
-      super("longs", ary)
-    end
-  end
-
-  class DoublesArray < TypedArray
-    def initialize(ary)
-      super("doubles", ary)
-    end
-  end
-
-  class FloatsArray < TypedArray
-    def initialize(ary)
-      super("floats", ary)
-    end
-  end
-
-  class BoolsArray < TypedArray
-    def initialize(ary)
-      super("bools", ary)
-    end
-  end
-
-  class Char < Wrapper
-    def initialize(c)
-      raise ArgumentError.new("Char can only contain one character.") if c.length > 1
-      super c
-    end
-
-    def to_s
-      @value
-    end
-  end
-
-  class Quote < Wrapper; end
 
   # Represents a transit tag and value, with an optional string representation. Returned by
   # default when a reader encounters a tag for which there is no registered decoder. Can also
