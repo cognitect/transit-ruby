@@ -27,6 +27,17 @@ module Transit
       end
 
       describe 'overrides' do
+        describe 'ground types' do
+          %w[- s ? i d b ' array map].each do |ground|
+            it "prevents override of #{ground} decoder" do
+              assert {
+                rescuing {
+                  Reader.new(:json, StringIO.new, :decoders => {ground => ->(_){}})
+                }.message =~ /ground types/ }
+            end
+          end
+        end
+
         it 'supports override of default string decoders' do
           io = StringIO.new("[\"~rhttp://foo.com\"]","r+")
           reader = Reader.new(:json, io, :decoders => {"r" => ->(r){"DECODED: #{r}"}})

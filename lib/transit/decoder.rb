@@ -113,13 +113,20 @@ module Transit
       end
     end
 
+    GROUND_TAGS = %w[- s ? i d b ' array map]
+
     def validate_decoder(key, decoder)
+      raise ArgumentError.new(CAN_NOT_OVERRIDE_GROUND_TYPES_MESSAGE) if GROUND_TAGS.include?(key)
       raise ArgumentError.new(TYPE_DECODER_ARITY_MESSAGE) unless decoder.arity == 1
     end
 
     def validate_default_decoder(decoder)
       raise ArgumentError.new(DEFAULT_DECODER_ARITY_MESSAGE) unless decoder.arity == 2
     end
+
+    CAN_NOT_OVERRIDE_GROUND_TYPES_MESSAGE = <<-MSG
+You can not supply custom decoders for ground types.
+MSG
 
     TYPE_DECODER_ARITY_MESSAGE = <<-MSG
 Custom type-specific decoder functions require arity 1
