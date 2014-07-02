@@ -83,7 +83,7 @@ module Transit
     let(:string_href) { "http://example.org/search" }
     let(:rel) { "search" }
     let(:prompt) { "Enter search string" }
-    let(:name) { "search" }
+    let(:name) { "this is my name" }
 
     it 'can be made from some given arugments' do
       link = Link.new(href, rel)
@@ -105,16 +105,27 @@ module Transit
 
     it 'can be made with uri in string' do
       link = Link.new(string_href, rel)
-      assert { link.href.class == Addressable::URI }
-      assert { link.href.to_s == Addressable::URI.parse(string_href).to_s }
+      assert { link.href == Addressable::URI.parse(string_href) }
     end
 
     it 'raises exception if href and rel are not given' do
-      expect { Link.new }.to raise_error
+      assert { rescuing { Link.new }.is_a? ArgumentError }
+      assert { rescuing { Link.new("foo") }.is_a? ArgumentError }
     end
 
-    it 'raises exception if render is not correct value' do
-      expect { Link.new(href, rel, nil, "document") }.to raise_error(ArgumentError)
+    it 'raises exception if render is not a valid value (link|image)' do
+      assert { rescuing { Link.new(href, rel, nil, "document") }.is_a? ArgumentError }
+    end
+
+    it 'leaves the input map alone' do
+      input = {"href" => "http://example.com", "rel" => "???", "render" => "LINK"}
+      Link.new(input)
+      assert { input["href"] == "http://example.com" }
+      assert { input["render"] == "LINK" }
+    end
+
+    it 'produces a frozen map' do
+      assert { Link.new("/path", "the-rel").to_h.frozen? }
     end
   end
 end

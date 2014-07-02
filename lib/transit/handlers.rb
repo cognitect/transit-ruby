@@ -175,7 +175,7 @@ module Transit
 
     class LinkHandler
       def tag(_) "link" end
-      def rep(l) l.map end
+      def rep(l) l.to_h end
       def string_rep(_) nil end
     end
 

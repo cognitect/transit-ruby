@@ -127,65 +127,55 @@ module Transit
     end
   end
 
-  # Represents a hypermedia link, as per 
+  # Represents a hypermedia link, as per
   # {http://amundsen.com/media-types/collection/format/#arrays-links}
   class Link
-    KEYS = ["href", "rel", "name", "render", "prompt"]
-    RENDER = ["link", "image"]
-
-    attr_reader :map
+    KEYS          = ["href", "rel", "name", "render", "prompt"]
+    RENDER_VALUES = ["link", "image"]
 
     def initialize(*args)
-      if args.length == 1 && args[0].is_a?(Hash) # read
-        create_from_map(args[0])
-      elsif args.length >= 2 &&
-          (args[0].is_a?(Addressable::URI) || args[0].is_a?(String))  # write
-        create_from_values(args)
-      else
-        raise ArgumentError, "The first argument is a uri or map. When the first argument is a uri, the second argument, rel, must present."
-      end
+      @values = if args[0].is_a?(Hash)
+                  reconcile_values(args[0])
+                elsif args.length >= 2 && (args[0].is_a?(Addressable::URI) || args[0].is_a?(String))
+                  reconcile_values(Hash[KEYS.zip(args)])
+                else
+                  raise ArgumentError, "The first argument to Link.new can be a URI, String or a Hash. When the first argument is a URI or String, the second argument, rel, must present."
+                end
     end
 
-    def create_from_values(args)
-      @map = Hash[KEYS.zip(args)]
-      adjust_values
-      @map.freeze
-    end
+    def href;   @href   ||= @values["href"]   end
+    def rel;    @rel    ||= @values["rel"]    end
+    def name;   @name   ||= @values["name"]   end
+    def render; @render ||= @values["render"] end
+    def prompt; @prompt ||= @values["prompt"] end
 
-    def create_from_map(map)
-      @map = map
-      adjust_values
-      @map.freeze
+    def to_h
+      @values
     end
-
-    def href; @href ||= @map["href"] end
-    def rel; @rel ||= @map["rel"] end
-    def name; @name ||= @map["name"] end
-    def render; @render ||= @map["render"] end
-    def prompt; @prompt ||= @map["prompt"] end
 
     def ==(other)
-      other.is_a?(Link) && (self.hash == other.hash)
+      other.is_a?(Link) && other.to_h == to_h
     end
     alias eql? ==
 
     def hash
-      @map.hash
+      @values.hash
     end
 
     private
 
-    def adjust_values
-      @map["href"] = Addressable::URI.parse(@map["href"]) if @map["href"].is_a?(String)
-
-      if @map["render"]
-        render = @map["render"].downcase
-        if RENDER.include?(render)
-          @map["render"] = render
-        else
-          raise ArgumentError, "render must be either #{RENDER[0]} or #{RENDER[1]}"
+    def reconcile_values(map)
+      map.dup.tap do |m|
+        m["href"] = Addressable::URI.parse(m["href"]) if m["href"].is_a?(String)
+        if m["render"]
+          render = m["render"].downcase
+          if RENDER_VALUES.include?(render)
+            m["render"] = render
+          else
+            raise ArgumentError, "render must be either #{RENDER_VALUES[0]} or #{RENDER_VALUES[1]}"
+          end
         end
-      end
+      end.freeze
     end
   end
 
