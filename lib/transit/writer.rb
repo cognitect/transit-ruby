@@ -41,20 +41,20 @@ module Transit
     end
 
     def emit_nil(as_map_key, cache)
-      as_map_key ? emit_string(ESC, "_", nil, true, cache) : emit_object(nil)
+      as_map_key ? emit_string(ESC, "_", nil, true, cache) : emit_value(nil)
     end
 
     def emit_string(prefix, tag, value, as_map_key, cache)
       encoded = "#{prefix}#{tag}#{value}"
       if @cache_enabled && cache.cacheable?(encoded, as_map_key)
-        emit_object(cache.write(encoded), as_map_key)
+        emit_value(cache.write(encoded), as_map_key)
       else
-        emit_object(encoded, as_map_key)
+        emit_value(encoded, as_map_key)
       end
     end
 
     def emit_boolean(handler, b, as_map_key, cache)
-      as_map_key ? emit_string(ESC, "?", handler.string_rep(b), true, cache) : emit_object(b)
+      as_map_key ? emit_string(ESC, "?", handler.string_rep(b), true, cache) : emit_value(b)
     end
 
     def emit_quoted(o, as_map_key, cache)
@@ -68,12 +68,12 @@ module Transit
       if as_map_key || i > @max_int || i < @min_int
         emit_string(ESC, tag, i, as_map_key, cache)
       else
-        emit_object(i, as_map_key)
+        emit_value(i, as_map_key)
       end
     end
 
     def emit_double(d, as_map_key, cache)
-      as_map_key ? emit_string(ESC, "d", d, true, cache) : emit_object(d)
+      as_map_key ? emit_string(ESC, "d", d, true, cache) : emit_value(d)
     end
 
     def emit_array(a, _, cache)
@@ -187,7 +187,7 @@ module Transit
       @oj.pop
     end
 
-    def emit_object(obj, as_map_key=false)
+    def emit_value(obj, as_map_key=false)
       as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
     end
 
@@ -204,7 +204,7 @@ module Transit
 
   class VerboseJsonMarshaler < BaseJsonMarshaler
     def emit_string(prefix, tag, value, as_map_key, cache)
-      emit_object("#{prefix}#{tag}#{value}", as_map_key)
+      emit_value("#{prefix}#{tag}#{value}", as_map_key)
     end
   end
 
@@ -237,7 +237,7 @@ module Transit
       # no-op
     end
 
-    def emit_object(obj, as_map_key=:ignore)
+    def emit_value(obj, as_map_key=:ignore)
       @packer.write(obj)
     end
 
