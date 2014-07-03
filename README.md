@@ -63,7 +63,6 @@ git submodule update
 ./bin/seattle-benchmark
 ```
 
-<<<<<<< HEAD
 ## Running the tests
 
 ```sh
