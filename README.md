@@ -1,7 +1,9 @@
 transit-ruby
 ===================
 
-Transit marshalling for Ruby.
+Transit is an extensible data notation.
+See [https://github.com/cognitect/transit-format](https://github.com/cognitect/transit-format) for details about Transit specification.
+Transit-ruby is an encoder/decoder for Ruby.
 
 ```ruby
 # io can be any Ruby IO
@@ -60,3 +62,38 @@ git submodule update
 ```sh
 ./bin/seattle-benchmark
 ```
+
+## Running the tests
+
+```sh
+bundle exec rake spec
+```
+
+## Build
+
+```sh
+bundle exec rake build
+```
+
+The version number is automatically incremented based on the number of commits.
+The commed below will show what version number will be used.
+
+```sh
+build/revision
+```
+
+# Copyright and License
+
+Copyright © 2014 Cognitect
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

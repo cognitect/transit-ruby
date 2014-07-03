@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Transit marshalling for Ruby}
   spec.description   = %q{Transit marshalling for Ruby}
   spec.homepage      = "http://github.com/cognitect/transit-ruby"
-  spec.license       = "MIT"
+  spec.license       = "Apache License 2.0"
 
   spec.required_ruby_version = '>= 1.9.3'
 
