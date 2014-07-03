@@ -76,7 +76,7 @@ bundle exec rake build
 ```
 
 The version number is automatically incremented based on the number of commits.
-The commed below will show what version number will be used.
+The command below shows what version number will be applied.
 
 ```sh
 build/revision
