@@ -1,5 +1,8 @@
 module Transit
   module ReadHandlers
+    class Default
+      def from_rep(tag,val) TaggedValue.new(tag, val) end
+    end
     class NilHandler
       def from_rep(_) nil end
     end

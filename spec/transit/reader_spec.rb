@@ -21,11 +21,6 @@ module Transit
     end
 
     describe 'handler registration' do
-      it 'requires a lambda w/ arity 1', :pending do
-        assert { rescuing { Reader.new(:json, StringIO.new, :handlers => {"D" => ->(s,t){}}) }.
-          message =~ /arity/ }
-      end
-
       describe 'overrides' do
         describe 'ground types' do
           Decoder::GROUND_TAGS.each do |ground|
@@ -54,7 +49,7 @@ module Transit
 
         it 'supports override of the default handler' do
           io = StringIO.new("~Xabc".to_json)
-          reader = Reader.new(:json, io, :default_handler => ->(tag,val){raise "Unacceptable: #{s}"})
+          reader = Reader.new(:json, io, :default_handler => Class.new { def from_rep(tag,val) raise "Unacceptable: #{s}" end}.new)
           assert { rescuing {reader.read }.message =~ /Unacceptable/ }
         end
       end

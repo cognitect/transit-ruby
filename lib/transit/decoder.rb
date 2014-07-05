@@ -39,14 +39,12 @@ module Transit
       "cmap"    => ReadHandlers::CmapHandler.new
     }.freeze
 
-    DEFAULT_READ_HANDLER = ->(tag,val){TaggedValue.new(tag, val)}
+    DEFAULT_READ_HANDLER = ReadHandlers::Default.new
 
     def initialize(options={})
       custom_handlers = options[:handlers] || {}
       custom_handlers.each {|k,v| validate_handler(k,v)}
       @handlers = DEFAULT_READ_HANDLERS.merge(custom_handlers)
-
-      validate_default_handler(options[:default_handler]) if options[:default_handler]
       @default_handler = options[:default_handler] || DEFAULT_READ_HANDLER
     end
 
@@ -82,7 +80,7 @@ module Transit
           if handler = @handlers[tag]
             handler.from_rep(v)
           else
-            @default_handler.call(tag,v)
+            @default_handler.from_rep(tag,v)
           end
         else
           {k => v}
@@ -107,7 +105,7 @@ module Transit
                    elsif string.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
                      string[1..-1]
                    else
-                     @default_handler.call(string[1], string[2..-1])
+                     @default_handler.from_rep(string[1], string[2..-1])
                    end
                  end
         cache.write(parsed) if cache.cacheable?(string, as_map_key)
@@ -117,10 +115,6 @@ module Transit
 
     def validate_handler(key, handler)
       raise ArgumentError.new(CAN_NOT_OVERRIDE_GROUND_TYPES_MESSAGE) if GROUND_TAGS.include?(key)
-    end
-
-    def validate_default_handler(handler)
-      raise ArgumentError.new(DEFAULT_READ_HANDLER_ARITY_MESSAGE) unless handler.arity == 2
     end
 
     CAN_NOT_OVERRIDE_GROUND_TYPES_MESSAGE = <<-MSG
