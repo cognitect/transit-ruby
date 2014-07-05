@@ -40,7 +40,7 @@ module Transit
       @handlers[Char]             = CharHandler.new
       @handlers[Quote]            = QuoteHandler.new
       @handlers[TaggedValue]      = TaggedValueHandler.new
-      @handlers = @handlers.merge(custom_handlers)
+      @handlers = @handlers.merge(custom_handlers) if custom_handlers
     end
 
     def [](obj)

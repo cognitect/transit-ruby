@@ -3,26 +3,16 @@
 
 require 'spec_helper'
 
-def round_trip(obj, type, write_handler_key=nil, write_handler=nil, read_handler_key=nil, read_handler=nil)
+def round_trip(obj, type, opts={})
   obj_before = obj
 
   io = StringIO.new('', 'w+')
-  writer = if write_handler
-             Transit::Writer.new(type, io, :handlers => {write_handler_key => write_handler.new})
-           else
-             Transit::Writer.new(type, io)
-           end
+  writer = Transit::Writer.new(type, io, :handlers => opts[:write_handlers])
   writer.write(obj)
 
   # ensure that we don't modify the object being written
   assert { obj == obj_before }
-
-  reader = if read_handler_key && read_handler
-             Transit::Reader.new(type, StringIO.new(io.string),
-                                 :handlers => {read_handler_key => read_handler})
-           else
-             Transit::Reader.new(type, StringIO.new(io.string))
-           end
+  reader = Transit::Reader.new(type, StringIO.new(io.string), :handlers => opts[:read_handlers])
   reader.read
 end
 
@@ -39,7 +29,7 @@ def round_trips(label, obj, type, opts={})
     when Date, Time, DateTime
       assert_equal_times(round_trip(obj, type), expected)
     else
-      actual = round_trip(obj, type, opts[:write_handler_key], opts[:write_handler], opts[:read_handler_key], opts[:read_handler])
+      actual = round_trip(obj, type, opts)
       assert { actual == expected }
     end
   end
@@ -52,7 +42,7 @@ def round_trips(label, obj, type, opts={})
     end
   else
     it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
-      actual = round_trip({obj => 0}, type, opts[:write_handler_key], opts[:write_handler], opts[:read_handler_key], opts[:read_handler])
+      actual = round_trip({obj => 0}, type, opts)
       wrapped_expected = {expected => 0}
       assert { actual == wrapped_expected }
     end
@@ -64,7 +54,7 @@ def round_trips(label, obj, type, opts={})
       after = round_trip({:a => obj}, type)
       assert_equal_times(after.values.first, expected)
     else
-      actual = round_trip({a: obj}, type, opts[:write_handler_key], opts[:write_handler], opts[:read_handler_key], opts[:read_handler])
+      actual = round_trip({a: obj}, type, opts)
       assert { actual == {a: expected} }
     end
   end
@@ -75,7 +65,7 @@ def round_trips(label, obj, type, opts={})
       after = round_trip([obj], type)
       assert_equal_times(after.first, expected)
     else
-      actual = round_trip([obj], type, opts[:write_handler_key], opts[:write_handler], opts[:read_handler_key], opts[:read_handler])
+      actual = round_trip([obj], type, opts)
       assert { actual == [expected] }
     end
   end
@@ -140,15 +130,11 @@ module Transit
     round_trips("edge case chars", %w[` ~ ^ #], type)
 
     round_trips("an extension scalar", PhoneNumber.new("555","867","5309"), type,
-                :write_handler_key => PhoneNumber,
-                :write_handler => PhoneNumberHandler,
-                :read_handler_key => "P",
-                :read_handler => ->(p){PhoneNumber.parse(p)})
+                :write_handlers => {PhoneNumber => PhoneNumberHandler.new},
+                :read_handlers  => {"P" => ->(p){PhoneNumber.parse(p)}})
     round_trips("an extension struct", Person.new("First","Last",:today), type,
-                :write_handler_key => Person,
-                :write_handler => PersonHandler,
-                :read_handler_key => "person",
-                :read_handler => ->(p){Person.new(p[:first_name],p[:last_name],p[:birthdate])})
+                :write_handlers => {Person => PersonHandler.new},
+                :read_handlers  => {"person" => ->(p){Person.new(p[:first_name],p[:last_name],p[:birthdate])}})
     round_trips("a hash with simple values", {'a' => 1, 'b' => 2, 'name' => 'russ'}, type)
     round_trips("a hash with Transit::Symbols", {Transit::Symbol.new("foo") => Transit::Symbol.new("bar")}, type)
     round_trips("a hash with 53 bit ints",  {2**53-1 => 2**53-2}, type)
