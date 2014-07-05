@@ -12,7 +12,7 @@ module Transit
 
     GROUND_TAGS = %w[_ s ? i d b ' array map]
 
-    DEFAULT_DECODERS = {
+    DEFAULT_READ_HANDLERS = {
       "_" => ->(_){nil},
       ":" => ->(v){v.to_sym},
       "?" => ->(v){v == "t"},
@@ -39,15 +39,15 @@ module Transit
       "cmap"    => ->(v){Hash[*v]}
     }.freeze
 
-    DEFAULT_DECODER = ->(tag,val){TaggedValue.new(tag, val)}
+    DEFAULT_READ_HANDLER = ->(tag,val){TaggedValue.new(tag, val)}
 
     def initialize(options={})
-      custom_decoders = options[:decoders] || {}
-      custom_decoders.each {|k,v| validate_decoder(k,v)}
-      @decoders = DEFAULT_DECODERS.merge(custom_decoders)
+      custom_handlers = options[:handlers] || {}
+      custom_handlers.each {|k,v| validate_handler(k,v)}
+      @handlers = DEFAULT_READ_HANDLERS.merge(custom_handlers)
 
-      validate_default_decoder(options[:default_decoder]) if options[:default_decoder]
-      @default_decoder = options[:default_decoder] || DEFAULT_DECODER
+      validate_default_handler(options[:default_handler]) if options[:default_handler]
+      @default_handler = options[:default_handler] || DEFAULT_READ_HANDLER
     end
 
     # Decodes a transit value to a corresponding object
@@ -79,10 +79,10 @@ module Transit
         v = decode(hash.values.first, cache, false)
         if String === k && k.start_with?(TAG)
           tag = k[2..-1]
-          if decoder = @decoders[tag]
-            decoder.call(v)
+          if handler = @handlers[tag]
+            handler.call(v)
           else
-            @default_decoder.call(tag,v)
+            @default_handler.call(tag,v)
           end
         else
           {k => v}
@@ -102,12 +102,12 @@ module Transit
         parsed = begin
                    if !string.start_with?(ESC) || string.start_with?(TAG)
                      string
-                   elsif decoder = @decoders[string[1]]
-                     decoder.call(string[2..-1])
+                   elsif handler = @handlers[string[1]]
+                     handler.call(string[2..-1])
                    elsif string.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
                      string[1..-1]
                    else
-                     @default_decoder.call(string[1], string[2..-1])
+                     @default_handler.call(string[1], string[2..-1])
                    end
                  end
         cache.write(parsed) if cache.cacheable?(string, as_map_key)
@@ -115,26 +115,26 @@ module Transit
       end
     end
 
-    def validate_decoder(key, decoder)
+    def validate_handler(key, handler)
       raise ArgumentError.new(CAN_NOT_OVERRIDE_GROUND_TYPES_MESSAGE) if GROUND_TAGS.include?(key)
-      raise ArgumentError.new(TYPE_DECODER_ARITY_MESSAGE) unless decoder.arity == 1
+      raise ArgumentError.new(TYPE_READ_HANDLER_ARITY_MESSAGE) unless handler.arity == 1
     end
 
-    def validate_default_decoder(decoder)
-      raise ArgumentError.new(DEFAULT_DECODER_ARITY_MESSAGE) unless decoder.arity == 2
+    def validate_default_handler(handler)
+      raise ArgumentError.new(DEFAULT_READ_HANDLER_ARITY_MESSAGE) unless handler.arity == 2
     end
 
     CAN_NOT_OVERRIDE_GROUND_TYPES_MESSAGE = <<-MSG
-You can not supply custom decoders for ground types.
+You can not supply custom handlers for ground types.
 MSG
 
-    TYPE_DECODER_ARITY_MESSAGE = <<-MSG
-Custom type-specific decoder functions require arity 1
+    TYPE_READ_HANDLER_ARITY_MESSAGE = <<-MSG
+Custom type-specific handler functions require arity 1
 - the string or hash to decode
 MSG
 
-    DEFAULT_DECODER_ARITY_MESSAGE = <<-MSG
-Default decoder functions require arity 2
+    DEFAULT_READ_HANDLER_ARITY_MESSAGE = <<-MSG
+Default handler functions require arity 2
 - the tag and the value
 MSG
 

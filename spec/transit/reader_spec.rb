@@ -20,67 +20,67 @@ module Transit
       assert { result == [1,2,3] }
     end
 
-    describe 'decoder registration' do
+    describe 'handler registration' do
       it 'requires a lambda w/ arity 1' do
-        assert { rescuing { Reader.new(:json, StringIO.new, :decoders => {"D" => ->(s,t){}}) }.
+        assert { rescuing { Reader.new(:json, StringIO.new, :handlers => {"D" => ->(s,t){}}) }.
           message =~ /arity/ }
       end
 
       describe 'overrides' do
         describe 'ground types' do
           Decoder::GROUND_TAGS.each do |ground|
-            it "prevents override of #{ground} decoder" do
+            it "prevents override of #{ground} handler" do
               assert {
                 rescuing {
-                  Reader.new(:json, StringIO.new, :decoders => {ground => ->(_){}})
+                  Reader.new(:json, StringIO.new, :handlers => {ground => ->(_){}})
                 }.message =~ /ground types/ }
             end
           end
         end
 
-        it 'supports override of default string decoders' do
+        it 'supports override of default string handlers' do
           io = StringIO.new("[\"~rhttp://foo.com\"]","r+")
-          reader = Reader.new(:json, io, :decoders => {"r" => ->(r){"DECODED: #{r}"}})
+          reader = Reader.new(:json, io, :handlers => {"r" => ->(r){"DECODED: #{r}"}})
           assert { reader.read == ["DECODED: http://foo.com"] }
         end
 
-        it 'supports override of default hash decoders' do
+        it 'supports override of default hash handlers' do
           my_uuid_class = Class.new(String)
           my_uuid = my_uuid_class.new(UUID.new.to_s)
           io = StringIO.new({"~#u" => my_uuid.to_s}.to_json)
-          reader = Reader.new(:json, io, :decoders => {"u" => ->(u){my_uuid_class.new(u)}})
+          reader = Reader.new(:json, io, :handlers => {"u" => ->(u){my_uuid_class.new(u)}})
           assert { reader.read == my_uuid }
         end
 
-        it 'supports override of the default decoder' do
+        it 'supports override of the default handler' do
           io = StringIO.new("~Xabc".to_json)
-          reader = Reader.new(:json, io, :default_decoder => ->(tag,val){raise "Unacceptable: #{s}"})
-          assert { rescuing { reader.read }.message =~ /Unacceptable/ }
+          reader = Reader.new(:json, io, :default_handler => ->(tag,val){raise "Unacceptable: #{s}"})
+          assert { rescuing {reader.read }.message =~ /Unacceptable/ }
         end
       end
 
       describe 'extensions' do
         it 'supports string-based extensions' do
           io = StringIO.new("~D2014-03-15".to_json)
-          reader = Reader.new(:json, io, :decoders => {"D" => ->(s){Date.parse(s)}})
+          reader = Reader.new(:json, io, :handlers => {"D" => ->(s){Date.parse(s)}})
           assert { reader.read == Date.new(2014,3,15) }
         end
 
         it 'supports hash based extensions' do
           io = StringIO.new({"~#Times2" => 44}.to_json)
-          reader = Reader.new(:json, io, :decoders => {"Times2" => ->(d){d * 2}})
+          reader = Reader.new(:json, io, :handlers => {"Times2" => ->(d){d * 2}})
           assert { reader.read == 88 }
         end
 
         it 'supports hash based extensions that return nil'  do
           io = StringIO.new({"~#Nil" => :anything}.to_json)
-          reader = Reader.new(:json, io, :decoders => {"Nil" => ->(_){nil}})
+          reader = Reader.new(:json, io, :handlers => {"Nil" => ->(_){nil}})
           assert { reader.read == nil }
         end
 
         it 'supports hash based extensions that return false' do
           io = StringIO.new({"~#False" => :anything}.to_json)
-          reader = Reader.new(:json, io, :decoders => {"False" => ->(_){false}})
+          reader = Reader.new(:json, io, :handlers => {"False" => ->(_){false}})
           assert { reader.read == false }
         end
 
@@ -92,7 +92,7 @@ module Transit
                                {"^\"" => "Transit","^#" => "Ruby","^$" => "~D2014-01-03"}}].to_json)
 
           reader = Reader.new(:json, io,
-                              :decoders => {
+                              :handlers => {
                                 "person" => ->(p){Person.new(p[:first_name],p[:last_name],p[:birthdate])},
                                 "D"      => ->(s){Date.parse(s)}
                               })
