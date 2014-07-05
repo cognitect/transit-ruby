@@ -84,6 +84,16 @@ module Transit
     def string_rep(p) rep(p) end
   end
 
+  class PhoneNumberReadHandler
+    def from_rep(v) PhoneNumber.parse(v) end
+  end
+
+  class PersonReadHandler
+    def from_rep(v)
+      Person.new(v[:first_name],v[:last_name],v[:birthdate])
+    end
+  end
+
   shared_examples "round trips" do |type|
     round_trips("nil", nil, type)
     round_trips("a keyword", random_symbol, type)
@@ -131,10 +141,10 @@ module Transit
 
     round_trips("an extension scalar", PhoneNumber.new("555","867","5309"), type,
                 :write_handlers => {PhoneNumber => PhoneNumberHandler.new},
-                :read_handlers  => {"P" => ->(p){PhoneNumber.parse(p)}})
+                :read_handlers  => {"P" => PhoneNumberReadHandler.new})
     round_trips("an extension struct", Person.new("First","Last",:today), type,
                 :write_handlers => {Person => PersonHandler.new},
-                :read_handlers  => {"person" => ->(p){Person.new(p[:first_name],p[:last_name],p[:birthdate])}})
+                :read_handlers  => {"person" => PersonReadHandler.new})
     round_trips("a hash with simple values", {'a' => 1, 'b' => 2, 'name' => 'russ'}, type)
     round_trips("a hash with Transit::Symbols", {Transit::Symbol.new("foo") => Transit::Symbol.new("bar")}, type)
     round_trips("a hash with 53 bit ints",  {2**53-1 => 2**53-2}, type)

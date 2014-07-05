@@ -21,7 +21,7 @@ module Transit
     end
 
     describe 'handler registration' do
-      it 'requires a lambda w/ arity 1' do
+      it 'requires a lambda w/ arity 1', :pending do
         assert { rescuing { Reader.new(:json, StringIO.new, :handlers => {"D" => ->(s,t){}}) }.
           message =~ /arity/ }
       end
@@ -32,7 +32,7 @@ module Transit
             it "prevents override of #{ground} handler" do
               assert {
                 rescuing {
-                  Reader.new(:json, StringIO.new, :handlers => {ground => ->(_){}})
+                  Reader.new(:json, StringIO.new, :handlers => {ground => Object.new})
                 }.message =~ /ground types/ }
             end
           end
@@ -40,7 +40,7 @@ module Transit
 
         it 'supports override of default string handlers' do
           io = StringIO.new("[\"~rhttp://foo.com\"]","r+")
-          reader = Reader.new(:json, io, :handlers => {"r" => ->(r){"DECODED: #{r}"}})
+          reader = Reader.new(:json, io, :handlers => {"r" => Class.new { def from_rep(v) "DECODED: #{v}" end}.new})
           assert { reader.read == ["DECODED: http://foo.com"] }
         end
 
@@ -48,7 +48,7 @@ module Transit
           my_uuid_class = Class.new(String)
           my_uuid = my_uuid_class.new(UUID.new.to_s)
           io = StringIO.new({"~#u" => my_uuid.to_s}.to_json)
-          reader = Reader.new(:json, io, :handlers => {"u" => ->(u){my_uuid_class.new(u)}})
+          reader = Reader.new(:json, io, :handlers => {"u" => Class.new { define_method(:from_rep) {|v| my_uuid_class.new(v)}}.new})
           assert { reader.read == my_uuid }
         end
 
@@ -62,25 +62,25 @@ module Transit
       describe 'extensions' do
         it 'supports string-based extensions' do
           io = StringIO.new("~D2014-03-15".to_json)
-          reader = Reader.new(:json, io, :handlers => {"D" => ->(s){Date.parse(s)}})
+          reader = Reader.new(:json, io, :handlers => {"D" => Class.new { def from_rep(v) Date.parse(v) end}.new})
           assert { reader.read == Date.new(2014,3,15) }
         end
 
         it 'supports hash based extensions' do
           io = StringIO.new({"~#Times2" => 44}.to_json)
-          reader = Reader.new(:json, io, :handlers => {"Times2" => ->(d){d * 2}})
+          reader = Reader.new(:json, io, :handlers => {"Times2" => Class.new { def from_rep(v) v * 2 end}.new})
           assert { reader.read == 88 }
         end
 
         it 'supports hash based extensions that return nil'  do
           io = StringIO.new({"~#Nil" => :anything}.to_json)
-          reader = Reader.new(:json, io, :handlers => {"Nil" => ->(_){nil}})
+          reader = Reader.new(:json, io, :handlers => {"Nil" => Class.new { def from_rep(_) nil end}.new})
           assert { reader.read == nil }
         end
 
         it 'supports hash based extensions that return false' do
           io = StringIO.new({"~#False" => :anything}.to_json)
-          reader = Reader.new(:json, io, :handlers => {"False" => ->(_){false}})
+          reader = Reader.new(:json, io, :handlers => {"False" => Class.new { def from_rep(_) false end}.new})
           assert { reader.read == false }
         end
 
@@ -91,11 +91,18 @@ module Transit
                              {"^!"=>
                                {"^\"" => "Transit","^#" => "Ruby","^$" => "~D2014-01-03"}}].to_json)
 
+          person_handler = Class.new do
+            def from_rep(v)
+              Person.new(v[:first_name],v[:last_name],v[:birthdate])
+            end
+          end
+          date_handler = Class.new do
+            def from_rep(v) Date.parse(v) end
+          end
           reader = Reader.new(:json, io,
                               :handlers => {
-                                "person" => ->(p){Person.new(p[:first_name],p[:last_name],p[:birthdate])},
-                                "D"      => ->(s){Date.parse(s)}
-                              })
+                                "person" => person_handler.new,
+                                "D"      => date_handler.new})
           expected = [Person.new("Transit", "Ruby", Date.new(2014,1,2)),
                       Person.new("Transit", "Ruby", Date.new(2014,1,3))]
           assert { reader.read == expected }

@@ -13,30 +13,30 @@ module Transit
     GROUND_TAGS = %w[_ s ? i d b ' array map]
 
     DEFAULT_READ_HANDLERS = {
-      "_" => ->(_){nil},
-      ":" => ->(v){v.to_sym},
-      "?" => ->(v){v == "t"},
-      "b" => ->(v){ByteArray.from_base64(v)},
-      "d" => ->(v){Float(v)},
-      "i" => ->(v){v.to_i},
-      "n" => ->(v){v.to_i},
-      "f" => ->(v){BigDecimal.new(v)},
-      "c" => IDENTITY,
-      "$" => ->(v){Transit::Symbol.new(v)},
-      "t" => ->(v){DateTime.iso8601(v)},
-      "m" => ->(v){DateTimeUtil.from_millis(v.to_i)},
-      "u" => ->(v){UUID.new(v)},
-      "r" => ->(v){Addressable::URI.parse(v)},
-      "'" => ->(v){v},
-      "set"     => ->(v){Set.new(v)},
-      "link"    => ->(v){Link.new(v)},
-      "list"    => IDENTITY,
-      "ints"    => IDENTITY,
-      "longs"   => IDENTITY,
-      "floats"  => IDENTITY,
-      "doubles" => IDENTITY,
-      "bools"   => IDENTITY,
-      "cmap"    => ->(v){Hash[*v]}
+      "_" => ReadHandlers::NilHandler.new,
+      ":" => ReadHandlers::KeywordHandler.new,
+      "?" => ReadHandlers::BooleanHandler.new,
+      "b" => ReadHandlers::ByteArrayHandler.new,
+      "d" => ReadHandlers::FloatHandler.new,
+      "i" => ReadHandlers::IntegerHandler.new,
+      "n" => ReadHandlers::BigIntegerHandler.new,
+      "f" => ReadHandlers::BigDecimalHandler.new,
+      "c" => ReadHandlers::IdentityHandler.new,
+      "$" => ReadHandlers::SymbolHandler.new,
+      "t" => ReadHandlers::TimeStringHandler.new,
+      "m" => ReadHandlers::TimeIntHandler.new,
+      "u" => ReadHandlers::UuidHandler.new,
+      "r" => ReadHandlers::UriHandler.new,
+      "'" => ReadHandlers::IdentityHandler.new,
+      "set"     => ReadHandlers::SetHandler.new,
+      "link"    => ReadHandlers::LinkHandler.new,
+      "list"    => ReadHandlers::IdentityHandler.new,
+      "ints"    => ReadHandlers::IdentityHandler.new,
+      "longs"   => ReadHandlers::IdentityHandler.new,
+      "floats"  => ReadHandlers::IdentityHandler.new,
+      "doubles" => ReadHandlers::IdentityHandler.new,
+      "bools"   => ReadHandlers::IdentityHandler.new,
+      "cmap"    => ReadHandlers::CmapHandler.new
     }.freeze
 
     DEFAULT_READ_HANDLER = ->(tag,val){TaggedValue.new(tag, val)}
@@ -80,7 +80,7 @@ module Transit
         if String === k && k.start_with?(TAG)
           tag = k[2..-1]
           if handler = @handlers[tag]
-            handler.call(v)
+            handler.from_rep(v)
           else
             @default_handler.call(tag,v)
           end
@@ -103,7 +103,7 @@ module Transit
                    if !string.start_with?(ESC) || string.start_with?(TAG)
                      string
                    elsif handler = @handlers[string[1]]
-                     handler.call(string[2..-1])
+                     handler.from_rep(string[2..-1])
                    elsif string.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
                      string[1..-1]
                    else
@@ -117,7 +117,6 @@ module Transit
 
     def validate_handler(key, handler)
       raise ArgumentError.new(CAN_NOT_OVERRIDE_GROUND_TYPES_MESSAGE) if GROUND_TAGS.include?(key)
-      raise ArgumentError.new(TYPE_READ_HANDLER_ARITY_MESSAGE) unless handler.arity == 1
     end
 
     def validate_default_handler(handler)
