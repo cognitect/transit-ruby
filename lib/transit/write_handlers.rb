@@ -3,7 +3,7 @@
 
 module Transit
   # Converts an instance of an type to a transit value
-  class Handlers
+  class WriteHandlers
     extend Forwardable
 
     def_delegators :@handlers, :[]=, :size, :each, :store, :keys, :values

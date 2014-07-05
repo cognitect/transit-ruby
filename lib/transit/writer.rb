@@ -10,7 +10,7 @@ module Transit
       @max_int        = opts[:max_int]
       @min_int        = opts[:min_int]
 
-      handlers = Handlers.new(opts[:handlers])
+      handlers = WriteHandlers.new(opts[:handlers])
       @handlers = (opts[:verbose] ? verbose_handlers(handlers) : handlers)
       @handlers.values.each do |h|
         if h.respond_to?(:handlers=)
