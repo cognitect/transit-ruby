@@ -48,6 +48,12 @@ module Transit
     end
   end
 
+  # Transit::Reader converts incoming transit data into appropriate values in Ruby.
+  # @example
+  #   > echo "[1,2,3]" | ruby -r transit -e "p Transit::Reader.new(:json, STDIN).read"
+  #   # => [1, 2, 3]
+  #
+  # @see https://github.com/cognitect/transit-format
   class Reader
     extend Forwardable
 
@@ -56,6 +62,9 @@ module Transit
     #   @see MessagePackUnmarshaler#read
     def_delegators :@reader, :read
 
+    # @param [Symbol] type required, any of :msgpack, :json, :json_verbose
+    # @param [IO]     io required
+    # @param [Hash]   opts
     def initialize(type, io, opts={})
       @reader = case type
                 when :json, :json_verbose

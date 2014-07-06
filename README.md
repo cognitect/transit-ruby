@@ -1,22 +1,25 @@
 transit-ruby
 ===================
 
-Transit is an extensible data notation.
-See [https://github.com/cognitect/transit-format](https://github.com/cognitect/transit-format) for details about Transit specification.
-Transit-ruby is an encoder/decoder for Ruby.
+Transit is a format and set of libraries for conveying values between
+applications written in different programming languages. See
+[https://github.com/cognitect/transit-format](https://github.com/cognitect/transit-format)
+for details.
+
+transit-ruby is a Transit encoder/decoder library for Ruby.
 
 ```ruby
 # io can be any Ruby IO
 
 writer = Transit::Writer.new(:json, io) # or :json-verbose, :msgpack
-writer.write(obj)
+writer.write(value)
 
 reader = Transit::Reader.new(:json, io) # or :msgpack
 reader.read
 
 # or
 
-reader.read {|o| do_something_with(o)}
+reader.read {|val| do_something_with(val)}
 ```
 
 For example:
@@ -63,7 +66,7 @@ git submodule update
 ./bin/seattle-benchmark
 ```
 
-## Running the tests
+## Running the examples
 
 ```sh
 bundle exec rake spec
@@ -72,6 +75,10 @@ bundle exec rake spec
 ## Build
 
 ```sh
+bundle exec rake build
+
+# or, if you want to install the gem locally ...
+
 bundle exec rake build
 ```
 
