@@ -32,11 +32,6 @@ module Transit
       @handlers[Transit::List]    = ListHandler.new
       @handlers[Hash]             = MapHandler.new
       @handlers[Set]              = SetHandler.new
-      @handlers[IntsArray]        = IntsArrayHandler.new
-      @handlers[LongsArray]       = LongsArrayHandler.new
-      @handlers[DoublesArray]     = DoublesArrayHandler.new
-      @handlers[FloatsArray]      = FloatsArrayHandler.new
-      @handlers[BoolsArray]       = BoolsArrayHandler.new
       @handlers[Char]             = CharHandler.new
       @handlers[Quote]            = QuoteHandler.new
       @handlers[TaggedValue]      = TaggedValueHandler.new
@@ -239,50 +234,6 @@ module Transit
       def tag(_) "list" end
       def rep(l) l.to_a end
       def string_rep(_) nil end
-    end
-
-    module TypedArrayHandler
-      def initialize(type)
-        @type = type
-      end
-      def tag(_) @type end
-      def rep(a) a.to_a end
-      def string_rep(_) nil end
-    end
-
-    class IntsArrayHandler
-      include TypedArrayHandler
-      def initialize
-        super("ints")
-      end
-    end
-
-    class LongsArrayHandler
-      include TypedArrayHandler
-      def initialize
-        super("longs")
-      end
-    end
-
-    class FloatsArrayHandler
-      include TypedArrayHandler
-      def initialize
-        super("floats")
-      end
-    end
-
-    class DoublesArrayHandler
-      include TypedArrayHandler
-      def initialize
-        super("doubles")
-      end
-    end
-
-    class BoolsArrayHandler
-      include TypedArrayHandler
-      def initialize
-        super("bools")
-      end
     end
 
     class CharHandler

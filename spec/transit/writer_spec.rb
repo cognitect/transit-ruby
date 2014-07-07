@@ -47,11 +47,6 @@ module Transit
                              "name" => nil,
                              "render" => "link",
                              "prompt" => nil}})
-      marshals_structure("an array of ints", IntsArray.new([1,2,3]), {"~#ints" => [1,2,3]})
-      marshals_structure("an array of ints", LongsArray.new([1,2,3]), {"~#longs" => [1,2,3]})
-      marshals_structure("an array of ints", FloatsArray.new([1.1,2.2,3.3]), {"~#floats" => [1.1,2.2,3.3]})
-      marshals_structure("an array of ints", DoublesArray.new([1.1,2.2,3.3]), {"~#doubles" => [1.1,2.2,3.3]})
-      marshals_structure("an array of ints", BoolsArray.new([true,false,true]), {"~#bools" => [true,false,true]})
       marshals_structure("a TaggedValue", TaggedValue.new("tag", "value"), {"~#tag" => "value"})
     end
 
