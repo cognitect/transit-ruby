@@ -23,8 +23,6 @@ module Transit
     end
   end
 
-  class Quote < Wrapper; end
-
   class Symbol < Wrapper
     def initialize(sym)
       super sym.to_sym

@@ -28,7 +28,6 @@ module Transit
       Array            => WriteHandlers::ArrayHandler.new,
       Hash             => WriteHandlers::MapHandler.new,
       Set              => WriteHandlers::SetHandler.new,
-      Quote            => WriteHandlers::QuoteHandler.new,
       TaggedValue      => WriteHandlers::TaggedValueHandler.new
     }.freeze
 
@@ -186,7 +185,7 @@ module Transit
         handler = find_handler(obj)
         if tag = handler.tag(obj)
           if @quote_scalars && tag.length == 1
-            marshal(Quote.new(obj), false, cache)
+            marshal(TaggedValue.new(QUOTE, obj), false, cache)
           else
             marshal(obj, false, cache)
           end

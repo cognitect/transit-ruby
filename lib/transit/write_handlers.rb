@@ -175,12 +175,6 @@ module Transit
       def string_rep(_) nil end
     end
 
-    class QuoteHandler
-      def tag(_) "'" end
-      def rep(q) q.value end
-      def string_rep(s) nil end
-    end
-
     class TaggedValueHandler
       def tag(tv) tv.tag end
       def rep(tv) tv.rep end

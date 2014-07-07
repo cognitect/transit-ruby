@@ -17,6 +17,7 @@ module Transit
   TAG = "~#"
   MAP_AS_ARRAY = "^ "
   TIME_FORMAT  = "%FT%H:%M:%S.%LZ"
+  QUOTE = "'"
 
   MAX_INT = 2**63 - 1
   MIN_INT = -MAX_INT
