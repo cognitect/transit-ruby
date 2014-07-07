@@ -44,10 +44,6 @@ module Transit
       @handlers[obj.class]
     end
 
-    def for_class(c)
-      @handlers[c]
-    end
-
     class NilHandler
       def tag(_) "_" end
       def rep(_) nil end
