@@ -121,15 +121,5 @@ module Transit
 You can not supply custom handlers for ground types.
 MSG
 
-    TYPE_READ_HANDLER_ARITY_MESSAGE = <<-MSG
-Custom type-specific handler functions require arity 1
-- the string or hash to decode
-MSG
-
-    DEFAULT_READ_HANDLER_ARITY_MESSAGE = <<-MSG
-Default handler functions require arity 2
-- the tag and the value
-MSG
-
   end
 end
