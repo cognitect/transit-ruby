@@ -56,12 +56,6 @@ module Transit
     end
   end
 
-  describe Char do
-    it 'raises when initialized w/ more than one char' do
-      assert { rescuing { Char.new("foo") }.kind_of? ArgumentError }
-    end
-  end
-
   describe UUID do
     it 'round trips strings' do
       10.times do

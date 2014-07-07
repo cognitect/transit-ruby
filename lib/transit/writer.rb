@@ -26,10 +26,8 @@ module Transit
       ByteArray        => WriteHandlers::ByteArrayHandler.new,
       Transit::Symbol  => WriteHandlers::TransitSymbolHandler.new,
       Array            => WriteHandlers::ArrayHandler.new,
-      Transit::List    => WriteHandlers::ListHandler.new,
       Hash             => WriteHandlers::MapHandler.new,
       Set              => WriteHandlers::SetHandler.new,
-      Char             => WriteHandlers::CharHandler.new,
       Quote            => WriteHandlers::QuoteHandler.new,
       TaggedValue      => WriteHandlers::TaggedValueHandler.new
     }.freeze

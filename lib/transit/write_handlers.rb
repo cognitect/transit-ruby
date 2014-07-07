@@ -175,18 +175,6 @@ module Transit
       def string_rep(_) nil end
     end
 
-    class ListHandler
-      def tag(_) "list" end
-      def rep(l) l.to_a end
-      def string_rep(_) nil end
-    end
-
-    class CharHandler
-      def tag(_) "c" end
-      def rep(c) string_rep(c) end
-      def string_rep(c) c.to_s end
-    end
-
     class QuoteHandler
       def tag(_) "'" end
       def rep(q) q.value end

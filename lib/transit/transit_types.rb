@@ -59,23 +59,6 @@ module Transit
     end
   end
 
-  class List < Wrapper
-    def to_a
-      @value
-    end
-  end
-
-  class Char < Wrapper
-    def initialize(c)
-      raise ArgumentError.new("Char can only contain one character.") if c.length > 1
-      super c
-    end
-
-    def to_s
-      @value
-    end
-  end
-
   class UUID
     def self.random
       new
