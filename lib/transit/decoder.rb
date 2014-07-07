@@ -3,6 +3,7 @@
 
 module Transit
   # Converts a transit value to an instance of a type
+  # @api private
   class Decoder
     ESC_ESC  = "#{ESC}#{ESC}"
     ESC_SUB  = "#{ESC}#{SUB}"

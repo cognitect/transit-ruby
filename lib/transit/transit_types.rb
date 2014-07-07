@@ -226,10 +226,11 @@ module Transit
     end
   end
 
-  # Represents a transit tag and value, with an optional string representation. Returned by
-  # default when a reader encounters a tag for which there is no registered handler. Can also
-  # be used in a custom Handler implementation to force representation to use a transit ground
-  # type using a rep for which there is no registered handler (e.g., an iterable for the
+  # Represents a transit tag and value. Returned by default when a
+  # reader encounters a tag for which there is no registered
+  # handler. Can also be used in a custom write handler to force
+  # representation to use a transit ground type using a rep for which
+  # there is no registered handler (e.g., an iterable for the
   # representation of an array).
   class TaggedValue
     attr_reader :tag, :rep
