@@ -42,6 +42,22 @@ abc
 123456789012345678901234567890
 ```
 
+# Typed arrays
+
+The transit spec defines typed arrays (ints, longs, doubles, floats,
+and bools). Since these are not supported in the Ruby language, when a
+Transit::Reader encounters a typed array (<code>{"ints" =>
+[1,2,3]}</code>) it delivers just the array to the app
+(<code>[1,2,3]</code>).
+
+If, however, your app would benefit from writing an array of ints
+(e.g. another process uses a language like Java, which does support arrays
+of primitve types), you can write them out as TaggedValues:
+
+```ruby
+TaggedValue.new("ints", [1,2,3])
+```
+
 # Supported Rubies
 
 * MRI 1.9.3, 2.0.0, 2.1.0, 2.1.1, 2.1.2
