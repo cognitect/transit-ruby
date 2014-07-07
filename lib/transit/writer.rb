@@ -6,6 +6,34 @@ module Transit
   # @see https://github.com/cognitect/transit-format
   class Writer
 
+    DEFAULT_WRITE_HANDLERS = {
+      NilClass         => WriteHandlers::NilHandler.new,
+      ::Symbol         => WriteHandlers::KeywordHandler.new,
+      String           => WriteHandlers::StringHandler.new,
+      TrueClass        => WriteHandlers::TrueHandler.new,
+      FalseClass       => WriteHandlers::FalseHandler.new,
+      Fixnum           => WriteHandlers::IntHandler.new,
+      Bignum           => WriteHandlers::IntHandler.new,
+      Float            => WriteHandlers::FloatHandler.new,
+      BigDecimal       => WriteHandlers::BigDecimalHandler.new,
+      Time             => WriteHandlers::TimeHandler.new,
+      DateTime         => WriteHandlers::DateTimeHandler.new,
+      Date             => WriteHandlers::DateHandler.new,
+      UUID             => WriteHandlers::UuidHandler.new,
+      Link             => WriteHandlers::LinkHandler.new,
+      URI              => WriteHandlers::UriHandler.new,
+      Addressable::URI => WriteHandlers::AddressableUriHandler.new,
+      ByteArray        => WriteHandlers::ByteArrayHandler.new,
+      Transit::Symbol  => WriteHandlers::TransitSymbolHandler.new,
+      Array            => WriteHandlers::ArrayHandler.new,
+      Transit::List    => WriteHandlers::ListHandler.new,
+      Hash             => WriteHandlers::MapHandler.new,
+      Set              => WriteHandlers::SetHandler.new,
+      Char             => WriteHandlers::CharHandler.new,
+      Quote            => WriteHandlers::QuoteHandler.new,
+      TaggedValue      => WriteHandlers::TaggedValueHandler.new
+    }.freeze
+
     class Marshaler
       def initialize(opts)
         @cache_enabled  = !opts[:verbose]
@@ -14,13 +42,23 @@ module Transit
         @max_int        = opts[:max_int]
         @min_int        = opts[:min_int]
 
-        handlers = WriteHandlers.new(opts[:handlers])
+        handlers = DEFAULT_WRITE_HANDLERS.dup
+        handlers = handlers.merge!(opts[:handlers]) if opts[:handlers]
         @handlers = (opts[:verbose] ? verbose_handlers(handlers) : handlers)
         @handlers.values.each do |h|
           if h.respond_to?(:handlers=)
             h.handlers=(@handlers)
           end
         end
+      end
+
+      def find_handler(obj)
+        obj.class.ancestors.each do |a|
+          if handler = @handlers[a]
+            return handler
+          end
+        end
+        nil
       end
 
       def verbose_handlers(handlers)
@@ -122,7 +160,7 @@ module Transit
       end
 
       def marshal(obj, as_map_key, cache)
-        handler = @handlers[obj]
+        handler = find_handler(obj)
         tag = handler.tag(obj)
         case tag
         when "_"
@@ -147,7 +185,7 @@ module Transit
       end
 
       def marshal_top(obj, cache=RollingCache.new)
-        handler = @handlers[obj]
+        handler = find_handler(obj)
         if tag = handler.tag(obj)
           if @quote_scalars && tag.length == 1
             marshal(Quote.new(obj), false, cache)

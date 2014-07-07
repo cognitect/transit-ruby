@@ -27,7 +27,6 @@ end
 
 require 'transit/date_time_util'
 require 'transit/transit_types'
-require 'transit/class_hash'
 require 'transit/rolling_cache'
 require 'transit/write_handlers'
 require 'transit/read_handlers'

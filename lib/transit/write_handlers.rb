@@ -2,48 +2,7 @@
 # All rights reserved.
 
 module Transit
-  # Collection of write handlers, each of which converts instances of
-  # a specific Ruby type to a representation used by a Writer to
-  # marshal transit values.
-  class WriteHandlers
-    extend Forwardable
-
-    def_delegators :@handlers, :[]=, :size, :each, :store, :keys, :values
-
-    def initialize(custom_handlers={})
-      @handlers = ClassHash.new
-      @handlers[NilClass]         = NilHandler.new
-      @handlers[::Symbol]         = KeywordHandler.new
-      @handlers[String]           = StringHandler.new
-      @handlers[TrueClass]        = TrueHandler.new
-      @handlers[FalseClass]       = FalseHandler.new
-      @handlers[Fixnum]           = IntHandler.new
-      @handlers[Bignum]           = IntHandler.new
-      @handlers[Float]            = FloatHandler.new
-      @handlers[BigDecimal]       = BigDecimalHandler.new
-      @handlers[Time]             = TimeHandler.new
-      @handlers[DateTime]         = DateTimeHandler.new
-      @handlers[Date]             = DateHandler.new
-      @handlers[UUID]             = UuidHandler.new
-      @handlers[Link]             = LinkHandler.new
-      @handlers[URI]              = UriHandler.new
-      @handlers[Addressable::URI] = AddressableUriHandler.new
-      @handlers[ByteArray]        = ByteArrayHandler.new
-      @handlers[Transit::Symbol]  = TransitSymbolHandler.new
-      @handlers[Array]            = ArrayHandler.new
-      @handlers[Transit::List]    = ListHandler.new
-      @handlers[Hash]             = MapHandler.new
-      @handlers[Set]              = SetHandler.new
-      @handlers[Char]             = CharHandler.new
-      @handlers[Quote]            = QuoteHandler.new
-      @handlers[TaggedValue]      = TaggedValueHandler.new
-      @handlers = @handlers.merge(custom_handlers) if custom_handlers
-    end
-
-    def [](obj)
-      @handlers[obj.class]
-    end
-
+  module WriteHandlers
     class NilHandler
       def tag(_) "_" end
       def rep(_) nil end
@@ -196,7 +155,7 @@ module Transit
       end
 
       def stringable_keys?(m)
-        m.keys.all? {|k| (@handlers[k].tag(k).length == 1) }
+        m.keys.all? {|k| (@handlers[k.class].tag(k).length == 1) }
       end
 
       def tag(m)
