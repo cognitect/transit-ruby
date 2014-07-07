@@ -42,20 +42,24 @@ abc
 123456789012345678901234567890
 ```
 
-# Typed arrays
+# Typed arrays, lists, and chars
 
-The transit spec defines typed arrays (ints, longs, doubles, floats,
-and bools). Since these are not supported in the Ruby language, when a
-Transit::Reader encounters a typed array (<code>{"ints" =>
-[1,2,3]}</code>) it delivers just the array to the app
-(<code>[1,2,3]</code>).
+The [transit spec](https://github.com/cognitect/transit-format)
+defines several semantic types that map to more general types in Ruby:
 
-If, however, your app would benefit from writing an array of ints
-(e.g. another process uses a language like Java, which does support arrays
-of primitve types), you can write them out as TaggedValues:
+* typed arrays (ints, longs, doubles, floats, bools) map to Arrays
+* lists map to Arrays
+* chars map to Strings
+
+When a Transit::Reader encounters an of these (e.g. <code>{"ints" =>
+[1,2,3]}</code>) it delivers just the appropriate object to the app
+(e.g. <code>[1,2,3]</code>).
+
+Use a TaggedValue to write these out if it will benefit a consuming
+app e.g.:
 
 ```ruby
-TaggedValue.new("ints", [1,2,3])
+writer.write(TaggedValue.new("ints", [1,2,3]))
 ```
 
 # Supported Rubies
