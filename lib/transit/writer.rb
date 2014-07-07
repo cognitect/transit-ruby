@@ -245,7 +245,13 @@ module Transit
     end
   end
 
+  # Transit::Writer marshals Ruby objects as transit values to an output stream.
+  # @see https://github.com/cognitect/transit-format
   class Writer
+
+    # @param [Symbol] type, required either :msgpack or :json
+    # @param [IO]     io, required
+    # @param [Hash]   opts, optional
     def initialize(type, io, opts={})
       @marshaler = case type
                    when :json
@@ -272,7 +278,8 @@ module Transit
                    end
     end
 
-    # Writes a single value to an output stream
+    # Converts a Ruby object to a transit value and writes it to this
+    # Writer's output stream.
     #
     # @param obj the value to write
     def write(obj)
