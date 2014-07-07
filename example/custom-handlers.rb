@@ -3,6 +3,7 @@
 
 require 'ostruct'
 require 'json'
+require 'transit'
 
 Person = Struct.new(:first_name, :last_name, :birthdate)
 
