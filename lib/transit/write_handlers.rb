@@ -2,7 +2,9 @@
 # All rights reserved.
 
 module Transit
-  # Converts an instance of an type to a transit value
+  # Collection of write handlers, each of which converts instances of
+  # a specific Ruby type to a representation used by a Writer to
+  # marshal transit values.
   class WriteHandlers
     extend Forwardable
 
@@ -77,20 +79,8 @@ module Transit
     end
 
     class IntHandler
-      def tag(i)
-        if i > MAX_INT || i < MIN_INT
-          "n"
-        else
-          "i"
-        end
-      end
-      def rep(i)
-        if i > MAX_INT || i < MIN_INT
-          i.to_s
-        else
-          i
-        end
-      end
+      def tag(i) i > MAX_INT || i < MIN_INT ? "n" : "i" end
+      def rep(i) i > MAX_INT || i < MIN_INT ? i.to_s : i end
       def string_rep(i) i.to_s end
     end
 
