@@ -37,7 +37,7 @@ irb(2.1.1): io.string
 ==========> "{\"~#'\":\"abc\"}\n{\"~#'\":\"~n123456789012345678901234567890\"}\n"
 irb(2.1.1): reader = Transit::Reader.new(:json, StringIO.new(io.string))
 ==========> #<Transit::Reader:0x007faab2db48e0 @reader=#<Transit::JsonUnmarshaler:0x007faab2dae030 @..........(snip)..........
-irb(2.1.1): reader.read {|o| puts o}
+irb(2.1.1): reader.read {|val| puts val}
 abc
 123456789012345678901234567890
 ```
