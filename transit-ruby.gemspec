@@ -18,8 +18,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "addressable",       "~> 2.3.6"
   spec.add_dependency "msgpack",           "~> 0.5.8"
-  spec.add_dependency "oj",                "~> 2.9.8"
-  spec.add_dependency "yajl-ruby",         "~> 1.2.1"
+  spec.add_dependency "oj",                "~> 2.9.9"
   spec.add_development_dependency "yard",  "~> 0.8.7"
   spec.add_development_dependency "rake",  "~> 10.1"
   spec.add_development_dependency "rspec", "~> 3.0"
