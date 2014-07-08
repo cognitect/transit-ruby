@@ -2,6 +2,7 @@
 # All rights reserved.
 
 module Transit
+  # @api private
   module DateTimeUtil
     def to_millis(v)
       case v

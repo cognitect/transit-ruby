@@ -2,6 +2,7 @@
 # All rights reserved.
 
 module Transit
+  # @api private
   class RollingCache
     extend Forwardable
 

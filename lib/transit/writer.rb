@@ -31,6 +31,7 @@ module Transit
       TaggedValue      => WriteHandlers::TaggedValueHandler.new
     }.freeze
 
+    # @api private
     class Marshaler
       def initialize(opts)
         @cache_enabled  = !opts[:verbose]
@@ -196,6 +197,7 @@ module Transit
       end
     end
 
+    # @api private
     class BaseJsonMarshaler < Marshaler
       def default_opts
         {:prefer_strings => true,
@@ -233,18 +235,21 @@ module Transit
       end
     end
 
+    # @api private
     class JsonMarshaler < BaseJsonMarshaler
       def emit_map(m, cache)
         emit_array(["^ ", *m.flat_map{|x|x}], cache)
       end
     end
 
+    # @api private
     class VerboseJsonMarshaler < BaseJsonMarshaler
       def emit_string(prefix, tag, value, as_map_key, cache)
         emit_value("#{prefix}#{tag}#{value}", as_map_key)
       end
     end
 
+    # @api private
     class MessagePackMarshaler < Marshaler
       def default_opts
         {:prefer_strings => false,
