@@ -113,13 +113,13 @@ module Transit
         as_map_key ? emit_string(ESC, "d", d, true, cache) : emit_value(d)
       end
 
-      def emit_array(a, _, cache)
+      def emit_array(a, cache)
         emit_array_start(a.size)
         a.each {|e| marshal(e, false, cache)}
         emit_array_end
       end
 
-      def emit_map(m, _, cache)
+      def emit_map(m, cache)
         emit_map_start(m.size)
         m.each do |k,v|
           marshal(k, true, cache)
@@ -173,9 +173,9 @@ module Transit
         when "'"
           emit_quoted(handler.rep(obj), as_map_key, cache)
         when "array"
-          emit_array(handler.rep(obj), as_map_key, cache)
+          emit_array(handler.rep(obj), cache)
         when "map"
-          emit_map(handler.rep(obj), as_map_key, cache)
+          emit_map(handler.rep(obj), cache)
         else
           emit_encoded(handler, tag, obj, as_map_key, cache)
         end
@@ -234,8 +234,8 @@ module Transit
     end
 
     class JsonMarshaler < BaseJsonMarshaler
-      def emit_map(m, _, cache)
-        emit_array(["^ ", *m.flat_map{|x|x}], _, cache)
+      def emit_map(m, cache)
+        emit_array(["^ ", *m.flat_map{|x|x}], cache)
       end
     end
 
