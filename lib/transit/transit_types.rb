@@ -23,6 +23,8 @@ module Transit
     end
   end
 
+  # Represents a transit symbol extension type.
+  # @see https://github.com/cognitect/transit-format
   class Symbol < Wrapper
     def initialize(sym)
       super sym.to_sym
@@ -43,6 +45,8 @@ module Transit
     end
   end
 
+  # Represents a transit byte array extension type.
+  # @see https://github.com/cognitect/transit-format
   class ByteArray < Wrapper
     def self.from_base64(data)
       new(Base64.decode64(data))
@@ -57,6 +61,8 @@ module Transit
     end
   end
 
+  # Represents a transit UUID extension type.
+  # @see https://github.com/cognitect/transit-format
   class UUID
     def self.random
       new
@@ -141,8 +147,9 @@ module Transit
     end
   end
 
-  # Represents a hypermedia link, as per
-  # {http://amundsen.com/media-types/collection/format/#arrays-links}
+  # Represents a transit hypermedia link extension type.
+  # @see https://github.com/cognitect/transit-format
+  # @see http://amundsen.com/media-types/collection/format/#arrays-links
   class Link
     KEYS          = ["href", "rel", "name", "render", "prompt"]
     RENDER_VALUES = ["link", "image"]
@@ -213,6 +220,7 @@ module Transit
   # representation to use a transit ground type using a rep for which
   # there is no registered handler (e.g., an iterable for the
   # representation of an array).
+  # @see https://github.com/cognitect/transit-format
   class TaggedValue
     attr_reader :tag, :rep
     def initialize(tag, rep)
