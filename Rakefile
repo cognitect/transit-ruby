@@ -71,3 +71,8 @@ desc "Uninstall #{project_name}"
 task :uninstall do
   sh "gem uninstall #{project_name}"
 end
+
+desc "Clean up generated files"
+task :clobber do
+  sh "rm -rf ./tmp ./pkg ./.yardoc doc"
+end
