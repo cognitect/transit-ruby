@@ -89,19 +89,20 @@ module Transit
 
     extend Forwardable
 
-    # Reads transit values from an IO (file, stream, etc), and
-    # converts each one to the appropriate Ruby object.
+    # @!method read
+    #   Reads transit values from an IO (file, stream, etc), and
+    #   converts each one to the appropriate Ruby object.
     #
-    # With a block, yields each object to the block as it is processed.
+    #   With a block, yields each object to the block as it is processed.
     #
-    # Without a block, returns a single object.
+    #   Without a block, returns a single object.
     #
-    # @example
-    #   reader = Transit::Reader.new(:json, io)
-    #   reader.read {|obj| do_something_with(obj)}
+    #   @example
+    #     reader = Transit::Reader.new(:json, io)
+    #     reader.read {|obj| do_something_with(obj)}
     #
-    #   reader = Transit::Reader.new(:json, io)
-    #   obj = reader.read
+    #     reader = Transit::Reader.new(:json, io)
+    #     obj = reader.read
     def_delegators :@reader, :read
 
     # @param [Symbol] type, required any of :msgpack, :json, :json_verbose
