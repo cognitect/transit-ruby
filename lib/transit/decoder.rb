@@ -13,40 +13,11 @@ module Transit
 
     GROUND_TAGS = %w[_ s ? i d b ' array map]
 
-    DEFAULT_READ_HANDLERS = {
-      "_" => ReadHandlers::NilHandler.new,
-      ":" => ReadHandlers::KeywordHandler.new,
-      "?" => ReadHandlers::BooleanHandler.new,
-      "b" => ReadHandlers::ByteArrayHandler.new,
-      "d" => ReadHandlers::FloatHandler.new,
-      "i" => ReadHandlers::IntegerHandler.new,
-      "n" => ReadHandlers::BigIntegerHandler.new,
-      "f" => ReadHandlers::BigDecimalHandler.new,
-      "c" => ReadHandlers::IdentityHandler.new,
-      "$" => ReadHandlers::SymbolHandler.new,
-      "t" => ReadHandlers::TimeStringHandler.new,
-      "m" => ReadHandlers::TimeIntHandler.new,
-      "u" => ReadHandlers::UuidHandler.new,
-      "r" => ReadHandlers::UriHandler.new,
-      "'" => ReadHandlers::IdentityHandler.new,
-      "set"     => ReadHandlers::SetHandler.new,
-      "link"    => ReadHandlers::LinkHandler.new,
-      "list"    => ReadHandlers::IdentityHandler.new,
-      "ints"    => ReadHandlers::IdentityHandler.new,
-      "longs"   => ReadHandlers::IdentityHandler.new,
-      "floats"  => ReadHandlers::IdentityHandler.new,
-      "doubles" => ReadHandlers::IdentityHandler.new,
-      "bools"   => ReadHandlers::IdentityHandler.new,
-      "cmap"    => ReadHandlers::CmapHandler.new
-    }.freeze
-
-    DEFAULT_READ_HANDLER = ReadHandlers::Default.new
-
     def initialize(options={})
       custom_handlers = options[:handlers] || {}
       custom_handlers.each {|k,v| validate_handler(k,v)}
-      @handlers = DEFAULT_READ_HANDLERS.merge(custom_handlers)
-      @default_handler = options[:default_handler] || DEFAULT_READ_HANDLER
+      @handlers = Reader::DEFAULT_READ_HANDLERS.merge(custom_handlers)
+      @default_handler = options[:default_handler] || Reader::DEFAULT_READ_HANDLER
     end
 
     # Decodes a transit value to a corresponding object
