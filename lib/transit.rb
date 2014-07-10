@@ -20,7 +20,7 @@ module Transit
   QUOTE = "'"
 
   MAX_INT = 2**63 - 1
-  MIN_INT = -MAX_INT
+  MIN_INT = -2**63
 
   JSON_MAX_INT = 2**53 - 1
   JSON_MIN_INT = -JSON_MAX_INT
