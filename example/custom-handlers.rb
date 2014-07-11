@@ -21,7 +21,8 @@ Person = Struct.new(:first_name, :last_name, :birthdate)
 people = [Person.new("Adinoran", "Barbosa", Date.parse("August 6, 1910")),
           Person.new("Beth", "Carvalho", Date.parse("May 5, 1946"))]
 
-puts "People before: #{people.inspect}"
+puts "People before:"
+p people
 puts
 
 ###################################################
@@ -43,7 +44,8 @@ writer = Transit::Writer.new(:json_verbose, # also try just :json to see encodin
                              :handlers => {Person => PersonWriteHandler.new})
 writer.write(people)
 
-puts "Transit format: #{write_io.string}"
+puts "Transit format:"
+p write_io.string
 puts
 
 ###################################################
@@ -65,4 +67,5 @@ reader = Transit::Reader.new(:json,
                              # Read handlers are registered in a map of tags to their handlers.
                              :handlers => {"person" => PersonReadHandler.new})
 
-reader.read {|v| puts "Resolved object: #{v.inspect}"}
+puts "People after round trip:"
+p reader.read
