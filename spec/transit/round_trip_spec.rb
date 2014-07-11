@@ -30,7 +30,8 @@ def round_trips(label, obj, type, opts={})
       assert_equal_times(round_trip(obj, type), expected)
     else
       actual = round_trip(obj, type, opts)
-      assert { actual == expected }
+      expect(actual).to eq(expected)
+#      assert { actual == expected }
     end
   end
 

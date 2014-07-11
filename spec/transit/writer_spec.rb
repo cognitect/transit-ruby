@@ -101,7 +101,7 @@ module Transit
 
         writer = Writer.new(:json, io, :handlers => {phone_class => handler.new})
         writer.write(phone_class.new(123456789))
-        assert { JSON.parse(io.string) == {"~#phone" => 123456789} }
+        assert { JSON.parse(io.string) == ["~#phone", 123456789] }
 
         io.rewind
 
@@ -125,9 +125,9 @@ module Transit
           assert { JSON.parse(io.string) == ["~abc"] }
         end
 
-        it "writes a multi-char tagged-value as a map" do
+        it "writes a multi-char tagged-value as a 2-element array" do
           writer.write(TaggedValue.new("abc","def"))
-          assert { JSON.parse(io.string) == {"~#abc" => "def"} }
+          assert { JSON.parse(io.string) == ["~#abc", "def"] }
         end
 
         it "writes a Date as an encoded hash with ms" do

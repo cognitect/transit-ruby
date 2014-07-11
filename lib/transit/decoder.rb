@@ -31,19 +31,32 @@ module Transit
       when String
         decode_string(node, cache, as_map_key)
       when Hash
-        decode_hash(node, cache, as_map_key)
+        decode_hash(node, cache)
       when Array
-        if node[0] == MAP_AS_ARRAY
-          decode_hash(Hash[*node.drop(1)], cache, as_map_key)
-        else
-          node.map! {|n| decode(n, cache, as_map_key)}
-        end
+        decode_array(node, cache, as_map_key)
       else
         node
       end
     end
 
-    def decode_hash(hash, cache, as_map_key)
+    def decode_array(array, cache, as_map_key)
+      return [] if array.empty?
+      e0 = decode(array.shift, cache, true)
+      if e0 == MAP_AS_ARRAY
+        decode_hash(Hash[*array], cache)
+      elsif String === e0 && e0.start_with?(TAG)
+        tag = e0[2..-1]
+        if handler = @handlers[tag]
+          handler.from_rep(decode(array.shift, cache))
+        else
+          @default_handler.from_rep(tag,decode(array.shift, cache))
+        end
+      else
+        [e0] + array.map {|e| decode(e, cache, as_map_key)}
+      end
+    end
+
+    def decode_hash(hash, cache)
       if hash.size == 1
         k = decode(hash.keys.first,   cache, true)
         v = decode(hash.values.first, cache, false)

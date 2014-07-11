@@ -129,7 +129,7 @@ module Transit
         emit_map_end
       end
 
-      def emit_tagged_map(tag, rep, cache)
+      def emit_tagged_value(tag, rep, cache)
         emit_map_start(1)
         emit_string(ESC, "#", tag, true, cache)
         marshal(rep, false, cache)
@@ -148,12 +148,12 @@ module Transit
               raise "Cannot be encoded as String: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
             end
           else
-            emit_tagged_map(tag, handler.rep(obj), cache)
+            emit_tagged_value(tag, handler.rep(obj), cache)
           end
         elsif as_map_key
           raise "Cannot be used as a map key: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
         else
-          emit_tagged_map(tag, handler.rep(obj), cache)
+          emit_tagged_value(tag, handler.rep(obj), cache)
         end
       end
 
@@ -239,6 +239,13 @@ module Transit
     class JsonMarshaler < BaseJsonMarshaler
       def emit_map(m, cache)
         emit_array(["^ ", *m.flat_map{|x|x}], cache)
+      end
+
+      def emit_tagged_value(tag, rep, cache)
+        emit_array_start(2)
+        emit_string(ESC, "#", tag, false, cache)
+        marshal(rep, false, cache)
+        emit_array_end
       end
     end
 
