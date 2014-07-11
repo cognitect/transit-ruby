@@ -63,7 +63,7 @@ abc
 * transit big integer => Integer (Fixnum or Bignum, handled internally
   by Ruby)
 
-### Built-in extension types
+### built-in extension types
 
 * Transit::ByteArray
 * Transit::Symbol
