@@ -29,59 +29,51 @@ module Transit
     def decode(node, cache=RollingCache.new, as_map_key=false)
       case node
       when String
-        decode_string(node, cache, as_map_key)
+        if cache.has_key?(node)
+          cache.read(node)
+        else
+          parsed = begin
+                     if !node.start_with?(ESC) || node.start_with?(TAG)
+                       node
+                     elsif handler = @handlers[node[1]]
+                       handler.from_rep(node[2..-1])
+                     elsif node.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
+                       node[1..-1]
+                     else
+                       @default_handler.from_rep(node[1], node[2..-1])
+                     end
+                   end
+          cache.write(parsed) if cache.cacheable?(node, as_map_key)
+          parsed
+        end
       when Hash
-        decode_hash(node, cache, as_map_key)
+        if node.size == 1
+          k = decode(node.keys.first,   cache, true)
+          v = decode(node.values.first, cache, false)
+          if String === k && k.start_with?(TAG)
+            tag = k[2..-1]
+            if handler = @handlers[tag]
+              handler.from_rep(v)
+            else
+              @default_handler.from_rep(tag,v)
+            end
+          else
+            {k => v}
+          end
+        else
+          node.keys.each do |k|
+            node.store(decode(k, cache, true), decode(node.delete(k), cache))
+          end
+          node
+        end
       when Array
         if node[0] == MAP_AS_ARRAY
-          decode_hash(Hash[*node.drop(1)], cache, as_map_key)
+          decode(Hash[*node.drop(1)], cache, as_map_key)
         else
           node.map! {|n| decode(n, cache, as_map_key)}
         end
       else
         node
-      end
-    end
-
-    def decode_hash(hash, cache, as_map_key)
-      if hash.size == 1
-        k = decode(hash.keys.first,   cache, true)
-        v = decode(hash.values.first, cache, false)
-        if String === k && k.start_with?(TAG)
-          tag = k[2..-1]
-          if handler = @handlers[tag]
-            handler.from_rep(v)
-          else
-            @default_handler.from_rep(tag,v)
-          end
-        else
-          {k => v}
-        end
-      else
-        hash.keys.each do |k|
-          hash.store(decode(k, cache, true), decode(hash.delete(k), cache))
-        end
-        hash
-      end
-    end
-
-    def decode_string(string, cache, as_map_key)
-      if cache.has_key?(string)
-        cache.read(string)
-      else
-        parsed = begin
-                   if !string.start_with?(ESC) || string.start_with?(TAG)
-                     string
-                   elsif handler = @handlers[string[1]]
-                     handler.from_rep(string[2..-1])
-                   elsif string.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
-                     string[1..-1]
-                   else
-                     @default_handler.from_rep(string[1], string[2..-1])
-                   end
-                 end
-        cache.write(parsed) if cache.cacheable?(string, as_map_key)
-        parsed
       end
     end
 
