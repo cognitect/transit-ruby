@@ -91,6 +91,14 @@ app e.g.:
 writer.write(TaggedValue.new("ints", [1,2,3]))
 ```
 
+## Custom Read Handlers
+
+Coming soon ...
+
+## Custom Write Handlers
+
+Coming soon ...
+
 ## Supported Rubies
 
 * MRI 1.9.3, 2.0.0, 2.1.0, 2.1.1, 2.1.2
