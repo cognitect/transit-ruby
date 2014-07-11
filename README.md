@@ -1,12 +1,24 @@
 transit-ruby
 ===================
 
-Transit is a format and set of libraries for conveying values between
-applications written in different programming languages. See
-[https://github.com/cognitect/transit-format](https://github.com/cognitect/transit-format)
-for details.
+Transit is a data format and a set of libraries for conveying
+values between applications written in different languages. This
+library provides support for marshalling Transit data to/from Ruby.
 
-transit-ruby is a Transit encoder/decoder library for Ruby.
+[Rationale](point-me-somewhere)<br>
+[API docs](http://rubydoc.info/gems/transit-ruby)<br>
+[Specification](https://github.com/cognitect/transit-format)
+
+## Releases and Dependency Information
+
+* Latest release: TBD
+* [All Released Versions](https://rubygems.org/gems/transit-ruby)
+
+```sh
+gem install transit-ruby
+```
+
+## Usage
 
 ```ruby
 # io can be any Ruby IO
@@ -42,7 +54,24 @@ abc
 123456789012345678901234567890
 ```
 
-# Typed arrays, lists, and chars
+## Type Mapping
+
+### transit -> standard (or at least common) Ruby types
+
+* transit URI         => Addressable::URI
+* transit instances   => DateTime
+* transit big integer => Integer (Fixnum or Bignum, handled internally
+  by Ruby)
+
+### Built-in extension types
+
+* Transit::ByteArray
+* Transit::Symbol
+* Transit::UUID
+* Transit::Link
+* Transit::TaggedValue
+
+## Typed arrays, lists, and chars
 
 The [transit spec](https://github.com/cognitect/transit-format)
 defines several semantic types that map to more general types in Ruby:
@@ -62,7 +91,7 @@ app e.g.:
 writer.write(TaggedValue.new("ints", [1,2,3]))
 ```
 
-# Supported Rubies
+## Supported Rubies
 
 * MRI 1.9.3, 2.0.0, 2.1.0, 2.1.1, 2.1.2
 
