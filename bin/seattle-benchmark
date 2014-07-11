@@ -28,7 +28,7 @@ end
 data = nil
 open("../transit/seattle-data0.tjs", 'r') {|f| data = f.read}
 
-n = 10
+n = 100
 
 include Benchmark
 
