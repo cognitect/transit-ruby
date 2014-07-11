@@ -17,31 +17,6 @@ module Transit
   # @see https://github.com/cognitect/transit-format
   class Writer
 
-    DEFAULT_WRITE_HANDLERS = {
-      NilClass         => WriteHandlers::NilHandler.new,
-      ::Symbol         => WriteHandlers::KeywordHandler.new,
-      String           => WriteHandlers::StringHandler.new,
-      TrueClass        => WriteHandlers::TrueHandler.new,
-      FalseClass       => WriteHandlers::FalseHandler.new,
-      Fixnum           => WriteHandlers::IntHandler.new,
-      Bignum           => WriteHandlers::IntHandler.new,
-      Float            => WriteHandlers::FloatHandler.new,
-      BigDecimal       => WriteHandlers::BigDecimalHandler.new,
-      Time             => WriteHandlers::TimeHandler.new,
-      DateTime         => WriteHandlers::DateTimeHandler.new,
-      Date             => WriteHandlers::DateHandler.new,
-      UUID             => WriteHandlers::UuidHandler.new,
-      Link             => WriteHandlers::LinkHandler.new,
-      URI              => WriteHandlers::UriHandler.new,
-      Addressable::URI => WriteHandlers::AddressableUriHandler.new,
-      ByteArray        => WriteHandlers::ByteArrayHandler.new,
-      Transit::Symbol  => WriteHandlers::TransitSymbolHandler.new,
-      Array            => WriteHandlers::ArrayHandler.new,
-      Hash             => WriteHandlers::MapHandler.new,
-      Set              => WriteHandlers::SetHandler.new,
-      TaggedValue      => WriteHandlers::TaggedValueHandler.new
-    }.freeze
-
     # @api private
     class Marshaler
       def initialize(opts)
@@ -51,7 +26,7 @@ module Transit
         @max_int        = opts[:max_int]
         @min_int        = opts[:min_int]
 
-        handlers = DEFAULT_WRITE_HANDLERS.dup
+        handlers = WriteHandlers::DEFAULT_WRITE_HANDLERS.dup
         handlers = handlers.merge!(opts[:handlers]) if opts[:handlers]
         @handlers = (opts[:verbose] ? verbose_handlers(handlers) : handlers)
         @handlers.values.each do |h|

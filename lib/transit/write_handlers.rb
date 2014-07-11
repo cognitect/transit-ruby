@@ -191,5 +191,30 @@ module Transit
       def rep(tv) tv.rep end
       def string_rep(_) nil end
     end
+
+    DEFAULT_WRITE_HANDLERS = {
+      NilClass         => NilHandler.new,
+      ::Symbol         => KeywordHandler.new,
+      String           => StringHandler.new,
+      TrueClass        => TrueHandler.new,
+      FalseClass       => FalseHandler.new,
+      Fixnum           => IntHandler.new,
+      Bignum           => IntHandler.new,
+      Float            => FloatHandler.new,
+      BigDecimal       => BigDecimalHandler.new,
+      Time             => TimeHandler.new,
+      DateTime         => DateTimeHandler.new,
+      Date             => DateHandler.new,
+      UUID             => UuidHandler.new,
+      Link             => LinkHandler.new,
+      URI              => UriHandler.new,
+      Addressable::URI => AddressableUriHandler.new,
+      ByteArray        => ByteArrayHandler.new,
+      Transit::Symbol  => TransitSymbolHandler.new,
+      Array            => ArrayHandler.new,
+      Hash             => MapHandler.new,
+      Set              => SetHandler.new,
+      TaggedValue      => TaggedValueHandler.new
+    }.freeze
   end
 end

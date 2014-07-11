@@ -68,5 +68,35 @@ module Transit
     class CmapHandler
       def from_rep(v) Hash[*v] end
     end
+
+    DEFAULT_READ_HANDLERS = {
+      "_" => NilHandler.new,
+      ":" => KeywordHandler.new,
+      "?" => BooleanHandler.new,
+      "b" => ByteArrayHandler.new,
+      "d" => FloatHandler.new,
+      "i" => IntegerHandler.new,
+      "n" => BigIntegerHandler.new,
+      "f" => BigDecimalHandler.new,
+      "c" => IdentityHandler.new,
+      "$" => SymbolHandler.new,
+      "t" => TimeStringHandler.new,
+      "m" => TimeIntHandler.new,
+      "u" => UuidHandler.new,
+      "r" => UriHandler.new,
+      "'" => IdentityHandler.new,
+      "set"     => SetHandler.new,
+      "link"    => LinkHandler.new,
+      "list"    => IdentityHandler.new,
+      "ints"    => IdentityHandler.new,
+      "longs"   => IdentityHandler.new,
+      "floats"  => IdentityHandler.new,
+      "doubles" => IdentityHandler.new,
+      "bools"   => IdentityHandler.new,
+      "cmap"    => CmapHandler.new
+    }.freeze
+
+    DEFAULT_READ_HANDLER = Default.new
+
   end
 end

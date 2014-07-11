@@ -27,8 +27,8 @@ module Transit
     def initialize(options={})
       custom_handlers = options[:handlers] || {}
       custom_handlers.each {|k,v| validate_handler(k,v)}
-      @handlers = Reader::DEFAULT_READ_HANDLERS.merge(custom_handlers)
-      @default_handler = options[:default_handler] || Reader::DEFAULT_READ_HANDLER
+      @handlers = ReadHandlers::DEFAULT_READ_HANDLERS.merge(custom_handlers)
+      @default_handler = options[:default_handler] || ReadHandlers::DEFAULT_READ_HANDLER
     end
 
     # Decodes a transit value to a corresponding object
