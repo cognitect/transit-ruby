@@ -162,8 +162,7 @@ module Transit
     round_trips("a hash with 54 bit ints",  {2**53   => 2**53+1}, type)
     round_trips("a map with composite keys", {{a: :b} => {c: :d}}, type)
     round_trips("a TaggedValue", TaggedValue.new("unrecognized",:value), type)
-    round_trips("an unrecognized hash encoding", {"~#unrecognized" => :value}, type,
-                :expected => TaggedValue.new("unrecognized",:value))
+    round_trips("an unrecognized hash encoding", {"~#unrecognized" => :value}, type)
     round_trips("an unrecognized string encoding", "~Xunrecognized", type)
 
     round_trips("a nested structure (map on top)", {a: [1, [{b: "~c"}]]}, type)

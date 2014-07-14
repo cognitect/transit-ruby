@@ -31,6 +31,9 @@ module Transit
       @default_handler = options[:default_handler] || ReadHandlers::DEFAULT_READ_HANDLER
     end
 
+    # @api private
+    Tag = Struct.new(:value)
+
     # Decodes a transit value to a corresponding object
     #
     # @param node a transit value to be decoded
@@ -44,8 +47,10 @@ module Transit
           cache.read(node)
         else
           parsed = begin
-                     if !node.start_with?(ESC) || node.start_with?(TAG)
+                     if !node.start_with?(ESC)
                        node
+                     elsif node.start_with?(TAG)
+                       Tag.new(node[2..-1])
                      elsif handler = @handlers[node[1]]
                        handler.from_rep(node[2..-1])
                      elsif node.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
@@ -62,8 +67,8 @@ module Transit
         e0 = decode(node.shift, cache, true)
         if e0 == MAP_AS_ARRAY
           decode(Hash[*node], cache)
-        elsif String === e0 && e0.start_with?(TAG)
-          tag = e0[2..-1]
+        elsif Tag === e0
+          tag = e0.value
           if handler = @handlers[tag]
             handler.from_rep(decode(node.shift, cache))
           else
@@ -76,8 +81,8 @@ module Transit
         if node.size == 1
           k = decode(node.keys.first,   cache, true)
           v = decode(node.values.first, cache, false)
-          if String === k && k.start_with?(TAG)
-            tag = k[2..-1]
+          if Tag === k
+            tag = k.value
             if handler = @handlers[tag]
               handler.from_rep(v)
             else
