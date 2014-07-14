@@ -1,5 +1,16 @@
-# Copyright (c) Cognitect, Inc.
-# All rights reserved.
+# Copyright 2014 Cognitect. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS-IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 require 'spec_helper'
 require 'json'
@@ -117,7 +128,7 @@ module Transit
 
         it "writes a map as an array prefixed with '^ '" do
           writer.write({:a => :b, 3 => 4})
-          assert { JSON.parse(io.string) == ["^ ", "~:a", "~:b", 3, 4] }
+          assert { JSON.parse(io.string) == ["^ ", "~:a", "~:b", "~i3", 4] }
         end
 
         it "writes a single-char tagged-value as a string" do
@@ -195,6 +206,33 @@ module Transit
             writer.write([(2**63) + n])
             assert { JSON.parse(io.string).first[1] == "n" }
           end
+        end
+      end
+
+      describe "escaped strings" do
+        [ESC, SUB, RES].each do |c|
+          it "escapes a String starting with #{c}" do
+            writer.write("#{c}whatever")
+            assert { JSON.parse(io.string) == {"#{TAG}#{QUOTE}" => "~#{c}whatever"}}
+          end
+        end
+      end
+
+      describe "edge cases" do
+        it 'writes correct json for TaggedValues in a map-as-array (json)' do
+          writer = Writer.new(:json, io)
+          v = {7924023966712353515692932 => TaggedValue.new("ratio", [1, 3]),
+               100 => TaggedValue.new("ratio", [1, 2])}
+          writer.write(v)
+          expected = ["^ ","~n7924023966712353515692932",{"~#ratio" => [1,3]},"~i100",{"^\"" => [1,2]}]
+          actual = io.string
+          assert { expected.to_json == actual.chomp }
+        end
+
+        it 'writes out strings starting with `' do
+          v = "`~hello"
+          writer.write([v])
+          assert { JSON.parse(io.string).first == "~`~hello" }
         end
       end
     end

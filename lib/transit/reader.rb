@@ -1,39 +1,21 @@
-# Copyright (c) Cognitect, Inc.
-# All rights reserved.
+# Copyright 2014 Cognitect. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS-IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 module Transit
   # Transit::Reader converts incoming transit data into appropriate values in Ruby.
   # @see https://github.com/cognitect/transit-format
   class Reader
-
-    DEFAULT_READ_HANDLERS = {
-      "_" => ReadHandlers::NilHandler.new,
-      ":" => ReadHandlers::KeywordHandler.new,
-      "?" => ReadHandlers::BooleanHandler.new,
-      "b" => ReadHandlers::ByteArrayHandler.new,
-      "d" => ReadHandlers::FloatHandler.new,
-      "i" => ReadHandlers::IntegerHandler.new,
-      "n" => ReadHandlers::BigIntegerHandler.new,
-      "f" => ReadHandlers::BigDecimalHandler.new,
-      "c" => ReadHandlers::IdentityHandler.new,
-      "$" => ReadHandlers::SymbolHandler.new,
-      "t" => ReadHandlers::TimeStringHandler.new,
-      "m" => ReadHandlers::TimeIntHandler.new,
-      "u" => ReadHandlers::UuidHandler.new,
-      "r" => ReadHandlers::UriHandler.new,
-      "'" => ReadHandlers::IdentityHandler.new,
-      "set"     => ReadHandlers::SetHandler.new,
-      "link"    => ReadHandlers::LinkHandler.new,
-      "list"    => ReadHandlers::IdentityHandler.new,
-      "ints"    => ReadHandlers::IdentityHandler.new,
-      "longs"   => ReadHandlers::IdentityHandler.new,
-      "floats"  => ReadHandlers::IdentityHandler.new,
-      "doubles" => ReadHandlers::IdentityHandler.new,
-      "bools"   => ReadHandlers::IdentityHandler.new,
-      "cmap"    => ReadHandlers::CmapHandler.new
-    }.freeze
-
-    DEFAULT_READ_HANDLER = ReadHandlers::Default.new
 
     # @api private
     class JsonUnmarshaler

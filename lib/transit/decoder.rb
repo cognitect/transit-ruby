@@ -1,5 +1,16 @@
-# Copyright (c) Cognitect, Inc.
-# All rights reserved.
+# Copyright 2014 Cognitect. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS-IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 module Transit
   # Converts a transit value to an instance of a type
@@ -16,8 +27,8 @@ module Transit
     def initialize(options={})
       custom_handlers = options[:handlers] || {}
       custom_handlers.each {|k,v| validate_handler(k,v)}
-      @handlers = Reader::DEFAULT_READ_HANDLERS.merge(custom_handlers)
-      @default_handler = options[:default_handler] || Reader::DEFAULT_READ_HANDLER
+      @handlers = ReadHandlers::DEFAULT_READ_HANDLERS.merge(custom_handlers)
+      @default_handler = options[:default_handler] || ReadHandlers::DEFAULT_READ_HANDLER
     end
 
     # Decodes a transit value to a corresponding object
@@ -46,6 +57,21 @@ module Transit
           cache.write(parsed) if cache.cacheable?(node, as_map_key)
           parsed
         end
+      when Array
+        return [] if node.empty?
+        e0 = decode(node.shift, cache, true)
+        if e0 == MAP_AS_ARRAY
+          decode(Hash[*node], cache)
+        elsif String === e0 && e0.start_with?(TAG)
+          tag = e0[2..-1]
+          if handler = @handlers[tag]
+            handler.from_rep(decode(node.shift, cache))
+          else
+            @default_handler.from_rep(tag,decode(node.shift, cache))
+          end
+        else
+          [e0] + node.map {|e| decode(e, cache, as_map_key)}
+        end
       when Hash
         if node.size == 1
           k = decode(node.keys.first,   cache, true)
@@ -65,21 +91,6 @@ module Transit
             node.store(decode(k, cache, true), decode(node.delete(k), cache))
           end
           node
-        end
-      when Array
-        return [] if node.empty?
-        e0 = decode(node.shift, cache, true)
-        if e0 == MAP_AS_ARRAY
-          decode(Hash[*node], cache)
-        elsif String === e0 && e0.start_with?(TAG)
-          tag = e0[2..-1]
-          if handler = @handlers[tag]
-            handler.from_rep(decode(node.shift, cache))
-          else
-            @default_handler.from_rep(tag,decode(node.shift, cache))
-          end
-        else
-          [e0] + node.map {|e| decode(e, cache, as_map_key)}
         end
       else
         node

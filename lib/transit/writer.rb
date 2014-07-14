@@ -1,35 +1,21 @@
-# Copyright (c) Cognitect, Inc.
-# All rights reserved.
+# Copyright 2014 Cognitect. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS-IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 module Transit
   # Transit::Writer marshals Ruby objects as transit values to an output stream.
   # @see https://github.com/cognitect/transit-format
   class Writer
-
-    DEFAULT_WRITE_HANDLERS = {
-      NilClass         => WriteHandlers::NilHandler.new,
-      ::Symbol         => WriteHandlers::KeywordHandler.new,
-      String           => WriteHandlers::StringHandler.new,
-      TrueClass        => WriteHandlers::TrueHandler.new,
-      FalseClass       => WriteHandlers::FalseHandler.new,
-      Fixnum           => WriteHandlers::IntHandler.new,
-      Bignum           => WriteHandlers::IntHandler.new,
-      Float            => WriteHandlers::FloatHandler.new,
-      BigDecimal       => WriteHandlers::BigDecimalHandler.new,
-      Time             => WriteHandlers::TimeHandler.new,
-      DateTime         => WriteHandlers::DateTimeHandler.new,
-      Date             => WriteHandlers::DateHandler.new,
-      UUID             => WriteHandlers::UuidHandler.new,
-      Link             => WriteHandlers::LinkHandler.new,
-      URI              => WriteHandlers::UriHandler.new,
-      Addressable::URI => WriteHandlers::AddressableUriHandler.new,
-      ByteArray        => WriteHandlers::ByteArrayHandler.new,
-      Transit::Symbol  => WriteHandlers::TransitSymbolHandler.new,
-      Array            => WriteHandlers::ArrayHandler.new,
-      Hash             => WriteHandlers::MapHandler.new,
-      Set              => WriteHandlers::SetHandler.new,
-      TaggedValue      => WriteHandlers::TaggedValueHandler.new
-    }.freeze
 
     # @api private
     class Marshaler
@@ -40,7 +26,7 @@ module Transit
         @max_int        = opts[:max_int]
         @min_int        = opts[:min_int]
 
-        handlers = DEFAULT_WRITE_HANDLERS.dup
+        handlers = WriteHandlers::DEFAULT_WRITE_HANDLERS.dup
         handlers = handlers.merge!(opts[:handlers]) if opts[:handlers]
         @handlers = (opts[:verbose] ? verbose_handlers(handlers) : handlers)
         @handlers.values.each do |h|
@@ -69,9 +55,7 @@ module Transit
       end
 
       def escape(s)
-        if s.start_with?("#{RES}#{ESC}")
-          s[1..-1]
-        elsif s.start_with?(SUB,ESC,RES) && !s.start_with?("#{SUB}\s")
+        if s.start_with?(SUB,ESC,RES) && !s.start_with?("#{SUB}\s")
           "#{ESC}#{s}"
         else
           s
@@ -208,26 +192,35 @@ module Transit
       def initialize(io, opts)
         @oj = Oj::StreamWriter.new(io)
         super(default_opts.merge(opts))
+        @state = []
       end
 
       def emit_array_start(size)
+        @state << :array
         @oj.push_array
       end
 
       def emit_array_end
+        @state.pop
         @oj.pop
       end
 
       def emit_map_start(size)
+        @state << :map
         @oj.push_object
       end
 
       def emit_map_end
+        @state.pop
         @oj.pop
       end
 
       def emit_value(obj, as_map_key=false)
-        as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
+        if @state.last == :array
+          @oj.push_value(obj)
+        else
+          as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
+        end
       end
 
       def flush
@@ -238,7 +231,13 @@ module Transit
     # @api private
     class JsonMarshaler < BaseJsonMarshaler
       def emit_map(m, cache)
-        emit_array(["^ ", *m.flat_map{|x|x}], cache)
+        emit_array_start(-1)
+        emit_value("^ ", false)
+        m.each do |k,v|
+          marshal(k, true, cache)
+          marshal(v, false, cache)
+        end
+        emit_array_end
       end
 
       def emit_tagged_value(tag, rep, cache)

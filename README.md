@@ -1,12 +1,24 @@
 transit-ruby
 ===================
 
-Transit is a format and set of libraries for conveying values between
-applications written in different programming languages. See
-[https://github.com/cognitect/transit-format](https://github.com/cognitect/transit-format)
-for details.
+Transit is a data format and a set of libraries for conveying
+values between applications written in different languages. This
+library provides support for marshalling Transit data to/from Ruby.
 
-transit-ruby is a Transit encoder/decoder library for Ruby.
+[Rationale](point-me-somewhere)<br>
+[API docs](http://rubydoc.info/gems/transit-ruby)<br>
+[Specification](https://github.com/cognitect/transit-format)
+
+## Releases and Dependency Information
+
+* Latest release: TBD
+* [All Released Versions](https://rubygems.org/gems/transit-ruby)
+
+```sh
+gem install transit-ruby
+```
+
+## Usage
 
 ```ruby
 # io can be any Ruby IO
@@ -42,7 +54,24 @@ abc
 123456789012345678901234567890
 ```
 
-# Typed arrays, lists, and chars
+## Type Mapping
+
+### transit -> standard (or at least common) Ruby types
+
+* transit URI         => Addressable::URI
+* transit instances   => DateTime
+* transit big integer => Integer (Fixnum or Bignum, handled internally
+  by Ruby)
+
+### built-in extension types
+
+* Transit::ByteArray
+* Transit::Symbol
+* Transit::UUID
+* Transit::Link
+* Transit::TaggedValue
+
+## Typed arrays, lists, and chars
 
 The [transit spec](https://github.com/cognitect/transit-format)
 defines several semantic types that map to more general types in Ruby:
@@ -62,54 +91,29 @@ app e.g.:
 writer.write(TaggedValue.new("ints", [1,2,3]))
 ```
 
-# Supported Rubies
+## Custom Read Handlers
+
+Coming soon ...
+
+## Custom Write Handlers
+
+Coming soon ...
+
+## Supported Rubies
 
 * MRI 1.9.3, 2.0.0, 2.1.0, 2.1.1, 2.1.2
 
-# Development
+## Contributing
 
-## Setup
+Please discuss potential problems or enhancements on the
+[transit-format mailing list](https://groups.google.com/forum/#!forum/transit-format). Issues
+should be filed using GitHub issues for this project.
 
-Transit Ruby uses transit as a submodule to get at the transit
-exemplar files. The tests will not run without the exemplar files.
-You need to run a couple of git commands to set up the transit
-git submodule:
+Contributing to Cognitect projects requires a signed
+[Cognitect Contributor Agreement](http://cognitect.com/contributing).
 
-```sh
-git submodule init
-git submodule update
-```
 
-## Benchmarks
-
-```sh
-./bin/seattle-benchmark
-```
-
-## Running the examples
-
-```sh
-bundle exec rake spec
-```
-
-## Build
-
-```sh
-bundle exec rake build
-
-# or, if you want to install the gem locally ...
-
-bundle exec rake build
-```
-
-The version number is automatically incremented based on the number of commits.
-The command below shows what version number will be applied.
-
-```sh
-build/revision
-```
-
-# Copyright and License
+## Copyright and License
 
 Copyright © 2014 Cognitect
 
@@ -121,6 +125,7 @@ You may obtain a copy of the License at
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied.
 See the License for the specific language governing permissions and
 limitations under the License.
