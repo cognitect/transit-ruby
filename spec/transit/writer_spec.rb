@@ -224,9 +224,11 @@ module Transit
           v = {7924023966712353515692932 => TaggedValue.new("ratio", [1, 3]),
                100 => TaggedValue.new("ratio", [1, 2])}
           writer.write(v)
-          expected = ["^ ","~n7924023966712353515692932",{"~#ratio" => [1,3]},"~i100",{"^\"" => [1,2]}]
+          expected = ["^ ",
+                      "~n7924023966712353515692932", ["~#ratio", [1,3]],
+                      "~i100",["^\"", [1,2]]]
           actual = io.string
-          assert { expected.to_json == actual.chomp }
+          assert { JSON.parse(io.string) == expected }
         end
 
         it 'writes out strings starting with `' do
