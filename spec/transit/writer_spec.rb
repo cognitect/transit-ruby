@@ -128,7 +128,7 @@ module Transit
 
         it "writes a map as an array prefixed with '^ '" do
           writer.write({:a => :b, 3 => 4})
-          assert { JSON.parse(io.string) == ["^ ", "~:a", "~:b", 3, 4] }
+          assert { JSON.parse(io.string) == ["^ ", "~:a", "~:b", "~i3", 4] }
         end
 
         it "writes a single-char tagged-value as a string" do
@@ -206,6 +206,18 @@ module Transit
             writer.write([(2**63) + n])
             assert { JSON.parse(io.string).first[1] == "n" }
           end
+        end
+      end
+
+      describe "edge cases" do
+        it 'writes correct json for TaggedValues in a map-as-array (json)' do
+          writer = Writer.new(:json, io)
+          v = {7924023966712353515692932 => TaggedValue.new("ratio", [1, 3]),
+               100 => TaggedValue.new("ratio", [1, 2])}
+          writer.write(v)
+          expected = ["^ ","~n7924023966712353515692932",{"~#ratio" => [1,3]},"~i100",{"^\"" => [1,2]}]
+          actual = io.string
+          assert { expected.to_json == actual.chomp }
         end
       end
     end

@@ -194,26 +194,35 @@ module Transit
       def initialize(io, opts)
         @oj = Oj::StreamWriter.new(io)
         super(default_opts.merge(opts))
+        @state = []
       end
 
       def emit_array_start(size)
+        @state << :array
         @oj.push_array
       end
 
       def emit_array_end
+        @state.pop
         @oj.pop
       end
 
       def emit_map_start(size)
+        @state << :map
         @oj.push_object
       end
 
       def emit_map_end
+        @state.pop
         @oj.pop
       end
 
       def emit_value(obj, as_map_key=false)
-        as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
+        if @state.last == :array
+          @oj.push_value(obj)
+        else
+          as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
+        end
       end
 
       def flush
@@ -224,7 +233,13 @@ module Transit
     # @api private
     class JsonMarshaler < BaseJsonMarshaler
       def emit_map(m, cache)
-        emit_array(["^ ", *m.flat_map{|x|x}], cache)
+        emit_array_start(-1)
+        emit_value("^ ", false)
+        m.each do |k,v|
+          marshal(k, true, cache)
+          marshal(v, false, cache)
+        end
+        emit_array_end
       end
     end
 
