@@ -17,7 +17,7 @@ require 'json'
 
 module Transit
   describe Writer do
-    let(:io) { StringIO.new }
+    let(:io) { StringIO.new('', 'w+') }
     let(:writer) { Writer.new(:json_verbose, io) }
 
     describe "marshaling transit types" do
@@ -122,7 +122,7 @@ module Transit
       end
     end
 
-    describe "JSON formats" do
+    describe "formats" do
       describe "JSON" do
         let(:writer) { Writer.new(:json, io) }
 
@@ -188,6 +188,20 @@ module Transit
         it "writes a DateTime as an encoded human-readable strings" do
           writer.write([(Time.at(1388631845) + 0.678).to_datetime])
           assert { JSON.parse(io.string) == ["~t2014-01-02T03:04:05.678Z"] }
+        end
+      end
+
+      describe "MESSAGE PACK" do
+        let(:writer) { Writer.new(:msgpack, io) }
+
+        it "writes a single-char tagged-value as a string" do
+          writer.write(TaggedValue.new("a","bc"))
+          assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == "~abc" }
+        end
+
+        it "writes a multi-char tagged-value as a 2-element array" do
+          writer.write(TaggedValue.new("abc","def"))
+          assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == ["~#abc", "def"] }
         end
       end
 

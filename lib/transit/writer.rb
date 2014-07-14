@@ -114,10 +114,10 @@ module Transit
       end
 
       def emit_tagged_value(tag, rep, cache)
-        emit_map_start(1)
-        emit_string(ESC, "#", tag, true, cache)
+        emit_array_start(2)
+        emit_string(ESC, "#", tag, false, cache)
         marshal(rep, false, cache)
-        emit_map_end
+        emit_array_end
       end
 
       def emit_encoded(handler, tag, obj, as_map_key, cache)
@@ -239,19 +239,19 @@ module Transit
         end
         emit_array_end
       end
-
-      def emit_tagged_value(tag, rep, cache)
-        emit_array_start(2)
-        emit_string(ESC, "#", tag, false, cache)
-        marshal(rep, false, cache)
-        emit_array_end
-      end
     end
 
     # @api private
     class VerboseJsonMarshaler < BaseJsonMarshaler
       def emit_string(prefix, tag, value, as_map_key, cache)
         emit_value("#{prefix}#{tag}#{value}", as_map_key)
+      end
+
+      def emit_tagged_value(tag, rep, cache)
+        emit_map_start(1)
+        emit_string(ESC, "#", tag, true, cache)
+        marshal(rep, false, cache)
+        emit_map_end
       end
     end
 
