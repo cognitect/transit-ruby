@@ -42,7 +42,6 @@ def round_trips(label, obj, type, opts={})
     else
       actual = round_trip(obj, type, opts)
       expect(actual).to eq(expected)
-#      assert { actual == expected }
     end
   end
 
@@ -169,6 +168,7 @@ module Transit
 
     round_trips("a nested structure (map on top)", {a: [1, [{b: "~c"}]]}, type)
     round_trips("a nested structure (array on top)", [37, {a: [1, [{b: "~c"}]]}], type)
+    round_trips("a map that looks like transit data", [{"~#set"=>[1,2,3]},{"~#set"=>[4,5,6]}], type)
   end
 
   describe "Transit using json" do
