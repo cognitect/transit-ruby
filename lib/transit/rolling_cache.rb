@@ -19,8 +19,9 @@ module Transit
 
     def_delegators "@key_to_value", :has_key?, :size
 
-    FIRST_ORD = 33
-    CACHE_SIZE = 94**2
+    FIRST_ORD = 48
+    LAST_ORD  = 91
+    CACHE_SIZE = 44**2
     MIN_SIZE_CACHEABLE = 4
 
     def initialize
@@ -56,8 +57,8 @@ module Transit
     end
 
     def next_key(i)
-      hi = i / 94;
-      lo = i % 94;
+      hi = i / LAST_ORD;
+      lo = i % LAST_ORD;
       if hi == 0
         "^#{(lo+FIRST_ORD).chr}"
       else

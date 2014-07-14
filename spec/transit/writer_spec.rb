@@ -240,7 +240,7 @@ module Transit
           writer.write(v)
           expected = ["^ ",
                       "~n7924023966712353515692932", ["~#ratio", [1,3]],
-                      "~i100",["^\"", [1,2]]]
+                      "~i100",["^1", [1,2]]]
           actual = io.string
           assert { JSON.parse(io.string) == expected }
         end

@@ -33,10 +33,6 @@ module Transit
         end
       end
 
-      it 'has a default CACHE_SIZE of 94' do
-        assert { RollingCache::CACHE_SIZE == 94**2 }
-      end
-
       it 'can handle CACHE_SIZE different values' do
         rc = RollingCache.new
         RollingCache::CACHE_SIZE.times do |i|
