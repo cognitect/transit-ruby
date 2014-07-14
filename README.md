@@ -54,6 +54,45 @@ abc
 123456789012345678901234567890
 ```
 
+## Default Type Mapping
+
+
+|Transit type|Write accepts|Read returns|Example(write)|Example(read)|
+|------------|-------------|------------|--------------|-------------|
+|null|nil|nil|nil|nil|
+|string|String|String|"abc"|"abc"|
+|boolean|true, false|true or false|false|false|
+|integer|Fixnum|Fixnum|123|123|
+|decimal|Float|Float|123.456|123.456|
+|keyword|Symbol|Symbol|:abc|:abc|
+|symbol|Transit::Symbol|Transit::Symbol|Transit::Symbol.new("foo")|foo|
+|big decimal|BigDecimal|BigDecimal|
+|big integer|Fixnum, Bignum|Fixnum, Bignum|2**128|340282366920938463463374607431768211456|
+|time|DateTime, Date, Time|DateTime|DateTime.now|2014-07-14T23:09:08+00:00|
+|uri|Addressable::URI|Addressable::URI|Addressable::URI.parse("http://example.com")|http://example.com|
+|uuid|Transit::UUID|Transit::UUID|Transit::UUID.new|d0943418-dec2-40da-8948-533fd153ff99|
+|char|Transit::TaggedValue|String|Transit::TaggedValue.new("c", "c")|c|
+|array|Array|Array|[1, 2, 3]|[1, 2, 3]|
+|list|Transit::TaggedValue|Array|Transit::TaggedValue.new("list", [1, 2, 3])|[1, 2, 3]|
+|set|Set|Set|Set.new([1, 2, 3])|`#<Set:0x007fe46821dd98>`|
+|map|Hash|Hash|`{a: 1, b: 2, c: 3}`|`{:a=>1, :b=>2, :c=>3}`|
+|bytes|Transit::ByteArray|Transit::ByteArray|Transit::ByteArray.new("base64")|base64|
+|shorts|short[]|short[]|||
+|ints|Transit::TaggedValue|Array|Transit::TaggedValue.new("ints", [1, 2, 3])|[1, 2, 3]|
+|longs|Transit::TaggedValue|Array|Transit::TaggedValue.new("longs", [1, 2, 3])|[1, 2, 3]|
+|floats|Transit::TaggedValue|Array|Transit::TaggedValue.new("floats", [1.1, 2.2, 3.3])|[1.1, 2.2, 3.3]|
+|doubles|Transit::TaggedValue|Array|Transit::TaggedValue.new("doubles", [1.1, 2.2, 3.3])|[1.1, 2.2, 3.3]|
+|chars|char[]|char[]|||
+|bools|Transit::TaggedValue|Array|Transit::TaggedValue.new("bools", [false, false, true])|[false, false, true]|
+|link|Transit::Link|Transit::Link|Transit::Link.new(Addressable::URI.parse("http://example.org/search"), "search")|`#<Transit::Link:0x007f746c8715a8>`|
+|tagged value|Trasit::TaggedValue|Transit::TaggedValue|||
+|ratio +|cognitect.transit.Ratio|cognitect.transit.Ratio|||
+
+\+ Extension using tagged values
+
+
+
+
 ## Type Mapping
 
 ### transit -> standard (or at least common) Ruby types
