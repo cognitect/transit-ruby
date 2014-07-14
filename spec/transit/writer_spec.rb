@@ -209,6 +209,15 @@ module Transit
         end
       end
 
+      describe "escaped strings" do
+        [ESC, SUB, RES].each do |c|
+          it "escapes a String starting with #{c}" do
+            writer.write("#{c}whatever")
+            assert { JSON.parse(io.string) == {"#{TAG}#{QUOTE}" => "~#{c}whatever"}}
+          end
+        end
+      end
+
       describe "edge cases" do
         it 'writes correct json for TaggedValues in a map-as-array (json)' do
           writer = Writer.new(:json, io)
@@ -218,6 +227,12 @@ module Transit
           expected = ["^ ","~n7924023966712353515692932",{"~#ratio" => [1,3]},"~i100",{"^\"" => [1,2]}]
           actual = io.string
           assert { expected.to_json == actual.chomp }
+        end
+
+        it 'writes out strings starting with `' do
+          v = "`~hello"
+          writer.write([v])
+          assert { JSON.parse(io.string).first == "~`~hello" }
         end
       end
     end
