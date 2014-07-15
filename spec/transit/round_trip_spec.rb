@@ -141,6 +141,7 @@ module Transit
     round_trips("an array", [1,2,3], type)
     round_trips("a char", TaggedValue.new("c", "x"), type, :expected => "x")
     round_trips("a list", TaggedValue.new("list", [1,2,3]), type, :expected => [1,2,3])
+    round_trips("an array of shorts", TaggedValue.new("shorts", [1,2,3]), type, :expected => [1,2,3])
     round_trips("an array of ints", TaggedValue.new("ints", [1,2,3]), type, :expected => [1,2,3])
     round_trips("an array of longs", TaggedValue.new("longs", [1,2,3]), type, :expected => [1,2,3])
     round_trips("an array of floats", TaggedValue.new("floats", [1.1,2.2,3.3]), type, :expected => [1.1,2.2,3.3])

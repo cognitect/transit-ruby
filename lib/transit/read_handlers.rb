@@ -88,6 +88,7 @@ module Transit
       "set"     => SetHandler.new,
       "link"    => LinkHandler.new,
       "list"    => IdentityHandler.new,
+      "shorts"  => IdentityHandler.new,
       "ints"    => IdentityHandler.new,
       "longs"   => IdentityHandler.new,
       "floats"  => IdentityHandler.new,
