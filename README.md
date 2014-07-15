@@ -61,37 +61,30 @@ abc
 |------------|-------------|------------|--------------|-------------|
 |null|nil|nil|nil|nil|
 |string|String|String|"abc"|"abc"|
-|boolean|true, false|true or false|false|false|
-|integer|Fixnum|Fixnum|123|123|
+|boolean|true, false|true, false|false|false|
+|integer|Fixnum, Bignum|Fixnum, Bignum|123|123|
 |decimal|Float|Float|123.456|123.456|
 |keyword|Symbol|Symbol|:abc|:abc|
-|symbol|Transit::Symbol|Transit::Symbol|Transit::Symbol.new("foo")|foo|
-|big decimal|BigDecimal|BigDecimal|
+|symbol|Transit::Symbol|Transit::Symbol|Transit::Symbol.new("foo")|`#<Transit::Symbol "foo">`|
+|big decimal|BigDecimal|BigDecimal|BigDecimal.new("2**64")|`#<BigDecimal:7f9e6d33c558>`|
 |big integer|Fixnum, Bignum|Fixnum, Bignum|2**128|340282366920938463463374607431768211456|
-|time|DateTime, Date, Time|DateTime|DateTime.now|2014-07-14T23:09:08+00:00|
-|uri|Addressable::URI|Addressable::URI|Addressable::URI.parse("http://example.com")|http://example.com|
-|uuid|Transit::UUID|Transit::UUID|Transit::UUID.new|d0943418-dec2-40da-8948-533fd153ff99|
-|char|Transit::TaggedValue|String|Transit::TaggedValue.new("c", "c")|c|
+|time|DateTime, Date, Time|DateTime|DateTime.now|"2014-07-14T23:09:08+00:00"|
+|uri|Addressable::URI, URI|Addressable::URI|Addressable::URI.parse("http://example.com")|`#<Addressable::URI:0x3fd2f59ce0fc>`|
+|uuid|Transit::UUID|Transit::UUID|Transit::UUID.new|`#<Transit::UUID "defa1cce-f70b-4ddb-bb6e-b6ac817d8bc8">`|
+|char|Transit::TaggedValue|String|Transit::TaggedValue.new("c", "a")|"a"|
 |array|Array|Array|[1, 2, 3]|[1, 2, 3]|
 |list|Transit::TaggedValue|Array|Transit::TaggedValue.new("list", [1, 2, 3])|[1, 2, 3]|
 |set|Set|Set|Set.new([1, 2, 3])|`#<Set:0x007fe46821dd98>`|
 |map|Hash|Hash|`{a: 1, b: 2, c: 3}`|`{:a=>1, :b=>2, :c=>3}`|
 |bytes|Transit::ByteArray|Transit::ByteArray|Transit::ByteArray.new("base64")|base64|
-|shorts|short[]|short[]|||
+|shorts|Transit::TaggedValue|Array|Transit::TaggedValue.new("shorts", [1, 2, 3])|[1, 2, 3]|
 |ints|Transit::TaggedValue|Array|Transit::TaggedValue.new("ints", [1, 2, 3])|[1, 2, 3]|
 |longs|Transit::TaggedValue|Array|Transit::TaggedValue.new("longs", [1, 2, 3])|[1, 2, 3]|
 |floats|Transit::TaggedValue|Array|Transit::TaggedValue.new("floats", [1.1, 2.2, 3.3])|[1.1, 2.2, 3.3]|
 |doubles|Transit::TaggedValue|Array|Transit::TaggedValue.new("doubles", [1.1, 2.2, 3.3])|[1.1, 2.2, 3.3]|
-|chars|char[]|char[]|||
+|chars|Transit::TaggedValue|Array|Transit::TaggedValue.new("chars", ["a","b"])|["a","b"]|
 |bools|Transit::TaggedValue|Array|Transit::TaggedValue.new("bools", [false, false, true])|[false, false, true]|
 |link|Transit::Link|Transit::Link|Transit::Link.new(Addressable::URI.parse("http://example.org/search"), "search")|`#<Transit::Link:0x007f746c8715a8>`|
-|tagged value|Trasit::TaggedValue|Transit::TaggedValue|||
-|ratio +|cognitect.transit.Ratio|cognitect.transit.Ratio|||
-
-\+ Extension using tagged values
-
-
-
 
 ## Type Mapping
 
