@@ -77,13 +77,6 @@ abc
 |set|Set|Set|Set.new([1, 2, 3])|`#<Set:0x007fe46821dd98>`|
 |map|Hash|Hash|`{a: 1, b: 2, c: 3}`|`{:a=>1, :b=>2, :c=>3}`|
 |bytes|Transit::ByteArray|Transit::ByteArray|Transit::ByteArray.new("base64")|base64|
-|shorts|Transit::TaggedValue|Array|Transit::TaggedValue.new("shorts", [1, 2, 3])|[1, 2, 3]|
-|ints|Transit::TaggedValue|Array|Transit::TaggedValue.new("ints", [1, 2, 3])|[1, 2, 3]|
-|longs|Transit::TaggedValue|Array|Transit::TaggedValue.new("longs", [1, 2, 3])|[1, 2, 3]|
-|floats|Transit::TaggedValue|Array|Transit::TaggedValue.new("floats", [1.1, 2.2, 3.3])|[1.1, 2.2, 3.3]|
-|doubles|Transit::TaggedValue|Array|Transit::TaggedValue.new("doubles", [1.1, 2.2, 3.3])|[1.1, 2.2, 3.3]|
-|chars|Transit::TaggedValue|Array|Transit::TaggedValue.new("chars", ["a","b"])|["a","b"]|
-|bools|Transit::TaggedValue|Array|Transit::TaggedValue.new("bools", [false, false, true])|[false, false, true]|
 |link|Transit::Link|Transit::Link|Transit::Link.new(Addressable::URI.parse("http://example.org/search"), "search")|`#<Transit::Link:0x007f746c8715a8>`|
 
 ## Type Mapping
