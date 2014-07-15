@@ -17,7 +17,7 @@ require 'json'
 
 module Transit
   describe Writer do
-    let(:io) { StringIO.new }
+    let(:io) { StringIO.new('', 'w+') }
     let(:writer) { Writer.new(:json_verbose, io) }
 
     describe "marshaling transit types" do
@@ -112,7 +112,7 @@ module Transit
 
         writer = Writer.new(:json, io, :handlers => {phone_class => handler.new})
         writer.write(phone_class.new(123456789))
-        assert { JSON.parse(io.string) == {"~#phone" => 123456789} }
+        assert { JSON.parse(io.string) == ["~#phone", 123456789] }
 
         io.rewind
 
@@ -122,7 +122,7 @@ module Transit
       end
     end
 
-    describe "JSON formats" do
+    describe "formats" do
       describe "JSON" do
         let(:writer) { Writer.new(:json, io) }
 
@@ -136,9 +136,9 @@ module Transit
           assert { JSON.parse(io.string) == ["~abc"] }
         end
 
-        it "writes a multi-char tagged-value as a map" do
+        it "writes a multi-char tagged-value as a 2-element array" do
           writer.write(TaggedValue.new("abc","def"))
-          assert { JSON.parse(io.string) == {"~#abc" => "def"} }
+          assert { JSON.parse(io.string) == ["~#abc", "def"] }
         end
 
         it "writes a Date as an encoded hash with ms" do
@@ -191,6 +191,20 @@ module Transit
         end
       end
 
+      describe "MESSAGE PACK" do
+        let(:writer) { Writer.new(:msgpack, io) }
+
+        it "writes a single-char tagged-value as a string" do
+          writer.write(TaggedValue.new("a","bc"))
+          assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == "~abc" }
+        end
+
+        it "writes a multi-char tagged-value as a 2-element array" do
+          writer.write(TaggedValue.new("abc","def"))
+          assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == ["~#abc", "def"] }
+        end
+      end
+
       describe "ints" do
         it "encodes ints <= max signed 64 bit with 'i'" do
           1.upto(5).to_a.reverse.each do |n|
@@ -224,9 +238,11 @@ module Transit
           v = {7924023966712353515692932 => TaggedValue.new("ratio", [1, 3]),
                100 => TaggedValue.new("ratio", [1, 2])}
           writer.write(v)
-          expected = ["^ ","~n7924023966712353515692932",{"~#ratio" => [1,3]},"~i100",{"^\"" => [1,2]}]
+          expected = ["^ ",
+                      "~n7924023966712353515692932", ["~#ratio", [1,3]],
+                      "~i100",["^1", [1,2]]]
           actual = io.string
-          assert { expected.to_json == actual.chomp }
+          assert { JSON.parse(io.string) == expected }
         end
 
         it 'writes out strings starting with `' do

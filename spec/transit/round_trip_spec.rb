@@ -41,7 +41,7 @@ def round_trips(label, obj, type, opts={})
       assert_equal_times(round_trip(obj, type), expected)
     else
       actual = round_trip(obj, type, opts)
-      assert { actual == expected }
+      expect(actual).to eq(expected)
     end
   end
 
@@ -141,11 +141,13 @@ module Transit
     round_trips("an array", [1,2,3], type)
     round_trips("a char", TaggedValue.new("c", "x"), type, :expected => "x")
     round_trips("a list", TaggedValue.new("list", [1,2,3]), type, :expected => [1,2,3])
+    round_trips("an array of shorts", TaggedValue.new("shorts", [1,2,3]), type, :expected => [1,2,3])
     round_trips("an array of ints", TaggedValue.new("ints", [1,2,3]), type, :expected => [1,2,3])
     round_trips("an array of longs", TaggedValue.new("longs", [1,2,3]), type, :expected => [1,2,3])
     round_trips("an array of floats", TaggedValue.new("floats", [1.1,2.2,3.3]), type, :expected => [1.1,2.2,3.3])
     round_trips("an array of doubles", TaggedValue.new("doubles", [1.1,2.2,3.3]), type, :expected => [1.1,2.2,3.3])
     round_trips("an array of bools", TaggedValue.new("bools", [true,false,false,true]), type, :expected => [true,false,false,true])
+    round_trips("an array of chars", TaggedValue.new("chars", ["a","b","c"]), type, :expected => ["a","b","c"])
     round_trips("an array of maps w/ cacheable keys", [{"this" => "a"},{"this" => "b"}], type)
 
     round_trips("edge case chars", %w[` ~ ^ #], type)
@@ -162,12 +164,12 @@ module Transit
     round_trips("a hash with 54 bit ints",  {2**53   => 2**53+1}, type)
     round_trips("a map with composite keys", {{a: :b} => {c: :d}}, type)
     round_trips("a TaggedValue", TaggedValue.new("unrecognized",:value), type)
-    round_trips("an unrecognized hash encoding", {"~#unrecognized" => :value}, type,
-                :expected => TaggedValue.new("unrecognized",:value))
+    round_trips("an unrecognized hash encoding", {"~#unrecognized" => :value}, type)
     round_trips("an unrecognized string encoding", "~Xunrecognized", type)
 
     round_trips("a nested structure (map on top)", {a: [1, [{b: "~c"}]]}, type)
     round_trips("a nested structure (array on top)", [37, {a: [1, [{b: "~c"}]]}], type)
+    round_trips("a map that looks like transit data", [{"~#set"=>[1,2,3]},{"~#set"=>[4,5,6]}], type)
   end
 
   describe "Transit using json" do

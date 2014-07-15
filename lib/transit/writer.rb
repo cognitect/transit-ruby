@@ -113,11 +113,11 @@ module Transit
         emit_map_end
       end
 
-      def emit_tagged_map(tag, rep, cache)
-        emit_map_start(1)
-        emit_string(ESC, "#", tag, true, cache)
+      def emit_tagged_value(tag, rep, cache)
+        emit_array_start(2)
+        emit_string(ESC, "#", tag, false, cache)
         marshal(rep, false, cache)
-        emit_map_end
+        emit_array_end
       end
 
       def emit_encoded(handler, tag, obj, as_map_key, cache)
@@ -132,12 +132,12 @@ module Transit
               raise "Cannot be encoded as String: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
             end
           else
-            emit_tagged_map(tag, handler.rep(obj), cache)
+            emit_tagged_value(tag, handler.rep(obj), cache)
           end
         elsif as_map_key
           raise "Cannot be used as a map key: " + {:tag => tag, :rep => rep, :obj => obj}.to_s
         else
-          emit_tagged_map(tag, handler.rep(obj), cache)
+          emit_tagged_value(tag, handler.rep(obj), cache)
         end
       end
 
@@ -245,6 +245,13 @@ module Transit
     class VerboseJsonMarshaler < BaseJsonMarshaler
       def emit_string(prefix, tag, value, as_map_key, cache)
         emit_value("#{prefix}#{tag}#{value}", as_map_key)
+      end
+
+      def emit_tagged_value(tag, rep, cache)
+        emit_map_start(1)
+        emit_string(ESC, "#", tag, true, cache)
+        marshal(rep, false, cache)
+        emit_map_end
       end
     end
 

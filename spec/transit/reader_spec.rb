@@ -94,8 +94,8 @@ module Transit
           io = StringIO.new([
                              {"~#person"=>
                                {"~:first_name" => "Transit","~:last_name" => "Ruby","~:birthdate" => "~D2014-01-02"}},
-                             {"^!"=>
-                               {"^\"" => "Transit","^#" => "Ruby","^$" => "~D2014-01-03"}}].to_json)
+                             {"^0"=>
+                               {"^1" => "Transit","^2" => "Ruby","^3" => "~D2014-01-03"}}].to_json)
 
           person_handler = Class.new do
             def from_rep(v)

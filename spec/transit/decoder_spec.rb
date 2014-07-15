@@ -22,7 +22,7 @@ module Transit
 
     describe "caching" do
       it "decodes cacheable map keys" do
-        assert { decode([{"this" => "a"},{"^!" => "b"}]) == [{"this" => "a"},{"this" => "b"}] }
+        assert { decode([{"this" => "a"},{"^0" => "b"}]) == [{"this" => "a"},{"this" => "b"}] }
       end
 
       it "does not cache non-map-keys" do
