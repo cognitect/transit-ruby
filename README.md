@@ -62,7 +62,7 @@ abc
 |null|nil|nil|nil|nil|
 |string|String|String|"abc"|"abc"|
 |boolean|true, false|true or false|false|false|
-|integer|Fixnum|Fixnum|123|123|
+|integer(*1)|Fixnum|Fixnum|123|123|
 |decimal|Float|Float|123.456|123.456|
 |keyword|Symbol|Symbol|:abc|:abc|
 |symbol|Transit::Symbol|Transit::Symbol|Transit::Symbol.new("foo")|foo|
@@ -86,9 +86,11 @@ abc
 |bools|Transit::TaggedValue|Array|Transit::TaggedValue.new("bools", [false, false, true])|[false, false, true]|
 |link|Transit::Link|Transit::Link|Transit::Link.new(Addressable::URI.parse("http://example.org/search"), "search")|`#<Transit::Link:0x007f746c8715a8>`|
 |tagged value|Trasit::TaggedValue|Transit::TaggedValue|||
-|ratio +|cognitect.transit.Ratio|cognitect.transit.Ratio|||
+|ratio *2|cognitect.transit.Ratio|cognitect.transit.Ratio|||
 
-\+ Extension using tagged values
+\*1 Less than 64 bits for MessagePack, less than 53 bits for JSON
+
+\*2 Extension using tagged values
 
 
 
