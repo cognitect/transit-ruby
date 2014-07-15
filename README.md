@@ -68,61 +68,61 @@ abc
 |symbol|Transit::Symbol|Transit::Symbol|Transit::Symbol.new("foo")|`#<Transit::Symbol "foo">`|
 |big decimal|BigDecimal|BigDecimal|BigDecimal.new("2**64")|`#<BigDecimal:7f9e6d33c558>`|
 |big integer|Fixnum, Bignum|Fixnum, Bignum|2**128|340282366920938463463374607431768211456|
-|time|DateTime, Date, Time|DateTime|DateTime.now|"2014-07-14T23:09:08+00:00"|
-|uri|Addressable::URI, URI|Addressable::URI|Addressable::URI.parse("http://example.com")|`#<Addressable::URI:0x3fd2f59ce0fc>`|
+|time|DateTime, Date, Time|DateTime|DateTime.now|`#<DateTime: 2014-07-15T15:52:27+00:00 ((2456854j,57147s,23000000n),+0s,2299161j)>`|
+|uri|Addressable::URI, URI|Addressable::URI|Addressable::URI.parse("http://example.com")|`#<Addressable::URI:0x3fc0e20390d4 URI:http://example.com>`|
 |uuid|Transit::UUID|Transit::UUID|Transit::UUID.new|`#<Transit::UUID "defa1cce-f70b-4ddb-bb6e-b6ac817d8bc8">`|
 |char|Transit::TaggedValue|String|Transit::TaggedValue.new("c", "a")|"a"|
 |array|Array|Array|[1, 2, 3]|[1, 2, 3]|
 |list|Transit::TaggedValue|Array|Transit::TaggedValue.new("list", [1, 2, 3])|[1, 2, 3]|
-|set|Set|Set|Set.new([1, 2, 3])|`#<Set:0x007fe46821dd98>`|
+|set|Set|Set|Set.new([1, 2, 3])|`#<Set: {1, 2, 3}>`|
 |map|Hash|Hash|`{a: 1, b: 2, c: 3}`|`{:a=>1, :b=>2, :c=>3}`|
 |bytes|Transit::ByteArray|Transit::ByteArray|Transit::ByteArray.new("base64")|base64|
-|link|Transit::Link|Transit::Link|Transit::Link.new(Addressable::URI.parse("http://example.org/search"), "search")|`#<Transit::Link:0x007f746c8715a8>`|
+|link|Transit::Link|Transit::Link|Transit::Link.new(Addressable::URI.parse("http://example.org/search"), "search")|`#<Transit::Link:0x007f81c405b7f0 @values={"href"=>#<Addressable::URI:0x3fc0e202dfb8 URI:http://example.org/search>, "rel"=>"search", "name"=>nil, "render"=>nil, "prompt"=>nil}>`|
+|tagged value|Transit::TaggedValue|Transit::TaggedValue|TaggedValue.new("unrecognized",:value)|`#<Transit::TaggedValue:0x007f81c405ac10 @tag="unrecognized", @rep=:value>`|
 
-## Type Mapping
+## Custom Handlers
 
-### transit -> standard (or at least common) Ruby types
+### Custom Write Handlers
 
-* transit URI         => Addressable::URI
-* transit instances   => DateTime
-* transit big integer => Integer (Fixnum or Bignum, handled internally
-  by Ruby)
-
-### built-in extension types
-
-* Transit::ByteArray
-* Transit::Symbol
-* Transit::UUID
-* Transit::Link
-* Transit::TaggedValue
-
-## Typed arrays, lists, and chars
-
-The [transit spec](https://github.com/cognitect/transit-format)
-defines several semantic types that map to more general types in Ruby:
-
-* typed arrays (ints, longs, doubles, floats, bools) map to Arrays
-* lists map to Arrays
-* chars map to Strings
-
-When a Transit::Reader encounters an of these (e.g. <code>{"ints" =>
-[1,2,3]}</code>) it delivers just the appropriate object to the app
-(e.g. <code>[1,2,3]</code>).
-
-Use a TaggedValue to write these out if it will benefit a consuming
-app e.g.:
+Implement `tag`, `rep(arg)` and `string_rep(arg)` methods. For example:
 
 ```ruby
-writer.write(TaggedValue.new("ints", [1,2,3]))
+PhoneNumber = Struct.new(:area, :prefix, :suffix)
+
+class PhoneNumberHandler
+  def tag(_) "P" end
+  def rep(p) "#{p.area}.#{p.prefix}.#{p.suffix}" end
+  def string_rep(p) rep(p) end
+end
 ```
 
-## Custom Read Handlers
+### Custom Read Handlers
 
-Coming soon ...
+Implement `from_rep(arg)` method. For example:
 
-## Custom Write Handlers
+```ruby
+def PhoneNumber.parse(p)
+  area, prefix, suffix = p.split(".")
+  PhoneNumber.new(area, prefix, suffix)
+end
 
-Coming soon ...
+class PhoneNumberReadHandler
+  def from_rep(v) PhoneNumber.parse(v) end
+end
+```
+
+### Usage example of custom handler
+
+```ruby
+io = StringIO.new('', 'w+')
+writer = Transit::Writer.new(:json, io,
+                             :handlers => {PhoneNumber => PhoneNumberHandler.new})
+writer.write(PhoneNumber.new("555","867","5309"))
+
+reader = Transit::Reader.new(:json, StringIO.new(io.string),
+                             :handlers  => {"P" => PhoneNumberReadHandler.new})
+puts reader.read.inspect
+```
 
 ## Supported Rubies
 
