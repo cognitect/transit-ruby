@@ -94,6 +94,7 @@ module Transit
       "floats"  => IdentityHandler.new,
       "doubles" => IdentityHandler.new,
       "bools"   => IdentityHandler.new,
+      "chars"   => IdentityHandler.new,
       "cmap"    => CmapHandler.new
     }.freeze
 

@@ -147,6 +147,7 @@ module Transit
     round_trips("an array of floats", TaggedValue.new("floats", [1.1,2.2,3.3]), type, :expected => [1.1,2.2,3.3])
     round_trips("an array of doubles", TaggedValue.new("doubles", [1.1,2.2,3.3]), type, :expected => [1.1,2.2,3.3])
     round_trips("an array of bools", TaggedValue.new("bools", [true,false,false,true]), type, :expected => [true,false,false,true])
+    round_trips("an array of chars", TaggedValue.new("chars", ["a","b","c"]), type, :expected => ["a","b","c"])
     round_trips("an array of maps w/ cacheable keys", [{"this" => "a"},{"this" => "b"}], type)
 
     round_trips("edge case chars", %w[` ~ ^ #], type)
