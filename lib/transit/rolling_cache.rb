@@ -21,7 +21,8 @@ module Transit
 
     FIRST_ORD = 48
     LAST_ORD  = 91
-    CACHE_SIZE = 44**2
+    CACHE_CODE_DIGITS = 44;
+    CACHE_SIZE = CACHE_CODE_DIGITS * CACHE_CODE_DIGITS;
     MIN_SIZE_CACHEABLE = 4
 
     def initialize
@@ -57,8 +58,8 @@ module Transit
     end
 
     def next_key(i)
-      hi = i / LAST_ORD;
-      lo = i % LAST_ORD;
+      hi = i / CACHE_CODE_DIGITS;
+      lo = i % CACHE_CODE_DIGITS;
       if hi == 0
         "^#{(lo+FIRST_ORD).chr}"
       else
