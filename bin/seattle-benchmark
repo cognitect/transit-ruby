@@ -26,15 +26,31 @@ def read_json(data)
 end
 
 data = nil
-open("../transit/seattle-data0.tjs", 'r') {|f| data = f.read}
+
+# old version
+# open("../transit/seattle-data0.tjs", 'r') {|f| data = f.read}
+
 
 n = 100
 
 include Benchmark
-
+puts "**************************"
+puts "transit-json"
+open("transit/seattle-data0.json", 'r') {|f| data = f.read}
 Benchmark.benchmark(CAPTION, 20, FORMAT, "avg read transit:", "avg read oj:", "avg write transit:") do |bm|
   t = bm.report("read transit (#{n} x):")  { n.times { read_transit(data) } }
   y = bm.report("read oj (#{n} x):")       { n.times { read_json(data) } }
   w = bm.report("write transit (#{n} x):") { n.times { write_transit(data) } }
   [t/n, y/n, w/n]
 end
+
+puts "**************************"
+puts "transit-json-verbose"
+open("transit/seattle-data0.jsonv", 'r') {|f| data = f.read}
+Benchmark.benchmark(CAPTION, 20, FORMAT, "avg read transit:", "avg read oj:", "avg write transit:") do |bm|
+  t = bm.report("read transit (#{n} x):")  { n.times { read_transit(data) } }
+  y = bm.report("read oj (#{n} x):")       { n.times { read_json(data) } }
+  w = bm.report("write transit (#{n} x):") { n.times { write_transit(data) } }
+  [t/n, y/n, w/n]
+end
+puts "**************************"
