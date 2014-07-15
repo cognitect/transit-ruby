@@ -21,7 +21,7 @@ end
 def build_version
   @build_version ||= begin
                        r = `build/revision`.chomp.to_i
-                       "0.1.#{r}"
+                       "0.8.#{r}"
                      end
 end
 
