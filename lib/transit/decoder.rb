@@ -63,7 +63,7 @@ module Transit
           parsed
         end
       when Array
-        return [] if node.empty?
+        return node if node.empty?
         e0 = decode(node.shift, cache, true)
         if e0 == MAP_AS_ARRAY
           decode(Hash[*node], cache)
