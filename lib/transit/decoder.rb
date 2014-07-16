@@ -107,7 +107,7 @@ module Transit
     end
 
     CAN_NOT_OVERRIDE_GROUND_TYPES_MESSAGE = <<-MSG
-You can not supply custom handlers for ground types.
+You can not supply custom read handlers for ground types.
 MSG
 
   end
