@@ -239,6 +239,13 @@ module Transit
         end
         emit_array_end
       end
+
+      def emit_quoted(o, as_map_key, cache)
+        emit_array_start(-1)
+        emit_string(TAG, "'", nil, true, cache)
+        marshal(o, false, cache)
+        emit_array_end
+      end
     end
 
     # @api private

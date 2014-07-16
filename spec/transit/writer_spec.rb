@@ -155,6 +155,11 @@ module Transit
           writer.write([(Time.at(1388631845) + 0.678).to_datetime])
           assert { JSON.parse(io.string) == ["~m1388631845678"] }
         end
+
+        it "writes a quote as a tagged array" do
+          writer.write("this")
+          assert { JSON.parse(io.string) == ["~#'", "this"] }
+        end
       end
 
       describe "JSON_VERBOSE" do
@@ -189,9 +194,14 @@ module Transit
           writer.write([(Time.at(1388631845) + 0.678).to_datetime])
           assert { JSON.parse(io.string) == ["~t2014-01-02T03:04:05.678Z"] }
         end
+
+        it "writes a quote as a tagged map" do
+          writer.write("this")
+          assert { JSON.parse(io.string) == {"~#'" => "this"} }
+        end
       end
 
-      describe "MESSAGE PACK" do
+      describe "MESSAGE_PACK" do
         let(:writer) { Writer.new(:msgpack, io) }
 
         it "writes a single-char tagged-value as a string" do
@@ -202,6 +212,11 @@ module Transit
         it "writes a multi-char tagged-value as a 2-element array" do
           writer.write(TaggedValue.new("abc","def"))
           assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == ["~#abc", "def"] }
+        end
+
+        it "writes a quote as a tagged array", :pending => "decision about this requirement" do
+          writer.write("this")
+          assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == ["~#'", "this"] }
         end
       end
 
