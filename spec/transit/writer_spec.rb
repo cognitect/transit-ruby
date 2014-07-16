@@ -204,9 +204,9 @@ module Transit
       describe "MESSAGE_PACK" do
         let(:writer) { Writer.new(:msgpack, io) }
 
-        it "writes a single-char tagged-value as a string" do
+        it "writes a single-char tagged-value as a 2-element array" do
           writer.write(TaggedValue.new("a","bc"))
-          assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == "~abc" }
+          assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == ["~#'", "~abc"] }
         end
 
         it "writes a multi-char tagged-value as a 2-element array" do
@@ -214,7 +214,7 @@ module Transit
           assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == ["~#abc", "def"] }
         end
 
-        it "writes a quote as a tagged array", :pending => "decision about this requirement" do
+        it "writes a top-level scalar as a quote-tagged value" do
           writer.write("this")
           assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == ["~#'", "this"] }
         end

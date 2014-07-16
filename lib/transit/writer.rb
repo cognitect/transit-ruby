@@ -21,7 +21,6 @@ module Transit
     class Marshaler
       def initialize(opts)
         @cache_enabled  = !opts[:verbose]
-        @quote_scalars  = opts[:quote_scalars]
         @prefer_strings = opts[:prefer_strings]
         @max_int        = opts[:max_int]
         @min_int        = opts[:min_int]
@@ -77,13 +76,6 @@ module Transit
 
       def emit_boolean(handler, b, as_map_key, cache)
         as_map_key ? emit_string(ESC, "?", handler.string_rep(b), true, cache) : emit_value(b)
-      end
-
-      def emit_quoted(o, as_map_key, cache)
-        emit_map_start(1)
-        emit_string(TAG, "'", nil, true, cache)
-        marshal(o, false, cache)
-        emit_map_end
       end
 
       def emit_int(tag, i, as_map_key, cache)
@@ -156,7 +148,7 @@ module Transit
         when "d"
           emit_double(handler.rep(obj), as_map_key, cache)
         when "'"
-          emit_quoted(handler.rep(obj), as_map_key, cache)
+          emit_tagged_value(tag, handler.rep(obj), cache)
         when "array"
           emit_array(handler.rep(obj), cache)
         when "map"
@@ -169,7 +161,7 @@ module Transit
       def marshal_top(obj, cache=RollingCache.new)
         handler = find_handler(obj)
         if tag = handler.tag(obj)
-          if @quote_scalars && tag.length == 1
+          if tag.length == 1
             marshal(TaggedValue.new(QUOTE, obj), false, cache)
           else
             marshal(obj, false, cache)
@@ -239,13 +231,6 @@ module Transit
         end
         emit_array_end
       end
-
-      def emit_quoted(o, as_map_key, cache)
-        emit_array_start(-1)
-        emit_string(TAG, "'", nil, true, cache)
-        marshal(o, false, cache)
-        emit_array_end
-      end
     end
 
     # @api private
@@ -310,22 +295,19 @@ module Transit
                    when :json
                      require 'oj'
                      JsonMarshaler.new(io,
-                                       {:quote_scalars  => true,
-                                        :prefer_strings => true,
+                                       {:prefer_strings => true,
                                         :verbose        => false,
                                         :handlers       => {}}.merge(opts))
                    when :json_verbose
                      require 'oj'
                      VerboseJsonMarshaler.new(io,
-                                              {:quote_scalars  => true,
-                                               :prefer_strings => true,
+                                              {:prefer_strings => true,
                                                :verbose        => true,
                                                :handlers       => {}}.merge(opts))
                    else
                      require 'msgpack'
                      MessagePackMarshaler.new(io,
-                                              {:quote_scalars  => false,
-                                               :prefer_strings => false,
+                                              {:prefer_strings => false,
                                                :verbose        => false,
                                                :handlers       => {}}.merge(opts))
                    end
