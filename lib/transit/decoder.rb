@@ -32,7 +32,7 @@ module Transit
     end
 
     # @api private
-    Tag = Struct.new(:value)
+    class Tag < String; end
 
     # Decodes a transit value to a corresponding object
     #
@@ -68,11 +68,11 @@ module Transit
         if e0 == MAP_AS_ARRAY
           decode(Hash[*node], cache)
         elsif Tag === e0
-          tag = e0.value
-          if handler = @handlers[tag]
-            handler.from_rep(decode(node.shift, cache))
+          v = decode(node.shift, cache)
+          if handler = @handlers[e0]
+            handler.from_rep(v)
           else
-            @default_handler.from_rep(tag,decode(node.shift, cache))
+            @default_handler.from_rep(e0,v)
           end
         else
           [e0] + node.map {|e| decode(e, cache, as_map_key)}
@@ -82,11 +82,10 @@ module Transit
           k = decode(node.keys.first,   cache, true)
           v = decode(node.values.first, cache, false)
           if Tag === k
-            tag = k.value
-            if handler = @handlers[tag]
+            if handler = @handlers[k]
               handler.from_rep(v)
             else
-              @default_handler.from_rep(tag,v)
+              @default_handler.from_rep(k,v)
             end
           else
             {k => v}
