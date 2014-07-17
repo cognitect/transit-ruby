@@ -159,16 +159,19 @@ module Transit
       end
 
       def marshal_top(obj, cache=RollingCache.new)
-        handler = find_handler(obj)
-        if tag = handler.tag(obj)
-          if tag.length == 1
-            marshal(TaggedValue.new(QUOTE, obj), false, cache)
+        if handler = find_handler(obj)
+          if tag = handler.tag(obj)
+            if tag.length == 1
+              marshal(TaggedValue.new(QUOTE, obj), false, cache)
+            else
+              marshal(obj, false, cache)
+            end
+            flush
           else
-            marshal(obj, false, cache)
+            raise "Handler must provide a non-nil tag: #{handler.inspect}"
           end
-          flush
         else
-          raise "Handler must provide a non-nil tag: #{handler.inspect}"
+          raise "Can not find a Write Handler for #{obj.inspect}."
         end
       end
     end

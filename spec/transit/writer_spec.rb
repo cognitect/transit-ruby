@@ -265,6 +265,12 @@ module Transit
           writer.write([v])
           assert { JSON.parse(io.string).first == "~`~hello" }
         end
+
+        it 'raises when there is no handler for the type' do
+          type = Class.new
+          obj = type.new
+          assert { rescuing { writer.write(obj) }.message =~ /Can not find a Write Handler/ }
+        end
       end
     end
   end
