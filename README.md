@@ -83,30 +83,30 @@ abc
 
 ### Custom Write Handlers
 
-Implement `tag`, `rep(arg)` and `string_rep(arg)` methods. For example:
+Implement `tag`, `rep(obj)` and `string_rep(obj)` methods. For example:
 
 ```ruby
 PhoneNumber = Struct.new(:area, :prefix, :suffix)
 
-class PhoneNumberHandler
+class PhoneNumberWriteHandler
   def tag(_) "P" end
-  def rep(p) "#{p.area}.#{p.prefix}.#{p.suffix}" end
-  def string_rep(p) rep(p) end
+  def rep(o) "#{o.area}.#{o.prefix}.#{o.suffix}" end
+  def string_rep(o) rep(o) end
 end
 ```
 
 ### Custom Read Handlers
 
-Implement `from_rep(arg)` method. For example:
+Implement `from_rep(rep)` method. For example:
 
 ```ruby
-def PhoneNumber.parse(p)
-  area, prefix, suffix = p.split(".")
+def PhoneNumber.parse(str)
+  area, prefix, suffix = str.split(".").map(&:to_i)
   PhoneNumber.new(area, prefix, suffix)
 end
 
 class PhoneNumberReadHandler
-  def from_rep(v) PhoneNumber.parse(v) end
+  def from_rep(rep) PhoneNumber.parse(rep) end
 end
 ```
 
@@ -115,12 +115,12 @@ end
 ```ruby
 io = StringIO.new('', 'w+')
 writer = Transit::Writer.new(:json, io,
-                             :handlers => {PhoneNumber => PhoneNumberHandler.new})
-writer.write(PhoneNumber.new("555","867","5309"))
+                             :handlers => {PhoneNumber => PhoneNumberWriteHandler.new})
+writer.write(PhoneNumber.new(555,867,5309))
 
 reader = Transit::Reader.new(:json, StringIO.new(io.string),
                              :handlers  => {"P" => PhoneNumberReadHandler.new})
-puts reader.read.inspect
+p reader.read
 ```
 
 ## Supported Rubies
