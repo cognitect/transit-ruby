@@ -100,17 +100,15 @@ end
 Implement `from_rep(rep)` method. For example:
 
 ```ruby
-def PhoneNumber.parse(str)
-  area, prefix, suffix = str.split(".").map(&:to_i)
-  PhoneNumber.new(area, prefix, suffix)
-end
-
 class PhoneNumberReadHandler
-  def from_rep(rep) PhoneNumber.parse(rep) end
+  def from_rep(rep)
+    area, prefix, suffix = rep.split(".").map(&:to_i)
+    PhoneNumber.new(area, prefix, suffix)
+  end
 end
 ```
 
-### Usage example of custom handler
+### Example use
 
 ```ruby
 io = StringIO.new('', 'w+')
