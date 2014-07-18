@@ -5,7 +5,7 @@ Transit is a data format and a set of libraries for conveying
 values between applications written in different languages. This
 library provides support for marshalling Transit data to/from Ruby.
 
-[Rationale](point-me-somewhere)<br>
+[Rationale](http://blog.cognitect.com/blog/2014/7/22/transit)<br>
 [API docs](http://rubydoc.info/gems/transit-ruby)<br>
 [Specification](https://github.com/cognitect/transit-format)
 
