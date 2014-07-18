@@ -1,3 +1,0 @@
-[submodule "transit"]
-	path = transit
-	url = git@github.com:cognitect/transit.git
