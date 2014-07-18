@@ -59,12 +59,14 @@ module Transit
                        @default_handler.from_rep(node[1], node[2..-1])
                      end
                    end
-          cache.write(parsed) if cache.cacheable?(node, as_map_key)
+          if cache.cacheable?(node, as_map_key)
+            cache.write(parsed)
+          end
           parsed
         end
       when Array
         return node if node.empty?
-        e0 = decode(node.shift, cache, true)
+        e0 = decode(node.shift, cache, false)
         if e0 == MAP_AS_ARRAY
           decode(Hash[*node], cache)
         elsif Tag === e0
