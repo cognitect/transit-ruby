@@ -87,9 +87,9 @@ module Transit
     #     obj = reader.read
     def_delegators :@reader, :read
 
-    # @param [Symbol] type, required any of :msgpack, :json, :json_verbose
-    # @param [IO]     io, required
-    # @param [Hash]   opts, optional
+    # @param [Symbol] type required any of :msgpack, :json, :json_verbose
+    # @param [IO]     io required
+    # @param [Hash]   opts optional
     def initialize(type, io, opts={})
       @reader = case type
                 when :json, :json_verbose

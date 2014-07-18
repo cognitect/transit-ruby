@@ -290,9 +290,9 @@ module Transit
       end
     end
 
-    # @param [Symbol] type, required either :msgpack or :json
-    # @param [IO]     io, required
-    # @param [Hash]   opts, optional
+    # @param [Symbol] type required either :msgpack or :json
+    # @param [IO]     io required
+    # @param [Hash]   opts optional
     def initialize(type, io, opts={})
       @marshaler = case type
                    when :json
