@@ -110,12 +110,12 @@ EXEMPLARS = [
                [Transit::TaggedValue.new("abcde", :anything), Transit::TaggedValue.new("fghij", :"anything-else")]),
   Exemplar.new("map_unrecognized_vals", {key: "~Unrecognized"}),
   Exemplar.new("vector_unrecognized_vals", ["~Unrecognized"]),
-  Exemplar.new("vector_93_keywords_repeated_twice", array_of_symbols(93, 186)),
-  Exemplar.new("vector_94_keywords_repeated_twice", array_of_symbols(94, 188)),
-  Exemplar.new("vector_95_keywords_repeated_twice", array_of_symbols(95, 190))
+  Exemplar.new("vector_1935_keywords_repeated_twice", array_of_symbols(1935, 3870)),
+  Exemplar.new("vector_1936_keywords_repeated_twice", array_of_symbols(1936, 3872)),
+  Exemplar.new("vector_1937_keywords_repeated_twice", array_of_symbols(1937, 3874))
   ]
 
-[10, 90, 91, 92, 93, 94, 95].each do |i|
+[10, 1935, 1936, 1937].each do |i|
   EXEMPLARS << Exemplar.new( "map_#{i}_nested", {f: hash_of_size(i), s: hash_of_size(i)})
 end
 
