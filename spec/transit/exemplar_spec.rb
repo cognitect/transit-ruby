@@ -120,7 +120,7 @@ EXEMPLARS = [
 end
 
 def verify_exemplar(exemplar, type, suffix)
-  path = "#{TOP_DIR}/transit/simple-examples/#{exemplar.name}#{suffix}"
+  path = "../transit-format/examples/0.8/simple/#{exemplar.name}#{suffix}"
   it "reads what we expect from #{path}" do
     raise "Can't open #{path}" unless File.exist?(path)
     File.open(path) do |io|
@@ -140,7 +140,7 @@ module Transit
   end
 
   describe "JSON-VERBOSE exemplars" do
-    include_examples "exemplars", :json_verbose, '.json-verbose'
+    include_examples "exemplars", :json_verbose, '.verbose.json'
   end
 
   describe "MessagePack exemplars" do

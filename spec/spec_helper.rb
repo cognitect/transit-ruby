@@ -12,17 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-unless File.exist?('transit/simple-examples')
+unless File.exist?('../transit-format/examples/0.8/simple')
   puts <<-MSG
 Before you can run the rspec examples, you need to install the
-exemplar files from the https://github.com/cognitect/transit repo
-as follows:
+the https://github.com/cognitect/transit-format repo in a sibling
+directory, e.g.
 
-    git submodule init
-    git submodule update
+    cd ..
+    git clone https://github.com/cognitect/transit-format
 
-This actually installs the entire transit repo as a submodule at
-the project root, putting the examplars in ./transit/simple-examples.
+That repo contains exemplars used by transit-ruby's rspec examples
+(in ../transit-format/examples/0.8/simple), so then you can:
+
+    cd transit-ruby
+    rspec
 
 MSG
   exit
