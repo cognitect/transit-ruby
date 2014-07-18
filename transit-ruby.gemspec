@@ -25,4 +25,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake",  "~> 10.1"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "wrong", "~> 0.7.1", ">= 0.7.1"
+
+  private_key = File.expand_path('~/.gem/transit-ruby-private_key.pem')
+  if File.exist?(private_key) && ENV['SIGN'] == 'true'
+    spec.signing_key = private_key
+    spec.cert_chain = [File.expand_path('~/.gem/transit-ruby-public_cert.pem')]
+  end
 end
