@@ -17,4 +17,4 @@ git submodule:
 
 ## Benchmarks
 
-    ./bin/seattle-benchmark
+    ./bin/benchmark # reads transit data in json and json-verbose formats
