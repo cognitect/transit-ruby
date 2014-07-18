@@ -239,7 +239,7 @@ module Transit
       end
 
       describe "escaped strings" do
-        [ESC, SUB, RES].each do |c|
+        [ESC, SUB, RES, "#{SUB} "].each do |c|
           it "escapes a String starting with #{c}" do
             writer.write("#{c}whatever")
             assert { JSON.parse(io.string) == {"#{TAG}#{QUOTE}" => "~#{c}whatever"}}

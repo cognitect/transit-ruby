@@ -54,7 +54,7 @@ module Transit
       end
 
       def escape(s)
-        if s.start_with?(SUB,ESC,RES) && !s.start_with?("#{SUB}\s")
+        if s.start_with?(SUB,ESC,RES) && s != "#{SUB} "
           "#{ESC}#{s}"
         else
           s
