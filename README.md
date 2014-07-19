@@ -10,18 +10,19 @@ library provides support for marshalling Transit data to/from Ruby.
 [Specification](https://github.com/cognitect/transit-format)
 
 This implementation's major.minor version number corresponds to the
-version of the Transit specification it supports. 
+version of the Transit specification it supports.
 
 _NOTE: Transit is a work in progress and may evolve based on feedback.
 As a result, while Transit is a great option for transferring data
 between applications, it should not yet be used for storing data
 durably over time. This recommendation will change when the
-specification is complete._ 
+specification is complete._
 
 ## Releases and Dependency Information
 
-* Latest release: TBD
-* [All Released Versions](https://rubygems.org/gems/transit-ruby)
+See https://rubygems.org/gems/transit-ruby
+
+## Install
 
 ```sh
 gem install transit-ruby
