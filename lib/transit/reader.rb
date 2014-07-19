@@ -19,8 +19,6 @@ module Transit
 
     # @api private
     class JsonUnmarshaler
-      CHUNK_SIZE = 8192
-
       class ParseHandler
         def each(&block) @yield_v = block end
         def add_value(v) @yield_v[v] if @yield_v end
