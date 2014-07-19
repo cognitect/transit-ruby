@@ -320,6 +320,9 @@ module Transit
     # Writer's output stream.
     #
     # @param obj the value to write
+    # @example
+    #   writer = Transit::Writer.new(:json, io)
+    #   writer.write(Date.new(2014,7,22))
     def write(obj)
       @marshaler.marshal_top(obj)
     end
