@@ -52,6 +52,10 @@ task :build do
   end
 end
 
+task :set_signed do
+  ENV['SIGN'] = 'true'
+end
+
 desc "Build and install #{gem_filename}"
 task :install => [:build] do
   sh "gem install #{gem_path}"
@@ -61,11 +65,20 @@ task :ensure_committed do
   raise "Can not release with uncommitted changes." unless `git status` =~ /clean/
 end
 
-desc "Create tag v#{build_version} and build and push #{gem_filename} to Rubygems"
-task :release => [:ensure_committed, :build] do
+task :publish do
   sh "git tag v#{build_version}"
-  # gem push "#{target_path}"
+  puts "Ready to publish #{gem_filename} to rubygems. Enter 'Y' to publish, anything else to stop:"
+  input = STDIN.gets.chomp
+  if input.downcase == 'y'
+    gem push "#{target_path}"
+  else
+    puts "Canceling publish (you entered #{input.inspect} instead of 'Y')"
+    sh "git tag -d v#{build_version}"
+  end
 end
+
+desc "Create tag v#{build_version} and build and push #{gem_filename} to Rubygems"
+task :release => [:ensure_committed, :set_signed, :build, :publish]
 
 desc "Uninstall #{project_name}"
 task :uninstall do
