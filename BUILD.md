@@ -36,6 +36,6 @@ them, start by placing the pubic and private keys in ~/.gem:
 
 Then:
 
-    rake release # DOESN'T EXIST YET!!!!
+    rake release
 
 You'll be prompted for the password during this build.
