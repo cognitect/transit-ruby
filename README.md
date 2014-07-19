@@ -96,12 +96,15 @@ abc
 Implement `tag`, `rep(obj)` and `string_rep(obj)` methods. For example:
 
 ```ruby
-PhoneNumber = Struct.new(:area, :prefix, :suffix)
+require 'ostruct'
+Point = Struct.new(:x,:y) do
+  def to_a; [x,y] end
+end
 
-class PhoneNumberWriteHandler
-  def tag(_) "P" end
-  def rep(o) "#{o.area}.#{o.prefix}.#{o.suffix}" end
-  def string_rep(o) rep(o) end
+class PointWriteHandler
+  def tag(_) "point" end
+  def rep(o) o.to_a  end
+  def string_rep(_) nil end
 end
 ```
 
@@ -110,10 +113,9 @@ end
 Implement `from_rep(rep)` method. For example:
 
 ```ruby
-class PhoneNumberReadHandler
+class PointReadHandler
   def from_rep(rep)
-    area, prefix, suffix = rep.split(".").map(&:to_i)
-    PhoneNumber.new(area, prefix, suffix)
+    Point.new(*rep)
   end
 end
 ```
@@ -123,12 +125,16 @@ end
 ```ruby
 io = StringIO.new('', 'w+')
 writer = Transit::Writer.new(:json, io,
-                             :handlers => {PhoneNumber => PhoneNumberWriteHandler.new})
-writer.write(PhoneNumber.new(555,867,5309))
+                             :handlers => {Point => PointWriteHandler.new})
+writer.write(Point.new(37,42))
+
+p io.string.chomp
+#=> "[\"~#point\",[37,42]]"
 
 reader = Transit::Reader.new(:json, StringIO.new(io.string),
-                             :handlers  => {"P" => PhoneNumberReadHandler.new})
+                             :handlers  => {"point" => PointReadHandler.new})
 p reader.read
+#=> #<struct Point x=37, y=42>
 ```
 
 ## Supported Rubies
