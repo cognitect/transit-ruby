@@ -1,5 +1,5 @@
-* sign?
-* big integer change
-* extended cache codes
-* support link type
-* align handler and decoder registration with java kit
+* ship it!
+* continue spike of streaming parse
+There is a conflict between OJ's parsing model and our caching
+model: hash values get processed before keys, so we're caching keys
+after any caching is performed within a nested structure.
