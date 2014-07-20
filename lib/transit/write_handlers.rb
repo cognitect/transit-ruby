@@ -13,6 +13,134 @@
 # limitations under the License.
 
 module Transit
+  # WriteHandlers convert instances of Ruby types to their
+  # corresponding Transit semantic types, and ReadHandlers read
+  # convert transit values back into instances of Ruby
+  # types. transit-ruby ships with default sets of WriteHandlers for
+  # each of the Ruby types that map naturally to transit types, and
+  # ReadHandlers for each transit type. For the common case, the
+  # built-in handlers will suffice, but you can add your own extension
+  # types and/or override the built-in handlers.
+  #
+  # ## Custom handlers
+  #
+  # For example, Ruby has Date, Time, and DateTime, each with their
+  # own semantics. Transit has an instance type, which does not
+  # differentiate between Date and Time, so transit-ruby writes Dates,
+  # Times, and DateTimes as transit instances, and reads transit
+  # instances as DateTimes. If your application cares that Dates are
+  # different from DateTimes, you could register custom write and read
+  # handlers, overriding the built-in DateHandler and adding a new
+  # DateReadHandler.
+  #
+  # ### Write handlers
+  #
+  # ```ruby
+  # class DateWriteHandler
+  #   def tag(_) "D" end
+  #   def rep(o) o.to_s end
+  #   def string_rep(o) o.to_s end
+  # end
+  # ```
+  #
+  # ### Read handlers
+  #
+  # ```ruby
+  # class DateReadHandler
+  #   def from_rep(rep)
+  #     Date.parse(rep)
+  #   end
+  # end
+  # ```
+  #
+  # ### Usage
+  #
+  # ```ruby
+  # io = StringIO.new('','w+')
+  # writer = Transit::Writer.new(:json, io, :handlers => {Date => DateWriteHandler.new})
+  # writer.write(Date.new(2014,7,22))
+  # io.string
+  # # => "[\"~#'\",\"~D2014-07-22\"]\n"
+  #
+  # reader = Transit::Reader.new(:json, StringIO.new(io.string), :handlers => {"D" => DateReadHandler.new})
+  # reader.read
+  # # => #<Date: 2014-07-22 ((2456861j,0s,0n),+0s,2299161j)>
+  # ```
+  #
+  # ## Custom types and representations
+  #
+  # Transit supports scalar and structured representations. The Date
+  # example, above, demonstrates a String representation (scalar) of a
+  # Date. This works well because it is a natural representation, but
+  # it might not be a good solution for a more complex type, e.g. a
+  # Point:
+  #
+  # ```ruby
+  # require 'ostruct'
+  # Point = Struct.new(:x,:y)
+  # ```
+  #
+  # While you _could_ represent this as a String
+  # <tt>("~#Px:37,y:42")</tt>, it would be more efficient and arguably
+  # more natural to represent it as an array of Integers:
+  #
+  # ```ruby
+  # Point = Struct.new(:x,:y) do
+  #   def to_a; [x,y] end
+  # end
+  #
+  # class PointWriteHandler
+  #   def tag(_) "point" end
+  #   def rep(o) o.to_a  end
+  #   def string_rep(_) nil end
+  # end
+  #
+  # class PointReadHandler
+  #   def from_rep(rep)
+  #     Point.new(*rep)
+  #   end
+  # end
+  # ```
+  #
+  # Note that Date used a one-character tag, "D", whereas Point uses a
+  # multi-character tag, "point". Transit expects one-character tags
+  # to have scalar representations (string, integer, float, boolean,
+  # etc) and multi-character tags to have structural representations,
+  # i.e. maps (Ruby Hashes) or arrays.
+  #
+  # ## Verbose write handlers
+  #
+  # Write handlers can, optionally, support the JSON-VERBOSE format by
+  # providing a verbose write handler. Transit uses this for instances
+  # (Ruby Dates, Times, DateTimes) to differentiate between the more
+  # efficient format using an int representing milliseconds since 1970
+  # in JSON mode from the more readable format using a String in
+  # JSON-VERBOSE mode.
+  #
+  # ```ruby
+  # inst = DateTime.new(1985,04,12,23,20,50,"0")
+  #
+  # io = StringIO.new('','w+')
+  # writer = Transit::Writer.new(:json, io)
+  # writer.write(inst)
+  # io.string
+  # #=> "[\"~#'\",\"~m482196050000\"]\n"
+  #
+  # io = StringIO.new('','w+')
+  # writer = Transit::Writer.new(:json_verbose, io)
+  # writer.write(inst)
+  # io.string
+  # #=> "{\"~#'\":\"~t1985-04-12T23:20:50.000Z\"}\n"
+  # ```
+  #
+  # When you want a more human-readable format for your own custom
+  # types in JSON-VERBOSE mode, create a second write handler and add
+  # a <tt>verbose_handler</tt> method to the first handler that
+  # returns an instance of the verbose handler:
+  #
+  # ```ruby
+  # # Example TBD
+  # ```
   module WriteHandlers
     class NilHandler
       def tag(_) "_" end

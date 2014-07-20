@@ -28,7 +28,7 @@ See https://rubygems.org/gems/transit-ruby
 gem install transit-ruby
 ```
 
-## Usage
+## Basic Usage
 
 ```ruby
 # io can be any Ruby IO
@@ -64,31 +64,6 @@ abc
 123456789012345678901234567890
 ```
 
-## Default Type Mapping
-
-
-|Transit type|Write accepts|Read returns|Example(write)|Example(read)|
-|------------|-------------|------------|--------------|-------------|
-|null|nil|nil|nil|nil|
-|string|String|String|"abc"|"abc"|
-|boolean|true, false|true, false|false|false|
-|integer|Fixnum, Bignum|Fixnum, Bignum|123|123|
-|decimal|Float|Float|123.456|123.456|
-|keyword|Symbol|Symbol|:abc|:abc|
-|symbol|Transit::Symbol|Transit::Symbol|Transit::Symbol.new("foo")|`#<Transit::Symbol "foo">`|
-|big decimal|BigDecimal|BigDecimal|BigDecimal.new("2**64")|`#<BigDecimal:7f9e6d33c558>`|
-|big integer|Fixnum, Bignum|Fixnum, Bignum|2**128|340282366920938463463374607431768211456|
-|time|DateTime, Date, Time|DateTime|DateTime.now|`#<DateTime: 2014-07-15T15:52:27+00:00 ((2456854j,57147s,23000000n),+0s,2299161j)>`|
-|uri|Addressable::URI, URI|Addressable::URI|Addressable::URI.parse("http://example.com")|`#<Addressable::URI:0x3fc0e20390d4 URI:http://example.com>`|
-|uuid|Transit::UUID|Transit::UUID|Transit::UUID.new|`#<Transit::UUID "defa1cce-f70b-4ddb-bb6e-b6ac817d8bc8">`|
-|char|Transit::TaggedValue|String|Transit::TaggedValue.new("c", "a")|"a"|
-|array|Array|Array|[1, 2, 3]|[1, 2, 3]|
-|list|Transit::TaggedValue|Array|Transit::TaggedValue.new("list", [1, 2, 3])|[1, 2, 3]|
-|set|Set|Set|Set.new([1, 2, 3])|`#<Set: {1, 2, 3}>`|
-|map|Hash|Hash|`{a: 1, b: 2, c: 3}`|`{:a=>1, :b=>2, :c=>3}`|
-|bytes|Transit::ByteArray|Transit::ByteArray|Transit::ByteArray.new("base64")|base64|
-|link|Transit::Link|Transit::Link|Transit::Link.new(Addressable::URI.parse("http://example.org/search"), "search")|`#<Transit::Link:0x007f81c405b7f0 @values={"href"=>#<Addressable::URI:0x3fc0e202dfb8 URI:http://example.org/search>, "rel"=>"search", "name"=>nil, "render"=>nil, "prompt"=>nil}>`|
-
 ## Custom Handlers
 
 ### Custom Write Handlers
@@ -120,7 +95,7 @@ class PointReadHandler
 end
 ```
 
-### Example use
+### Example Usage
 
 ```ruby
 io = StringIO.new('', 'w+')
@@ -136,6 +111,37 @@ reader = Transit::Reader.new(:json, StringIO.new(io.string),
 p reader.read
 #=> #<struct Point x=37, y=42>
 ```
+
+See
+[Transit::WriteHandlers](http://rubydoc.info/gems/transit-ruby/Transit/WriteHandlers)
+and
+[Transit::ReadHandlers](http://rubydoc.info/gems/transit-ruby/Transit/ReadHandlers)
+for more info.
+
+## Default Type Mapping
+
+|Transit type|Write accepts|Read returns|Example(write)|Example(read)|
+|------------|-------------|------------|--------------|-------------|
+|null|nil|nil|nil|nil|
+|string|String|String|"abc"|"abc"|
+|boolean|true, false|true, false|false|false|
+|integer|Fixnum, Bignum|Fixnum, Bignum|123|123|
+|decimal|Float|Float|123.456|123.456|
+|keyword|Symbol|Symbol|:abc|:abc|
+|symbol|Transit::Symbol|Transit::Symbol|Transit::Symbol.new("foo")|`#<Transit::Symbol "foo">`|
+|big decimal|BigDecimal|BigDecimal|BigDecimal.new("2**64")|`#<BigDecimal:7f9e6d33c558>`|
+|big integer|Fixnum, Bignum|Fixnum, Bignum|2**128|340282366920938463463374607431768211456|
+|time|DateTime, Date, Time|DateTime|DateTime.now|`#<DateTime: 2014-07-15T15:52:27+00:00 ((2456854j,57147s,23000000n),+0s,2299161j)>`|
+|uri|Addressable::URI, URI|Addressable::URI|Addressable::URI.parse("http://example.com")|`#<Addressable::URI:0x3fc0e20390d4 URI:http://example.com>`|
+|uuid|Transit::UUID|Transit::UUID|Transit::UUID.new|`#<Transit::UUID "defa1cce-f70b-4ddb-bb6e-b6ac817d8bc8">`|
+|char|Transit::TaggedValue|String|Transit::TaggedValue.new("c", "a")|"a"|
+|array|Array|Array|[1, 2, 3]|[1, 2, 3]|
+|list|Transit::TaggedValue|Array|Transit::TaggedValue.new("list", [1, 2, 3])|[1, 2, 3]|
+|set|Set|Set|Set.new([1, 2, 3])|`#<Set: {1, 2, 3}>`|
+|map|Hash|Hash|`{a: 1, b: 2, c: 3}`|`{:a=>1, :b=>2, :c=>3}`|
+|bytes|Transit::ByteArray|Transit::ByteArray|Transit::ByteArray.new("base64")|base64|
+|link|Transit::Link|Transit::Link|Transit::Link.new(Addressable::URI.parse("http://example.org/search"), "search")|`#<Transit::Link:0x007f81c405b7f0 @values={"href"=>#<Addressable::URI:0x3fc0e202dfb8 URI:http://example.org/search>, "rel"=>"search", "name"=>nil, "render"=>nil, "prompt"=>nil}>`|
+
 
 ## Supported Rubies
 

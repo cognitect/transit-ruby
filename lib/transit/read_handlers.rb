@@ -13,6 +13,7 @@
 # limitations under the License.
 
 module Transit
+  # @see Transit::WriteHandlers
   module ReadHandlers
     class Default
       def from_rep(tag,val) TaggedValue.new(tag, val) end

@@ -290,11 +290,27 @@ module Transit
       end
     end
 
-    # @param [Symbol] type required either :msgpack or :json
+    # @param [Symbol] format required :json, :json_verbose, or :msgpack
     # @param [IO]     io required
     # @param [Hash]   opts optional
-    def initialize(type, io, opts={})
-      @marshaler = case type
+    #
+    # Creates a new Writer configured to write to <tt>io</tt> in
+    # <tt>format</tt> (<tt>:json</tt>, <tt>:json_verbose</tt>,
+    # <tt>:msgpack</tt>).
+    #
+    # Use opts to register custom write handlers, associating each one
+    # with its type.
+    #
+    # @example
+    #   json_writer                 = Transit::Writer.new(:json, io)
+    #   json_verbose_writer         = Transit::Writer.new(:json_verbose, io)
+    #   msgpack_writer              = Transit::Writer.new(:msgpack, io)
+    #   writer_with_custom_handlers = Transit::Writer.new(:json, io,
+    #     :handlers => {Point => PointWriteHandler})
+    #
+    # @see Transit::WriteHandlers
+    def initialize(format, io, opts={})
+      @marshaler = case format
                    when :json
                      require 'oj'
                      JsonMarshaler.new(io,

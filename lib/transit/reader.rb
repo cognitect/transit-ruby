@@ -13,10 +13,10 @@
 # limitations under the License.
 
 module Transit
-  # Transit::Reader converts incoming transit data into appropriate values in Ruby.
+  # Transit::Reader converts incoming transit data into appropriate
+  # values/objects in Ruby.
   # @see https://github.com/cognitect/transit-format
   class Reader
-
     # @api private
     class JsonUnmarshaler
       class ParseHandler
@@ -85,11 +85,26 @@ module Transit
     #     obj = reader.read
     def_delegators :@reader, :read
 
-    # @param [Symbol] type required any of :msgpack, :json, :json_verbose
+    # @param [Symbol] format required any of :msgpack, :json, :json_verbose
     # @param [IO]     io required
     # @param [Hash]   opts optional
-    def initialize(type, io, opts={})
-      @reader = case type
+    # Creates a new Reader configured to read from <tt>io</tt>,
+    # expecting <tt>format</tt> (<tt>:json</tt>, <tt>:msgpack</tt>).
+    #
+    # Use opts to register custom read handlers, associating each one
+    # with its tag.
+    #
+    # @example
+    #
+    #   json_reader                 = Transit::Reader.new(:json, io)
+    #   # ^^ reads both :json and :json_verbose formats ^^
+    #   msgpack_writer              = Transit::Reader.new(:msgpack, io)
+    #   writer_with_custom_handlers = Transit::Reader.new(:json, io,
+    #     :handlers => {"point" => PointReadHandler})
+    #
+    # @see Transit::ReadHandlers
+    def initialize(format, io, opts={})
+      @reader = case format
                 when :json, :json_verbose
                   require 'oj'
                   JsonUnmarshaler.new(io, opts)
