@@ -35,7 +35,7 @@ module Transit
   #
   # ### Write handlers
   #
-  # Write handlers are required to expose +tag+, +rep+, and +string_rep+ methods:
+  # Write handlers are required to expose <tt>tag</tt>, <tt>rep</tt>, and <tt>string_rep</tt> methods:
   #
   # ```ruby
   # class DateWriteHandler
@@ -45,24 +45,24 @@ module Transit
   # end
   # ```
   #
-  # The +tag+ method returns the tag used to identify the transit type
+  # <tt>tag</tt> returns the tag used to identify the transit type
   # (built-in or extension). It accepts the object being written,
-  # which allows the handler the opportunity to return different tags
-  # for different semantics, e.g. the built-in IntHandler, which returns
-  # the tag "i" for numbers that fit within a 64-bit signed integer and
-  # "n" for anything outside that range. Most handlers don't need this.
+  # which allows the handler to return different tags for different
+  # semantics, e.g. the built-in IntHandler, which returns the tag "i"
+  # for numbers that fit within a 64-bit signed integer and "n" for
+  # anything outside that range.
   #
-  # The +rep+ method takes the object being written and returns its
-  # wire representation. This can be a scalar value (identified by a
+  # <tt>rep</tt> accepts the object being written and returns its wire
+  # representation. This can be a scalar value (identified by a
   # one-character tag) or a map (Ruby Hash) or an array (identified by
   # a multi-character tag).
   #
-  # The +string_rep+ method takes the object being written and returns
-  # a string representation. Used when the object is a key in a map.
+  # <tt>string_rep</tt> accepts the object being written and returns a
+  # string representation. Used when the object is a key in a map.
   #
   # ### Read handlers
   #
-  # Writer handlers are required to expose a single +from_rep+ method:
+  # Writer handlers are required to expose a single <tt>from_rep</tt> method:
   #
   # ```ruby
   # class DateReadHandler
@@ -72,7 +72,7 @@ module Transit
   # end
   # ```
   #
-  # +from_rep+ accepts the wire representation (without the tag), and
+  # <tt>from_rep</tt> accepts the wire representation (without the tag), and
   # uses it to build an appropriate Ruby object.
   #
   # ### Usage
@@ -95,18 +95,12 @@ module Transit
   # example, above, demonstrates a String representation (scalar) of a
   # Date. This works well because it is a natural representation, but
   # it might not be a good solution for a more complex type, e.g. a
-  # Point:
-  #
-  # ```ruby
-  # require 'ostruct'
-  # Point = Struct.new(:x,:y)
-  # ```
-  #
-  # While you _could_ represent this as a String
-  # <tt>("~#Px:37,y:42")</tt>, it would be more efficient and arguably
+  # Point. While you _could_ represent a Point as a String, e.g.
+  # <tt>("x:37,y:42")</tt>, it would be more efficient and arguably
   # more natural to represent it as an array of Integers:
   #
   # ```ruby
+  # require 'ostruct'
   # Point = Struct.new(:x,:y) do
   #   def to_a; [x,y] end
   # end
@@ -122,6 +116,17 @@ module Transit
   #     Point.new(*rep)
   #   end
   # end
+  #
+  # io = StringIO.new('','w+')
+  # writer = Transit::Writer.new(:json_verbose, io, :handlers => {Point => PointWriteHandler.new})
+  # writer.write(Point.new(37,42))
+  # io.string
+  # # => "{\"~#point\":[37,42]}\n"
+  #
+  # reader = Transit::Reader.new(:json, StringIO.new(io.string),
+  #   :handlers => {"point" => PointReadHandler.new})
+  # reader.read
+  # # => #<struct Point x=37, y=42>
   # ```
   #
   # Note that Date used a one-character tag, "D", whereas Point uses a
