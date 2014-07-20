@@ -210,15 +210,15 @@ module Transit
       def tag(_) "m" end
       def rep(t) DateTimeUtil.to_millis(t) end
       def string_rep(t) rep(t).to_s end
-      def verbose_handler() VerboseTimeHandler end
+      def verbose_handler() VerboseTimeHandler.new end
     end
 
     class DateTimeHandler < TimeHandler
-      def verbose_handler() VerboseDateTimeHandler end
+      def verbose_handler() VerboseDateTimeHandler.new end
     end
 
     class DateHandler     < TimeHandler
-      def verbose_handler() VerboseDateHandler end
+      def verbose_handler() VerboseDateHandler.new end
     end
 
     class VerboseTimeHandler

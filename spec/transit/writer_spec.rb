@@ -106,7 +106,7 @@ module Transit
               def tag(_) "phone" end
               def rep(v) "PHONE: #{v.p}" end
               def string_rep(v) rep(v) end
-            end
+            end.new
           end
         end
 

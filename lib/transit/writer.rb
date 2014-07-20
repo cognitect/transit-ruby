@@ -47,7 +47,7 @@ module Transit
       def verbose_handlers(handlers)
         handlers.each do |k, v|
           if v.respond_to?(:verbose_handler) && vh = v.verbose_handler
-            handlers.store(k, vh.new)
+            handlers.store(k, vh)
           end
         end
         handlers
