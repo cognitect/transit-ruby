@@ -114,8 +114,6 @@ p reader.read
 
 See
 [Transit::WriteHandlers](http://rubydoc.info/gems/transit-ruby/Transit/WriteHandlers)
-and
-[Transit::ReadHandlers](http://rubydoc.info/gems/transit-ruby/Transit/ReadHandlers)
 for more info.
 
 ## Default Type Mapping

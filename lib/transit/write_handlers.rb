@@ -35,6 +35,8 @@ module Transit
   #
   # ### Write handlers
   #
+  # Write handlers are required to expose +tag+, +rep+, and +string_rep+ methods:
+  #
   # ```ruby
   # class DateWriteHandler
   #   def tag(_) "D" end
@@ -43,7 +45,24 @@ module Transit
   # end
   # ```
   #
+  # The +tag+ method returns the tag used to identify the transit type
+  # (built-in or extension). It accepts the object being written,
+  # which allows the handler the opportunity to return different tags
+  # for different semantics, e.g. the built-in IntHandler, which returns
+  # the tag "i" for numbers that fit within a 64-bit signed integer and
+  # "n" for anything outside that range. Most handlers don't need this.
+  #
+  # The +rep+ method takes the object being written and returns its
+  # wire representation. This can be a scalar value (identified by a
+  # one-character tag) or a map (Ruby Hash) or an array (identified by
+  # a multi-character tag).
+  #
+  # The +string_rep+ method takes the object being written and returns
+  # a string representation. Used when the object is a key in a map.
+  #
   # ### Read handlers
+  #
+  # Writer handlers are required to expose a single +from_rep+ method:
   #
   # ```ruby
   # class DateReadHandler
@@ -52,6 +71,9 @@ module Transit
   #   end
   # end
   # ```
+  #
+  # +from_rep+ accepts the wire representation (without the tag), and
+  # uses it to build an appropriate Ruby object.
   #
   # ### Usage
   #
