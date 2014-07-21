@@ -167,8 +167,38 @@ module Transit
   # returns an instance of the verbose handler:
   #
   # ```ruby
-  # # Example TBD
+  # Element = Struct.new(:id, :name)
+  #
+  # class ElementWriteHandler
+  #   def tag(_) "el" end
+  #   def rep(v) v.id end
+  #   def string_rep(v) v.name end
+  #   def verbose_handler() ElementVerboseWriteHandler.new end
+  # end
+  #
+  # class ElementVerboseWriteHandler < ElementWriteHandler
+  #   def rep(v) v.name end
+  # end
+  #
+  # write_handlers = {Element => ElementWriteHandler.new}
+  #
+  # e = Element.new(3, "Lithium")
+  #
+  # io = StringIO.new('','w+')
+  # writer = Transit::Writer.new(:json, io, :handlers => write_handlers)
+  # writer.write(e)
+  # io.string
+  # # => "[\"~#el\",3]\n"
+  #
+  # io = StringIO.new('','w+')
+  # writer = Transit::Writer.new(:json_verbose, io, :handlers => write_handlers)
+  # writer.write(e)
+  # io.string
+  # # => "{\"~#el\":\"Lithium\"}\n"
   # ```
+  #
+  # Note that you register the same handler collection; transit-ruby takes care of
+  # asking for the verbose_handler for the :json_verbose format.
   module WriteHandlers
     class NilHandler
       def tag(_) "_" end
