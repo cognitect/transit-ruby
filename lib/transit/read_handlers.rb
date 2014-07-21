@@ -69,6 +69,9 @@ module Transit
     class CmapHandler
       def from_rep(v) Hash[*v] end
     end
+    class RatioHandler
+      def from_rep(v) Rational(v[0], v[1]) end
+    end
 
     DEFAULT_READ_HANDLERS = {
       "_" => NilHandler.new,
@@ -89,7 +92,8 @@ module Transit
       "set"     => SetHandler.new,
       "link"    => LinkHandler.new,
       "list"    => IdentityHandler.new,
-      "cmap"    => CmapHandler.new
+      "cmap"    => CmapHandler.new,
+      "ratio"   => RatioHandler.new
     }.freeze
 
     DEFAULT_READ_HANDLER = Default.new

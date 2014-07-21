@@ -57,6 +57,8 @@ module Transit
                              "render" => "link",
                              "prompt" => nil}})
       marshals_structure("a TaggedValue", TaggedValue.new("tag", "value"), {"~#tag" => "value"})
+      marshals_structure("a ratio by Rational class", Rational(1, 3), {"~#ratio" => [1, 3]})
+      marshals_structure("a Rational with big number", Rational(4953778853208128465, 636801457410081246), {"~#ratio" => ["~i4953778853208128465", "~i636801457410081246"]})
     end
 
     describe "custom handlers" do
