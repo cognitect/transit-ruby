@@ -19,7 +19,7 @@ def gemspec_filename
 end
 
 def spec_version
-  @spec_version ||= /"(\d\.\d).dev"/.match(File.read(gemspec_filename))[1]
+  @spec_version ||= /"(\d+\.\d+).dev"/.match(File.read(gemspec_filename))[1]
 end
 
 def revision
