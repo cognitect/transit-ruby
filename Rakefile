@@ -15,14 +15,19 @@ def project_name
 end
 
 def gemspec_filename
-  @gemspec_filename = "#{project_name}.gemspec"
+  @gemspec_filename ||= "#{project_name}.gemspec"
+end
+
+def spec_version
+  @spec_version ||= /"(\d\.\d).dev"/.match(File.read(gemspec_filename))[1]
+end
+
+def revision
+  @revision ||= `build/revision`.chomp.to_i
 end
 
 def build_version
-  @build_version ||= begin
-                       r = `build/revision`.chomp.to_i
-                       "0.8.#{r}"
-                     end
+  @build_version ||= "#{spec_version}.#{revision}"
 end
 
 def gem_filename
@@ -40,7 +45,7 @@ task :build do
   begin
     gemspec_content = File.read(gemspec_filename)
     File.open(gemspec_filename, 'w+') do |f|
-      f.write gemspec_content.sub("0.1.dev", build_version)
+      f.write gemspec_content.sub("#{spec_version}.dev", build_version)
     end
     sh "gem build #{gemspec_filename}"
     sh "mkdir -p pkg"
