@@ -42,6 +42,7 @@ module Transit
   #   def tag(_) "D" end
   #   def rep(o) o.to_s end
   #   def string_rep(o) o.to_s end
+  #   def verbose_handler(_) nil end # optional - see Verbose write handlers, below
   # end
   # ```
   #
