@@ -63,7 +63,7 @@ module Transit
   #
   # ### Read handlers
   #
-  # Writer handlers are required to expose a single <tt>from_rep</tt> method:
+  # Read handlers are required to expose a single <tt>from_rep</tt> method:
   #
   # ```ruby
   # class DateReadHandler
