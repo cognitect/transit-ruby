@@ -12,8 +12,8 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 1.9.3'
 
-  spec.files         = `git ls-files -z`.split("\x0")
-  spec.test_files    = spec.files.grep(%r{^spec/})
+  spec.files         = `git ls-files -- lib/*`.split("\n") + %w[README.md LICENSE]
+  spec.test_files    = `git ls-files -- spec/*`.split("\n")
   spec.require_paths = ["lib"]
 
   spec.add_dependency "addressable",       "~> 2.3.6", ">= 2.3.6"
