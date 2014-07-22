@@ -75,7 +75,7 @@ task :publish do
   puts "Ready to publish #{gem_filename} to rubygems. Enter 'Y' to publish, anything else to stop:"
   input = STDIN.gets.chomp
   if input.downcase == 'y'
-    gem push "#{target_path}"
+    sh "gem push #{gem_path}"
   else
     puts "Canceling publish (you entered #{input.inspect} instead of 'Y')"
     sh "git tag -d v#{build_version}"
