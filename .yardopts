@@ -2,5 +2,4 @@
 --markup-provider redcarpet
 --plugin redcarpet-ext
 -
-BUILD.md
-DEV.md
+LICENSE
