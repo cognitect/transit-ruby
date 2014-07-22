@@ -144,6 +144,7 @@ for more info.
 ## Supported Rubies
 
 * MRI 1.9.3, 2.0.0, 2.1.0, 2.1.1, 2.1.2
+* Rubinius 2.2.10+
 
 ## Contributing
 
