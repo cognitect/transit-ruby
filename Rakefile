@@ -1,4 +1,6 @@
+# -*- ruby -*-
 #!/usr/bin/env rake
+
 require 'bundler'
 Bundler.setup
 
@@ -15,7 +17,12 @@ def project_name
 end
 
 def gemspec_filename
-  @gemspec_filename ||= "#{project_name}.gemspec"
+  if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+    platform = "jruby"
+  else
+    platform = "cruby"
+  end
+  @gemspec_filename ||= "#{platform}/#{project_name}.gemspec"
 end
 
 def spec_version
@@ -31,7 +38,11 @@ def build_version
 end
 
 def gem_filename
-  @gem_filename ||= "#{project_name}-#{build_version}.gem"
+  if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+    @gem_filename ||= "#{project_name}-#{build_version}-java.gem"
+  else
+    @gem_filename ||= "#{project_name}-#{build_version}.gem"
+  end
 end
 
 def gem_path
