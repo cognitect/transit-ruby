@@ -17,56 +17,6 @@ module Transit
   # values/objects in Ruby.
   # @see https://github.com/cognitect/transit-format
   class Reader
-    # @api private
-    class JsonUnmarshaler
-      class ParseHandler
-        def each(&block) @yield_v = block end
-        def add_value(v) @yield_v[v] if @yield_v end
-
-        def hash_start()      {} end
-        def hash_set(h,k,v)   h.store(k,v) end
-        def array_start()     [] end
-        def array_append(a,v) a << v end
-
-        def error(message, line, column)
-          raise Exception.new(message, line, column)
-        end
-      end
-
-      def initialize(io, opts)
-        @io = io
-        @decoder = Transit::Decoder.new(opts)
-        @parse_handler = ParseHandler.new
-      end
-
-      # @see Reader#read
-      def read
-        if block_given?
-          @parse_handler.each {|v| yield @decoder.decode(v)}
-        else
-          @parse_handler.each {|v| return @decoder.decode(v)}
-        end
-        Oj.sc_parse(@parse_handler, @io)
-      end
-    end
-
-    # @api private
-    class MessagePackUnmarshaler
-      def initialize(io, opts)
-        @decoder = Transit::Decoder.new(opts)
-        @unpacker = MessagePack::Unpacker.new(io)
-      end
-
-      # @see Reader#read
-      def read
-        if block_given?
-          @unpacker.each {|v| yield @decoder.decode(v)}
-        else
-          @decoder.decode(@unpacker.read)
-        end
-      end
-    end
-
     extend Forwardable
 
     # @!method read
@@ -106,11 +56,9 @@ module Transit
     def initialize(format, io, opts={})
       @reader = case format
                 when :json, :json_verbose
-                  require 'oj'
-                  JsonUnmarshaler.new(io, opts)
+                  Unmarshaler::JsonUnmarshaler.new(io, opts)
                 else
-                  require 'msgpack'
-                  MessagePackUnmarshaler.new(io, opts)
+                  Unmarshaler::MessagePackUnmarshaler.new(io, opts)
                 end
     end
   end

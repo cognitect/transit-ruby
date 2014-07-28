@@ -83,3 +83,7 @@ class PersonHandler
   def rep(p) {:first_name => p.first_name, :last_name => p.last_name, :birthdate => p.birthdate} end
   def string_rep(p) nil end
 end
+
+def jruby?
+  defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+end

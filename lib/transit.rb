@@ -89,4 +89,9 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
   require 'lock_jar'
   LockJar.lock
   LockJar.load
+  require 'transit/unmarshaler/json_unmarshaler_jruby'
+  require 'transit/unmarshaler/messagepack_unmarshaler_jruby'
+else
+  require 'transit/unmarshaler/json_unmarshaler'
+  require 'transit/unmarshaler/messagepack_unmarshaler'
 end
