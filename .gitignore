@@ -22,3 +22,6 @@ Gemfile.lock
 .ruby-version
 spec_helper-local.rb
 Gemfile-custom
+
+# lock_jar
+Jarfile.lock

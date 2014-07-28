@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "addressable",       "~> 2.3.6", ">= 2.3.6"
-  spec.add_dependency "lock_jar"
+  spec.add_dependency "lock_jar",          "~> 0.10.0"
   spec.add_development_dependency "rake",  "~> 10.1"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "wrong", "~> 0.7.1", ">= 0.7.1"

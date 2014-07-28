@@ -84,3 +84,9 @@ require 'transit/read_handlers'
 require 'transit/writer'
 require 'transit/decoder'
 require 'transit/reader'
+
+if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+  require 'lock_jar'
+  LockJar.lock
+  LockJar.load
+end
