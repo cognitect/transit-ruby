@@ -18,7 +18,7 @@ module Transit
   class Writer
 
     # @api private
-    class Marshaler
+    class BaseMarshaler
       def initialize(opts)
         @cache_enabled  = !opts[:verbose]
         @prefer_strings = opts[:prefer_strings]
@@ -176,120 +176,6 @@ module Transit
       end
     end
 
-    # @api private
-    class BaseJsonMarshaler < Marshaler
-      def default_opts
-        {:prefer_strings => true,
-          :max_int       => JSON_MAX_INT,
-          :min_int       => JSON_MIN_INT}
-      end
-
-      def initialize(io, opts)
-        @oj = Oj::StreamWriter.new(io)
-        super(default_opts.merge(opts))
-        @state = []
-      end
-
-      def emit_array_start(size)
-        @state << :array
-        @oj.push_array
-      end
-
-      def emit_array_end
-        @state.pop
-        @oj.pop
-      end
-
-      def emit_map_start(size)
-        @state << :map
-        @oj.push_object
-      end
-
-      def emit_map_end
-        @state.pop
-        @oj.pop
-      end
-
-      def emit_value(obj, as_map_key=false)
-        if @state.last == :array
-          @oj.push_value(obj)
-        else
-          as_map_key ? @oj.push_key(obj) : @oj.push_value(obj)
-        end
-      end
-
-      def flush
-        # no-op
-      end
-    end
-
-    # @api private
-    class JsonMarshaler < BaseJsonMarshaler
-      def emit_map(m, cache)
-        emit_array_start(-1)
-        emit_value("^ ", false)
-        m.each do |k,v|
-          marshal(k, true, cache)
-          marshal(v, false, cache)
-        end
-        emit_array_end
-      end
-    end
-
-    # @api private
-    class VerboseJsonMarshaler < BaseJsonMarshaler
-      def emit_string(prefix, tag, value, as_map_key, cache)
-        emit_value("#{prefix}#{tag}#{value}", as_map_key)
-      end
-
-      def emit_tagged_value(tag, rep, cache)
-        emit_map_start(1)
-        emit_string(ESC, "#", tag, true, cache)
-        marshal(rep, false, cache)
-        emit_map_end
-      end
-    end
-
-    # @api private
-    class MessagePackMarshaler < Marshaler
-      def default_opts
-        {:prefer_strings => false,
-          :max_int       => MAX_INT,
-          :min_int       => MIN_INT}
-      end
-
-      def initialize(io, opts)
-        @io = io
-        @packer = MessagePack::Packer.new(io)
-        super(default_opts.merge(opts))
-      end
-
-      def emit_array_start(size)
-        @packer.write_array_header(size)
-      end
-
-      def emit_array_end
-        # no-op
-      end
-
-      def emit_map_start(size)
-        @packer.write_map_header(size)
-      end
-
-      def emit_map_end
-        # no-op
-      end
-
-      def emit_value(obj, as_map_key=:ignore)
-        @packer.write(obj)
-      end
-
-      def flush
-        @packer.flush
-        @io.flush
-      end
-    end
-
     # @param [Symbol] format required :json, :json_verbose, or :msgpack
     # @param [IO]     io required
     # @param [Hash]   opts optional
@@ -313,22 +199,22 @@ module Transit
       @marshaler = case format
                    when :json
                      require 'oj'
-                     JsonMarshaler.new(io,
-                                       {:prefer_strings => true,
-                                        :verbose        => false,
-                                        :handlers       => {}}.merge(opts))
+                     Marshaler::Json.new(io,
+                                         {:prefer_strings => true,
+                                           :verbose        => false,
+                                           :handlers       => {}}.merge(opts))
                    when :json_verbose
                      require 'oj'
-                     VerboseJsonMarshaler.new(io,
-                                              {:prefer_strings => true,
-                                               :verbose        => true,
-                                               :handlers       => {}}.merge(opts))
+                     Marshaler::VerboseJson.new(io,
+                                                {:prefer_strings => true,
+                                                  :verbose        => true,
+                                                  :handlers       => {}}.merge(opts))
                    else
                      require 'msgpack'
-                     MessagePackMarshaler.new(io,
-                                              {:prefer_strings => false,
-                                               :verbose        => false,
-                                               :handlers       => {}}.merge(opts))
+                     Marshaler::MessagePack.new(io,
+                                                {:prefer_strings => false,
+                                                  :verbose        => false,
+                                                  :handlers       => {}}.merge(opts))
                    end
     end
 

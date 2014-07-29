@@ -92,6 +92,8 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
   require 'transit/unmarshaler/jruby/json'
   require 'transit/unmarshaler/jruby/messagepack'
 else
+  require 'transit/marshaler/cruby/json'
+  require 'transit/marshaler/cruby/messagepack'
   require 'transit/unmarshaler/cruby/json'
   require 'transit/unmarshaler/cruby/messagepack'
 end
