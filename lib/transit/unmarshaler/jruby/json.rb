@@ -18,7 +18,7 @@ module Transit
     # @see https://github.com/cognitect/transit-format
 
     # @api private
-    class JsonUnmarshaler
+    class Json
       def initialize(io, opts)
         @decoder = Transit::Decoder.new(opts)
         puts "JRUBY *WILL* INITIALIZE JSON UNMARSHALER. STAY TUNED"
