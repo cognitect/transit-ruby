@@ -20,7 +20,7 @@ module Transit
     # @see https://github.com/cognitect/transit-format
 
     # @api private
-    class JsonUnmarshaler
+    class Json
       class ParseHandler
         def each(&block) @yield_v = block end
         def add_value(v) @yield_v[v] if @yield_v end

@@ -20,10 +20,10 @@ module Transit
     # @see https://github.com/cognitect/transit-format
 
     # @api private
-    class MessagePackUnmarshaler
+    class MessagePack
       def initialize(io, opts)
         @decoder = Transit::Decoder.new(opts)
-        @unpacker = MessagePack::Unpacker.new(io)
+        @unpacker = ::MessagePack::Unpacker.new(io)
       end
 
       # @see Reader#read

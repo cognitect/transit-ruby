@@ -56,9 +56,9 @@ module Transit
     def initialize(format, io, opts={})
       @reader = case format
                 when :json, :json_verbose
-                  Unmarshaler::JsonUnmarshaler.new(io, opts)
+                  Unmarshaler::Json.new(io, opts)
                 else
-                  Unmarshaler::MessagePackUnmarshaler.new(io, opts)
+                  Unmarshaler::MessagePack.new(io, opts)
                 end
     end
   end
