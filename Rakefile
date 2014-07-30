@@ -105,3 +105,20 @@ desc "Clean up generated files"
 task :clobber do
   sh "rm -rf ./tmp ./pkg ./.yardoc doc"
 end
+
+# rake compiler
+if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+  require 'rake/javaextensiontask'
+  Rake::JavaExtensionTask.new('transit') do |ext|
+    require 'lock_jar'
+    LockJar.lock
+    locked_jars = LockJar.load(['default', 'development'])
+
+    ext.name = 'transit_service'
+    ext.ext_dir = 'ext/java'
+    ext.lib_dir = 'lib/transit'
+    ext.source_version = '1.6'
+    ext.target_version = '1.6'
+    ext.classpath = locked_jars.map {|x| File.expand_path x}.join ':'
+  end
+end

@@ -14,19 +14,24 @@
 
 require 'spec_helper'
 
-if jruby?
-  module Transit
-    describe Reader do
-      def read(value, &block)
-        puts "read method"
-        reader = Reader.new(:json, StringIO.new(value.to_json, 'r+'))
-        #reader.read &block
-      end
+module Transit
+  describe Reader, :if => jruby? do
+    def read(value, &block)
+      reader = Reader.new(:json, StringIO.new(value.to_json, 'r+'))
+      reader.read &block
+    end
 
-      it 'reads without a block' do
-        puts "the first example"
-        assert { read([1,2,3]) == [1,2,3] }
-      end
+    it 'finds Transit::Unmarshaler::Json class', focus: true do
+      expect { Transit::Unmarshaler::Json }.not_to raise_error
+      binding.pry
+    end
+
+    it 'finds Transit::Unmarshaler::MessagePack class', focus: true do
+      expect { Transit::Unmarshaler::MessagePack }.not_to raise_error
+    end
+
+    it 'reads without a block' do
+      assert { read([1,2,3]) == [1,2,3] }
     end
   end
 end

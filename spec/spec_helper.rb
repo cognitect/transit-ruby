@@ -37,11 +37,24 @@ require 'wrong/adapters/rspec'
 require 'transit'
 require 'spec_helper-local' if File.exist?(File.expand_path('../spec_helper-local.rb', __FILE__))
 
+def jruby?
+  defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+end
+
 RSpec.configure do |c|
   c.alias_example_to :fit, :focus => true
   c.filter_run_including :focus => true, :focused => true
   c.run_all_when_everything_filtered = true
   c.mock_with :nothing
+
+  c.before(:suite) do
+    # TODO: make it work later
+    #if jruby?
+    #  require 'rake'
+    #  load File.expand_path("Rakefile")
+    #  Rake::Task['compile'].invoke
+    #end
+  end
 end
 
 ALPHA_NUM = 'abcdefghijklmnopqrstuvwxyzABCDESFHIJKLMNOPQRSTUVWXYZ_0123456789'
@@ -82,8 +95,4 @@ class PersonHandler
   def tag(_) "person"; end
   def rep(p) {:first_name => p.first_name, :last_name => p.last_name, :birthdate => p.birthdate} end
   def string_rep(p) nil end
-end
-
-def jruby?
-  defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
 end
