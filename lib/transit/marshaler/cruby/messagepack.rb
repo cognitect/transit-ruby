@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'msgpack'
+
 module Transit
   module Marshaler
-    class MessagePack < Transit::Writer::BaseMarshaler
+    class MessagePack < Transit::Marshaler::Base
       def default_opts
         {:prefer_strings => false,
           :max_int       => MAX_INT,

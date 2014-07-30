@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'oj'
+
 module Transit
   module Marshaler
-    class BaseJson < Transit::Writer::BaseMarshaler
+    class BaseJson < Transit::Marshaler::Base
       def default_opts
         {:prefer_strings => true,
           :max_int       => JSON_MAX_INT,
