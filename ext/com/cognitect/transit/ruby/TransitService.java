@@ -31,17 +31,17 @@ public class TransitService implements BasicLibraryService {
         RubyModule unmarshaler = transit.defineModuleUnder("Unmarshaler");
         RubyClass json = unmarshaler.defineClassUnder("Json", runtime.getObject(), new ObjectAllocator() {
                 public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
-                    return new Json(runtime, rubyClass);
+                    return new com.cognitect.transit.ruby.unmarshaler.Json(runtime, rubyClass);
                 }
             });
-        json.defineAnnotatedMethods(Json.class);
+        json.defineAnnotatedMethods(com.cognitect.transit.ruby.unmarshaler.Json.class);
 
         RubyClass messagepack = unmarshaler.defineClassUnder("MessagePack", runtime.getObject(), new ObjectAllocator() {
                 public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
-                    return new MessagePack(runtime, rubyClass);
+                    return new com.cognitect.transit.ruby.unmarshaler.MessagePack(runtime, rubyClass);
                 }
             });
-        messagepack.defineAnnotatedMethods(MessagePack.class);
+        messagepack.defineAnnotatedMethods(com.cognitect.transit.ruby.unmarshaler.MessagePack.class);
 
         return true;
     }

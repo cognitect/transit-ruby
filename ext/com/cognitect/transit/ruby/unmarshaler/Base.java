@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.cognitect.transit.ruby;
+package com.cognitect.transit.ruby.unmarshaler;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,7 +26,6 @@ import org.jruby.RubyClass;
 import org.jruby.RubyHash;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyClass;
-import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
@@ -34,40 +33,17 @@ import org.jruby.runtime.builtin.IRubyObject;
 
 import com.cognitect.transit.ReadHandler;
 import com.cognitect.transit.Reader;
-import com.cognitect.transit.TransitFactory;
 
 @JRubyClass(name="Transit::Unmarshaler::Json")
-public class Json extends RubyObject {
-    private static final long serialVersionUID = -6605166968548176488L;
-    private Reader reader;
+public abstract class Base extends RubyObject {
+    private static final long serialVersionUID = -2693178195157618851L;
+    protected Reader reader;
 
-    Json(final Ruby runtime, RubyClass rubyClass) {
+    public Base(final Ruby runtime, RubyClass rubyClass) {
         super(runtime, rubyClass);
     }
 
-    /**
-       args[0] - io   : any Ruby IO
-       args[1] - opts : Ruby Hash
-     **/
-    @JRubyMethod(name="new", meta=true, required=1, rest=true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
-        RubyClass rubyClass = (RubyClass)context.getRuntime().getClassFromPath("Transit::Unmarshaler::Json");
-        Json json = (Json)rubyClass.allocate();
-        json.init(context, args);
-        return json;
-    }
-
-    private void init(ThreadContext context, IRubyObject[] args) {
-        InputStream input = convertRubyIOToInputStream(context, args[0]);
-        Map<String, ReadHandler> handlers = convertRubyHandlersToJavaHandlers(context, args[1]);
-        if (handlers == null) {
-            reader = TransitFactory.reader(TransitFactory.Format.JSON, input);
-        } else {
-            reader = TransitFactory.reader(TransitFactory.Format.JSON, input, handlers);
-        }
-    }
-
-    private InputStream convertRubyIOToInputStream(ThreadContext context, IRubyObject rubyObject) {
+    protected InputStream convertRubyIOToInputStream(ThreadContext context, IRubyObject rubyObject) {
         if (rubyObject.respondsTo("to_inputstream")) {
             return (InputStream) rubyObject.callMethod(context, "to_inputstream").toJava(InputStream.class);
         } else {
@@ -75,7 +51,7 @@ public class Json extends RubyObject {
         }
     }
 
-    private Map<String, ReadHandler> convertRubyHandlersToJavaHandlers(
+    protected Map<String, ReadHandler> convertRubyHandlersToJavaHandlers(
             final ThreadContext context, IRubyObject rubyObject) {
         if (!(rubyObject instanceof RubyHash)) {
             throw context.getRuntime().newArgumentError("The second argument is not Hash");
@@ -103,8 +79,7 @@ public class Json extends RubyObject {
     /**
        read method accepts a block
      **/
-    @JRubyMethod
-    public IRubyObject read(ThreadContext context, Block block) {
+    protected IRubyObject read(ThreadContext context, Block block) {
         try {
             Object javaValue = reader.read();
             IRubyObject rubyValue;

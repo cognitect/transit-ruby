@@ -13,25 +13,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.cognitect.transit.ruby;
+package com.cognitect.transit.ruby.unmarshaler;
 
-import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Map;
+
 import org.jruby.Ruby;
-import org.jruby.RubyObject;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import com.cognitect.transit.Reader;
+
+import com.cognitect.transit.ReadHandler;
 import com.cognitect.transit.TransitFactory;
 
-@JRubyClass(name="Transit::Unmarshaler::MessagePack")
-public class MessagePack extends RubyObject {
-    private static final long serialVersionUID = 8837562079042631858L;
-    private Reader reader;
-    MessagePack(final Ruby runtime, RubyClass rubyClass) {
+@JRubyClass(name="Transit::Unmarshaler::Json")
+public class Json extends Base {
+    private static final long serialVersionUID = -6605166968548176488L;
+
+    public Json(final Ruby runtime, RubyClass rubyClass) {
         super(runtime, rubyClass);
     }
 
@@ -41,20 +43,27 @@ public class MessagePack extends RubyObject {
      **/
     @JRubyMethod(name="new", meta=true, required=1, rest=true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
-        RubyClass rubyClass = (RubyClass)context.getRuntime().getClassFromPath("Transit::Unmarshaler::MessagePack");
-        MessagePack messagepack = (MessagePack)rubyClass.allocate();
-        messagepack.init(args);
-        return messagepack;
+        RubyClass rubyClass = (RubyClass)context.getRuntime().getClassFromPath("Transit::Unmarshaler::Json");
+        Json json = (Json)rubyClass.allocate();
+        json.init(context, args);
+        return json;
     }
 
-    private void init(IRubyObject[] args) {
-        // TODO: do something necessary for args
-        reader = TransitFactory.reader(TransitFactory.Format.MSGPACK, new ByteArrayInputStream("DUMMY".getBytes()));
+    private void init(ThreadContext context, IRubyObject[] args) {
+        InputStream input = convertRubyIOToInputStream(context, args[0]);
+        Map<String, ReadHandler> handlers = convertRubyHandlersToJavaHandlers(context, args[1]);
+        if (handlers == null) {
+            reader = TransitFactory.reader(TransitFactory.Format.JSON, input);
+        } else {
+            reader = TransitFactory.reader(TransitFactory.Format.JSON, input, handlers);
+        }
     }
 
+    /**
+       read method accepts a block
+     **/
     @JRubyMethod
     public IRubyObject read(ThreadContext context, Block block) {
-        System.out.println("Not yet implemented");
-        return context.getRuntime().getNil();
+        return super.read(context, block);
     }
 }
