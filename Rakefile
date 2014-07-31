@@ -115,7 +115,7 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
     locked_jars = LockJar.load(['default', 'development'])
 
     ext.name = 'transit_service'
-    ext.ext_dir = 'ext/java'
+    ext.ext_dir = 'ext'
     ext.lib_dir = 'lib/transit'
     ext.source_version = '1.6'
     ext.target_version = '1.6'

@@ -29,6 +29,7 @@ import com.cognitect.transit.TransitFactory;
 
 @JRubyClass(name="Transit::Unmarshaler::MessagePack")
 public class MessagePack extends RubyObject {
+    private static final long serialVersionUID = 8837562079042631858L;
     private Reader reader;
     MessagePack(final Ruby runtime, RubyClass rubyClass) {
         super(runtime, rubyClass);

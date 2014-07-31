@@ -88,7 +88,7 @@ require 'transit/reader'
 
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
   require 'lock_jar'
-  LockJar.lock
+  LockJar.lock(File.join(File.dirname(__FILE__), "..", "Jarfile"))
   LockJar.load
   require 'transit/transit_service.jar'
   require 'jruby'

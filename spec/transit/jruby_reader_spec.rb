@@ -21,17 +21,28 @@ module Transit
       reader.read &block
     end
 
-    it 'finds Transit::Unmarshaler::Json class', focus: true do
+    it 'finds Transit::Unmarshaler::Json class' do
       expect { Transit::Unmarshaler::Json }.not_to raise_error
-      binding.pry
     end
 
-    it 'finds Transit::Unmarshaler::MessagePack class', focus: true do
+    it 'finds Transit::Unmarshaler::MessagePack class' do
       expect { Transit::Unmarshaler::MessagePack }.not_to raise_error
     end
 
     it 'reads without a block' do
       assert { read([1,2,3]) == [1,2,3] }
+    end
+
+    it 'reads with a block' do
+      result = nil
+      read([1,2,3]) {|v| result = v}
+      assert { result == [1,2,3] }
+    end
+
+    it 'supports hash based extensions that return false' do
+      io = StringIO.new({"~#False" => :anything}.to_json)
+      reader = Reader.new(:json, io, :handlers => {"False" => Class.new { def from_rep(_) false end}.new})
+      assert { reader.read == false }
     end
   end
 end
