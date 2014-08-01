@@ -25,7 +25,6 @@ import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyHash;
 import org.jruby.RubyObject;
-import org.jruby.anno.JRubyClass;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
@@ -34,7 +33,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 import com.cognitect.transit.ReadHandler;
 import com.cognitect.transit.Reader;
 
-@JRubyClass(name="Transit::Unmarshaler::Json")
 public abstract class Base extends RubyObject {
     private static final long serialVersionUID = -2693178195157618851L;
     protected Reader reader;
