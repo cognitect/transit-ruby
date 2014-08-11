@@ -115,8 +115,16 @@ module Transit
         end
       end
 
+      describe 'Dates/Times' do
+        it "delivers a UTC DateTime for a non-UTC date string" do
+          io = StringIO.new(["~t2014-04-14T12:20:50.152-05:00"].to_json)
+          reader = Reader.new(:json, io)
+          expect(reader.read).to eq([DateTime.new(2014,4,14,17,20,50.152,"Z")])
+        end
+      end
+
       describe 'edge cases found in generative testing' do
-        it 'supports ...' do
+        it 'caches nested structures correctly' do
           io = StringIO.new(["~#cmap",[["~#ratio",["~n10","~n11"]],"~:foobar",["^1",["~n10","~n13"]],"^2"]].to_json)
           reader = Reader.new(:json, io)
           expected = {TaggedValue.new("ratio",[10,11]) => :foobar,
