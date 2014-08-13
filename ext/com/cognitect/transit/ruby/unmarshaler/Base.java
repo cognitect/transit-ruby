@@ -16,12 +16,10 @@
 package com.cognitect.transit.ruby.unmarshaler;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.jruby.Ruby;
-import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyHash;
 import org.jruby.RubyNil;
@@ -34,7 +32,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 import com.cognitect.transit.DefaultReadHandler;
 import com.cognitect.transit.ReadHandler;
 import com.cognitect.transit.Reader;
-import com.cognitect.transit.ruby.RubyMapReader;
 import com.cognitect.transit.ruby.TransitTypeConverters;
 import com.cognitect.transit.ruby.handler.CmapReadHandler;
 import com.cognitect.transit.ruby.handler.KeywordReadHandler;

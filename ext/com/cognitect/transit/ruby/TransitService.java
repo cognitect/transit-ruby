@@ -29,19 +29,41 @@ public class TransitService implements BasicLibraryService {
     public boolean basicLoad(Ruby runtime) throws IOException {
         RubyModule transit = runtime.defineModule("Transit");
         RubyModule unmarshaler = transit.defineModuleUnder("Unmarshaler");
-        RubyClass json = unmarshaler.defineClassUnder("Json", runtime.getObject(), new ObjectAllocator() {
+        RubyClass json_unmarshaler = unmarshaler.defineClassUnder("Json", runtime.getObject(), new ObjectAllocator() {
                 public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
                     return new com.cognitect.transit.ruby.unmarshaler.Json(runtime, rubyClass);
                 }
             });
-        json.defineAnnotatedMethods(com.cognitect.transit.ruby.unmarshaler.Json.class);
+        json_unmarshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.unmarshaler.Json.class);
 
-        RubyClass messagepack = unmarshaler.defineClassUnder("MessagePack", runtime.getObject(), new ObjectAllocator() {
+        RubyClass messagepack_unmarshaler = unmarshaler.defineClassUnder("MessagePack", runtime.getObject(), new ObjectAllocator() {
                 public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
                     return new com.cognitect.transit.ruby.unmarshaler.MessagePack(runtime, rubyClass);
                 }
             });
-        messagepack.defineAnnotatedMethods(com.cognitect.transit.ruby.unmarshaler.MessagePack.class);
+        messagepack_unmarshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.unmarshaler.MessagePack.class);
+
+        RubyModule marshaler = transit.defineModuleUnder("Marshaler");
+        RubyClass json_marshaler = marshaler.defineClassUnder("Json", runtime.getObject(), new ObjectAllocator() {
+            public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
+                return new com.cognitect.transit.ruby.marshaler.Json(runtime, rubyClass);
+            }
+        });
+        json_marshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.marshaler.Json.class);
+
+        RubyClass verbosejson_marshaler = marshaler.defineClassUnder("VerboseJson", runtime.getObject(), new ObjectAllocator() {
+            public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
+                return new com.cognitect.transit.ruby.marshaler.VerboseJson(runtime, rubyClass);
+            }
+        });
+        verbosejson_marshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.marshaler.Json.class);
+
+        RubyClass messagepack_marshaler = marshaler.defineClassUnder("MessagePack", runtime.getObject(), new ObjectAllocator() {
+                public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
+                    return new com.cognitect.transit.ruby.marshaler.MessagePack(runtime, rubyClass);
+                }
+            });
+        messagepack_marshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.marshaler.MessagePack.class);
 
         return true;
     }
