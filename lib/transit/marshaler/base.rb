@@ -18,8 +18,8 @@ module Transit
   module Marshaler
 
     # @api private
-    class Base
-      def initialize(opts)
+    module Base
+      def parse_options(opts)
         @cache_enabled  = !opts[:verbose]
         @prefer_strings = opts[:prefer_strings]
         @max_int        = opts[:max_int]

@@ -16,7 +16,9 @@ require 'msgpack'
 
 module Transit
   module Marshaler
-    class MessagePack < Transit::Marshaler::Base
+    class MessagePack
+      include Transit::Marshaler::Base
+
       def default_opts
         {:prefer_strings => false,
           :max_int       => MAX_INT,
@@ -26,7 +28,7 @@ module Transit
       def initialize(io, opts)
         @io = io
         @packer = ::MessagePack::Packer.new(io)
-        super(default_opts.merge(opts))
+        parse_options(default_opts.merge(opts))
       end
 
       def emit_array_start(size)

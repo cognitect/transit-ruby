@@ -16,7 +16,9 @@ require 'oj'
 
 module Transit
   module Marshaler
-    class BaseJson < Transit::Marshaler::Base
+    class BaseJson
+      include Transit::Marshaler::Base
+
       def default_opts
         {:prefer_strings => true,
           :max_int       => JSON_MAX_INT,
@@ -25,7 +27,7 @@ module Transit
 
       def initialize(io, opts)
         @oj = Oj::StreamWriter.new(io)
-        super(default_opts.merge(opts))
+        parse_options(default_opts.merge(opts))
         @state = []
       end
 
