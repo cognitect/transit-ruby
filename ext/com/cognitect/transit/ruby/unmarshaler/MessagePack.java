@@ -51,7 +51,7 @@ public class MessagePack extends Base {
 
     private void init(ThreadContext context, IRubyObject[] args) {
         InputStream input = convertRubyIOToInputStream(context, args[0]);
-        Map<String, ReadHandler> handlers = convertRubyHandlersToJavaHandlers(context, args[1]);
+        Map<String, ReadHandler<?, ?>> handlers = convertRubyHandlersToJavaHandlers(context, args[1]);
         if (handlers == null) {
             reader = TransitFactory.reader(TransitFactory.Format.MSGPACK, input);
         } else {

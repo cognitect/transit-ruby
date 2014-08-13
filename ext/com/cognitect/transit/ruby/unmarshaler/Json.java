@@ -26,8 +26,14 @@ import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
+import com.cognitect.transit.ArrayReader;
+import com.cognitect.transit.DefaultReadHandler;
+import com.cognitect.transit.MapReader;
 import com.cognitect.transit.ReadHandler;
 import com.cognitect.transit.TransitFactory;
+import com.cognitect.transit.SPI.ReaderSPI;
+import com.cognitect.transit.ruby.RubyArrayReader;
+import com.cognitect.transit.ruby.RubyMapReader;
 
 @JRubyClass(name="Transit::Unmarshaler::Json")
 public class Json extends Base {
@@ -46,17 +52,25 @@ public class Json extends Base {
         RubyClass rubyClass = (RubyClass)context.getRuntime().getClassFromPath("Transit::Unmarshaler::Json");
         Json json = (Json)rubyClass.allocate();
         json.init(context, args);
+        json.instance_variable_set(context.getRuntime().newString("@decoder"), newDecoder(context, args[1]));
         return json;
     }
 
-    private void init(ThreadContext context, IRubyObject[] args) {
+    private void init(final ThreadContext context, IRubyObject[] args) {
         InputStream input = convertRubyIOToInputStream(context, args[0]);
-        Map<String, ReadHandler> handlers = convertRubyHandlersToJavaHandlers(context, args[1]);
-        if (handlers == null) {
+        Map<String, ReadHandler<?, ?>> handlers = convertRubyHandlersToJavaHandlers(context, args[1]);
+        DefaultReadHandler<?> defaultHandler = convertRubyDefaultHandlerToJavaDefaultHandler(context, args[1]);
+        if (handlers == null && defaultHandler == null) {
             reader = TransitFactory.reader(TransitFactory.Format.JSON, input);
-        } else {
+        } else if (handlers != null && defaultHandler != null) {
+            reader = TransitFactory.reader(TransitFactory.Format.JSON, input, handlers, defaultHandler);
+        } else if (handlers != null) {
             reader = TransitFactory.reader(TransitFactory.Format.JSON, input, handlers);
+        } else {
+            reader = TransitFactory.reader(TransitFactory.Format.JSON, input, defaultHandler);
         }
+        ((ReaderSPI)reader).setBuilders((MapReader)(new RubyMapReader(context.getRuntime())),
+                                        (ArrayReader)(new RubyArrayReader(context.getRuntime())));
     }
 
     /**
