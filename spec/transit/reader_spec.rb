@@ -125,10 +125,10 @@ module Transit
 
       describe 'edge cases found in generative testing' do
         it 'caches nested structures correctly' do
-          io = StringIO.new(["~#cmap",[["~#ratio",["~n10","~n11"]],"~:foobar",["^1",["~n10","~n13"]],"^2"]].to_json)
+          io = StringIO.new(["~#cmap",[["~#point",["~n10","~n11"]],"~:foobar",["^1",["~n10","~n13"]],"^2"]].to_json)
           reader = Reader.new(:json, io)
-          expected = {Rational(10,11) => :foobar,
-                      Rational(10,13) => :foobar}
+          expected = {TaggedValue.new("point", [10,11]) => :foobar,
+                      TaggedValue.new("point", [10,13]) => :foobar}
           assert { reader.read == expected }
         end
       end
