@@ -248,6 +248,12 @@ module Transit
       def string_rep(f) rep(f) end
     end
 
+    class RationalHandler
+      def tag(_) "ratio" end
+      def rep(r) [r.numerator, r.denominator] end
+      def string_rep(_) nil end
+    end
+
     # TimeHandler, DateTimeHandler, and DateHandler all have different
     # implementations of string_rep. Here is the rationale:
     #
@@ -378,12 +384,6 @@ module Transit
       def string_rep(_) nil end
     end
 
-    class RationalHandler
-      def tag(_) "ratio" end
-      def rep(r) [r.numerator, r.denominator] end
-      def string_rep(_) nil end
-    end
-
     DEFAULT_WRITE_HANDLERS = {
       NilClass         => NilHandler.new,
       ::Symbol         => KeywordHandler.new,
@@ -394,6 +394,7 @@ module Transit
       Bignum           => IntHandler.new,
       Float            => FloatHandler.new,
       BigDecimal       => BigDecimalHandler.new,
+      Rational         => RationalHandler.new,
       Time             => TimeHandler.new,
       DateTime         => DateTimeHandler.new,
       Date             => DateHandler.new,
@@ -406,8 +407,7 @@ module Transit
       Array            => ArrayHandler.new,
       Hash             => MapHandler.new,
       Set              => SetHandler.new,
-      TaggedValue      => TaggedValueHandler.new,
-      Rational         => RationalHandler.new
+      TaggedValue      => TaggedValueHandler.new
     }.freeze
   end
 end
