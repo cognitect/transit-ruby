@@ -143,10 +143,12 @@ for more info.
 |map|Hash|Hash|`{a: 1, b: 2, c: 3}`|`{:a=>1, :b=>2, :c=>3}`|
 |bytes|Transit::ByteArray|Transit::ByteArray|Transit::ByteArray.new("base64")|base64|
 |link|Transit::Link|Transit::Link|Transit::Link.new(Addressable::URI.parse("http://example.org/search"), "search")|`#<Transit::Link:0x007f81c405b7f0 @values={"href"=>#<Addressable::URI:0x3fc0e202dfb8 URI:http://example.org/search>, "rel"=>"search", "name"=>nil, "render"=>nil, "prompt"=>nil}>`|
-|ratio +|Rational|Rational|Rational(1, 3)|Rational(1, 3)|
 
-\+ Extension type
+### Additional types (not required by the [transit-format](https://github.com/cognitect/transit-format) spec)
 
+|Semantic type|Write accepts|Read returns|Example(write)|Example(read)|
+|------------|-------------|------------|--------------|-------------|
+|ratio|Rational|Rational|Rational(1, 3)|Rational(1, 3)|
 
 ## Supported Rubies
 
