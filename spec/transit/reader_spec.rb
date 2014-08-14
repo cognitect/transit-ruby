@@ -127,8 +127,8 @@ module Transit
         it 'caches nested structures correctly' do
           io = StringIO.new(["~#cmap",[["~#ratio",["~n10","~n11"]],"~:foobar",["^1",["~n10","~n13"]],"^2"]].to_json)
           reader = Reader.new(:json, io)
-          expected = {TaggedValue.new("ratio",[10,11]) => :foobar,
-                      TaggedValue.new("ratio",[10,13]) => :foobar}
+          expected = {Rational(10,11) => :foobar,
+                      Rational(10,13) => :foobar}
           assert { reader.read == expected }
         end
       end

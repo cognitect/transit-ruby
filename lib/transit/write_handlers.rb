@@ -378,6 +378,12 @@ module Transit
       def string_rep(_) nil end
     end
 
+    class RationalHandler
+      def tag(_) "ratio" end
+      def rep(r) [r.numerator, r.denominator] end
+      def string_rep(_) nil end
+    end
+
     DEFAULT_WRITE_HANDLERS = {
       NilClass         => NilHandler.new,
       ::Symbol         => KeywordHandler.new,
@@ -400,7 +406,8 @@ module Transit
       Array            => ArrayHandler.new,
       Hash             => MapHandler.new,
       Set              => SetHandler.new,
-      TaggedValue      => TaggedValueHandler.new
+      TaggedValue      => TaggedValueHandler.new,
+      Rational         => RationalHandler.new
     }.freeze
   end
 end
