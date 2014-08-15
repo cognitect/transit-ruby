@@ -16,6 +16,7 @@
 package com.cognitect.transit.ruby;
 
 import java.io.IOException;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyModule;
@@ -49,6 +50,7 @@ public class TransitService implements BasicLibraryService {
                 return new com.cognitect.transit.ruby.marshaler.Json(runtime, rubyClass);
             }
         });
+        IRubyObject[] base_module = new IRubyObject[]{runtime.getClassFromPath("Transit::Marshaler::Base")};
         json_marshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.marshaler.Json.class);
 
         RubyClass verbosejson_marshaler = marshaler.defineClassUnder("VerboseJson", runtime.getObject(), new ObjectAllocator() {

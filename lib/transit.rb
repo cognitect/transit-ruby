@@ -93,8 +93,8 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
   require 'transit/transit_service.jar'
   require 'jruby'
   com.cognitect.transit.ruby.TransitService.new.basicLoad(JRuby.runtime)
-  #require 'transit/unmarshaler/jruby/json'
-  #require 'transit/unmarshaler/jruby/messagepack'
+  require 'transit/marshaler/jruby/json'
+  require 'transit/marshaler/jruby/messagepack'
 else
   require 'transit/marshaler/cruby/json'
   require 'transit/marshaler/cruby/messagepack'

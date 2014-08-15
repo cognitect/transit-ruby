@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -27,6 +28,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 import com.cognitect.transit.TransitFactory;
 import com.cognitect.transit.WriteHandler;
 
+@JRubyClass(name="Transit::Marshaler::Json")
 public class Json extends Base {
     private static final long serialVersionUID = 3453641906194326319L;
 
@@ -42,12 +44,14 @@ public class Json extends Base {
     public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
         RubyClass rubyClass = (RubyClass)context.getRuntime().getClassFromPath("Transit::Marshaler::Json");
         Json json = (Json)rubyClass.allocate();
+        json.callMethod(context, "initialize", args);
         json.init(context, args);
         return json;
     }
 
     private void init(ThreadContext context, IRubyObject[] args) {
         OutputStream output = convertRubyIOToOutputStream(context, args[0]);
+        this.convertDefaultRubyHandlersToJavaHandlers(context);
         Map<Class, WriteHandler<?, ?>> handlers = convertRubyHandlersToJavaHandlers(context, args[1]);
         if (handlers == null) {
             writer = TransitFactory.writer(TransitFactory.Format.JSON, output);
@@ -56,7 +60,6 @@ public class Json extends Base {
         }
     }
 
-    @JRubyMethod(name="marshal_top")
     public IRubyObject write(ThreadContext context, IRubyObject arg) {
         return super.write(context, arg);
     }

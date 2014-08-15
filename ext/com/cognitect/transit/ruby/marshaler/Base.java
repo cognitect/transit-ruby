@@ -16,10 +16,14 @@
 package com.cognitect.transit.ruby.marshaler;
 
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.RubyHash;
+import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -41,6 +45,23 @@ public class Base extends RubyObject {
         } else {
             throw rubyObject.getRuntime().newArgumentError("The first argument is not IO");
         }
+    }
+
+    protected Map<Class, WriteHandler<?, ?>> convertDefaultRubyHandlersToJavaHandlers(
+            final ThreadContext context) {
+        Map<String, Class> classMap = new HashMap<String, Class>();
+        Object ivar = this.getInstanceVariable("@handlers");
+        System.out.println("HANDLERS: " + ivar.getClass().getCanonicalName());
+        if (ivar instanceof RubyHash) {
+            Set keys = ((RubyHash)ivar).keySet();
+            for (Object key : keys) {
+                System.out.println("KEY: " + key + ", " +
+                        key.getClass().getCanonicalName() + ", " +
+                        (key instanceof RubyClass) + ", " +
+                        ((RubyModule)key).getName());
+            }
+        }
+        return null;
     }
 
     protected Map<Class, WriteHandler<?, ?>> convertRubyHandlersToJavaHandlers(

@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -27,6 +28,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 import com.cognitect.transit.TransitFactory;
 import com.cognitect.transit.WriteHandler;
 
+@JRubyClass(name="Transit::Marshaler::VerboseJson")
 public class VerboseJson extends Base {
     private static final long serialVersionUID = 7872087524091784518L;
 
@@ -42,6 +44,7 @@ public class VerboseJson extends Base {
     public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
         RubyClass rubyClass = (RubyClass)context.getRuntime().getClassFromPath("Transit::Marshaler::VerboseJson");
         VerboseJson verbosejson = (VerboseJson)rubyClass.allocate();
+        verbosejson.callMethod(context, "initialize", args);
         verbosejson.init(context, args);
         return verbosejson;
     }
@@ -56,7 +59,6 @@ public class VerboseJson extends Base {
         }
     }
 
-    @JRubyMethod(name="marshal_top")
     public IRubyObject write(ThreadContext context, IRubyObject arg) {
         return super.write(context, arg);
     }
