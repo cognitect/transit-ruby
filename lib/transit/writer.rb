@@ -185,7 +185,7 @@ module Transit
       end
 
       def initialize(io, opts)
-        @oj = Oj::StreamWriter.new(io)
+        @oj = Oj::StreamWriter.new(io,opts.delete(:oj_opts) || {})
         super(default_opts.merge(opts))
         @state = []
       end
@@ -316,7 +316,8 @@ module Transit
                      JsonMarshaler.new(io,
                                        {:prefer_strings => true,
                                         :verbose        => false,
-                                        :handlers       => {}}.merge(opts))
+                                        :handlers       => {},
+                                        :oj_opts        => {:indent => -1}}.merge(opts))
                    when :json_verbose
                      require 'oj'
                      VerboseJsonMarshaler.new(io,
