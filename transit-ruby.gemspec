@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "addressable",       "~> 2.3.6", ">= 2.3.6"
   spec.add_dependency "msgpack",           "~> 0.5.8", ">= 0.5.8"
-  spec.add_dependency "oj",                "~> 2.9.9", ">= 2.9.9"
+  spec.add_dependency "oj",                "~> 2.10.0", ">= 2.10.0"
   spec.add_development_dependency "yard",  "~> 0.8.7.4", ">= 0.8.7.4"
   spec.add_development_dependency "redcarpet", "~> 3.1.1", ">= 3.1.1"
   spec.add_development_dependency "yard-redcarpet-ext", "~> 0.0.3", ">= 0.0.3"
