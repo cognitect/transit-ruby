@@ -78,7 +78,7 @@ public class Base extends RubyObject {
                         RubyArray ancestors = (RubyArray)((RubyObject)o).getMetaClass().callMethod(context, "ancestors");
                         for (Object ancestor : ancestors) {
                             WriteHandler<Object, Object> handler = rubyHandlers.get(((RubyModule)ancestor).getName());
-                            System.out.println("HANDLER: " + handler);
+                            System.out.println("HANDLER NAME: " + ((RubyModule)ancestor).getName());
                             if (handler != null) return handler;
                         }
                     }
@@ -155,83 +155,6 @@ public class Base extends RubyObject {
             }
         };
     }
-
-    /*
-    protected Map<Class, WriteHandler<?, ?>> getProxy() {
-        return new Map<Class, WriteHandler<?, ?>>() {
-            @Override
-            public int size() {
-                return handlers.size();
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return handlers.isEmpty();
-            }
-
-            @Override
-            public boolean containsKey(Object key) {
-                if ((key instanceof RubyClass) && (handlers.size() > 0)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-
-            @Override
-            public boolean containsValue(Object value) {
-                return handlers.containsValue(value);
-            }
-
-            @Override
-            public WriteHandler<?, ?> get(Object key) {
-                if (key instanceof RubyClass) {
-                    return handlers.get(((RubyClass)key).getName());
-                }
-                return null;
-            }
-
-            @Override
-            public WriteHandler<?, ?> put(Class key, WriteHandler<?, ?> value) {
-                return null;
-            }
-
-            @Override
-            public WriteHandler<?, ?> remove(Object key) {
-                if (key instanceof RubyClass) {
-                    return handlers.remove(((RubyClass)key).getName());
-                }
-                return null;
-            }
-
-            @Override
-            public void putAll(
-                    Map<? extends Class, ? extends WriteHandler<?, ?>> m) {
-                // do nothing
-            }
-
-            @Override
-            public void clear() {
-                handlers.clear();
-            }
-
-            @Override
-            public Set<Class> keySet() {
-                return null;
-            }
-
-            @Override
-            public Collection<WriteHandler<?, ?>> values() {
-                return null;
-            }
-
-            @Override
-            public Set<java.util.Map.Entry<Class, WriteHandler<?, ?>>> entrySet() {
-                return null;
-            }
-        };
-    }
-    */
 
     protected IRubyObject write(ThreadContext context, IRubyObject arg) {
         System.out.println("ARG: " + arg + ", " + arg.getMetaClass() + ", " + arg.getClass());

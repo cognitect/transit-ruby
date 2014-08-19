@@ -101,7 +101,7 @@ public class TransitService implements BasicLibraryService {
                 }
             }
         });
-        verbosejson_marshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.marshaler.Json.class);
+        verbosejson_marshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.marshaler.VerboseJson.class);
 
         RubyClass messagepack_marshaler = marshaler.defineClassUnder("MessagePack", runtime.getObject(), new ObjectAllocator() {
             private com.cognitect.transit.ruby.marshaler.MessagePack msgpack = null;

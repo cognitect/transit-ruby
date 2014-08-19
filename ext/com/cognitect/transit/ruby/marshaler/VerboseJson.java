@@ -50,18 +50,13 @@ public class VerboseJson extends Base {
     }
 
     private void init(ThreadContext context, IRubyObject[] args) {
-        /*
         OutputStream output = convertRubyIOToOutputStream(context, args[0]);
-        convertDefaultRubyHandlersToJavaHandler(context);
-        convertUserDefinedRubyHandlersToJavaHandler(context, args[1]);
-        Map<Class, WriteHandler<?, ?>> handlerProxy = getProxy();
-        if (handlers == null) {
-            writer = TransitFactory.writer(TransitFactory.Format.JSON_VERBOSE, output);
-        } else {
-            writer = TransitFactory.writer(TransitFactory.Format.JSON_VERBOSE, output, handlerProxy);
-        }*/
+        Map<Class, WriteHandler<?, ?>> handlers = convertDefaultRubyHandlersToJavaHandler(context);
+        //convertUserDefinedRubyHandlersToJavaHandler(context, args[1]);
+        writer = TransitFactory.writer(TransitFactory.Format.JSON_VERBOSE, output, handlers);
     }
 
+    @JRubyMethod
     public IRubyObject write(ThreadContext context, IRubyObject arg) {
         return super.write(context, arg);
     }

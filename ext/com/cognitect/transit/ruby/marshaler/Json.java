@@ -53,7 +53,6 @@ public class Json extends Base {
         OutputStream output = convertRubyIOToOutputStream(context, args[0]);
         Map<Class, WriteHandler<?, ?>> handlers = convertDefaultRubyHandlersToJavaHandler(context);
         //convertUserDefinedRubyHandlersToJavaHandler(context, args[1]);
-        //Map<Class, WriteHandler<?, ?>> handlerProxy = getProxy();
         writer = TransitFactory.writer(TransitFactory.Format.JSON, output, handlers);
     }
 
