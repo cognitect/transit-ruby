@@ -31,40 +31,94 @@ public class TransitService implements BasicLibraryService {
         RubyModule transit = runtime.defineModule("Transit");
         RubyModule unmarshaler = transit.defineModuleUnder("Unmarshaler");
         RubyClass json_unmarshaler = unmarshaler.defineClassUnder("Json", runtime.getObject(), new ObjectAllocator() {
-                public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
+            private com.cognitect.transit.ruby.unmarshaler.Json json = null;
+            public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
+                if (json == null) {
+                    json = new com.cognitect.transit.ruby.unmarshaler.Json(runtime, rubyClass);
+                }
+                try {
+                    com.cognitect.transit.ruby.unmarshaler.Json clone =
+                            (com.cognitect.transit.ruby.unmarshaler.Json)json.clone();
+                    clone.setMetaClass(rubyClass);
+                    return clone;
+                } catch (CloneNotSupportedException e) {
                     return new com.cognitect.transit.ruby.unmarshaler.Json(runtime, rubyClass);
                 }
-            });
+            }
+        });
         json_unmarshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.unmarshaler.Json.class);
 
         RubyClass messagepack_unmarshaler = unmarshaler.defineClassUnder("MessagePack", runtime.getObject(), new ObjectAllocator() {
-                public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
+            private com.cognitect.transit.ruby.unmarshaler.MessagePack msgpack = null;  
+            public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
+                if (msgpack == null) {
+                    msgpack = new com.cognitect.transit.ruby.unmarshaler.MessagePack(runtime, rubyClass);
+                }
+                try {
+                    com.cognitect.transit.ruby.unmarshaler.MessagePack clone =
+                            (com.cognitect.transit.ruby.unmarshaler.MessagePack)msgpack.clone();
+                    clone.setMetaClass(rubyClass);
+                    return clone;
+                } catch (CloneNotSupportedException e) {
                     return new com.cognitect.transit.ruby.unmarshaler.MessagePack(runtime, rubyClass);
                 }
-            });
+            }
+        });
         messagepack_unmarshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.unmarshaler.MessagePack.class);
 
         RubyModule marshaler = transit.defineModuleUnder("Marshaler");
         RubyClass json_marshaler = marshaler.defineClassUnder("Json", runtime.getObject(), new ObjectAllocator() {
+            private com.cognitect.transit.ruby.marshaler.Json json = null;
             public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
-                return new com.cognitect.transit.ruby.marshaler.Json(runtime, rubyClass);
+                if (json == null) {
+                    json = new com.cognitect.transit.ruby.marshaler.Json(runtime, rubyClass);
+                }
+                try {
+                    com.cognitect.transit.ruby.marshaler.Json clone =
+                            (com.cognitect.transit.ruby.marshaler.Json)json.clone();
+                    clone.setMetaClass(rubyClass);
+                    return clone;
+                } catch (CloneNotSupportedException e) {
+                    return new com.cognitect.transit.ruby.marshaler.Json(runtime, rubyClass);
+                }
             }
         });
-        IRubyObject[] base_module = new IRubyObject[]{runtime.getClassFromPath("Transit::Marshaler::Base")};
         json_marshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.marshaler.Json.class);
 
         RubyClass verbosejson_marshaler = marshaler.defineClassUnder("VerboseJson", runtime.getObject(), new ObjectAllocator() {
+            private com.cognitect.transit.ruby.marshaler.VerboseJson verboseJson = null;
             public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
-                return new com.cognitect.transit.ruby.marshaler.VerboseJson(runtime, rubyClass);
+                if (verboseJson == null) {
+                    verboseJson = new com.cognitect.transit.ruby.marshaler.VerboseJson(runtime, rubyClass);
+                }
+                try {
+                    com.cognitect.transit.ruby.marshaler.VerboseJson clone =
+                            (com.cognitect.transit.ruby.marshaler.VerboseJson)verboseJson.clone();
+                    clone.setMetaClass(rubyClass);
+                    return clone;
+                } catch (CloneNotSupportedException e) {
+                    return new com.cognitect.transit.ruby.marshaler.VerboseJson(runtime, rubyClass);
+                }
             }
         });
         verbosejson_marshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.marshaler.Json.class);
 
         RubyClass messagepack_marshaler = marshaler.defineClassUnder("MessagePack", runtime.getObject(), new ObjectAllocator() {
-                public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
+            private com.cognitect.transit.ruby.marshaler.MessagePack msgpack = null;
+            public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
+                if (msgpack == null) {
+                    msgpack = new com.cognitect.transit.ruby.marshaler.MessagePack(runtime, rubyClass);
+                }
+                try {
+                    com.cognitect.transit.ruby.marshaler.MessagePack clone =
+                            (com.cognitect.transit.ruby.marshaler.MessagePack)msgpack.clone();
+                    clone.setMetaClass(rubyClass);
+                    return clone;
+                } catch (CloneNotSupportedException e) {
                     return new com.cognitect.transit.ruby.marshaler.MessagePack(runtime, rubyClass);
                 }
-            });
+            }
+        });
         messagepack_marshaler.defineAnnotatedMethods(com.cognitect.transit.ruby.marshaler.MessagePack.class);
 
         return true;

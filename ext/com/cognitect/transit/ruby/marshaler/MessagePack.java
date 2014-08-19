@@ -51,11 +51,13 @@ public class MessagePack extends Base {
 
     private void init(ThreadContext context, IRubyObject[] args) {
         OutputStream output = convertRubyIOToOutputStream(context, args[0]);
-        Map<Class, WriteHandler<?, ?>> handlers = convertRubyHandlersToJavaHandlers(context, args[1]);
+        convertDefaultRubyHandlersToJavaHandler(context);
+        convertUserDefinedRubyHandlersToJavaHandler(context, args[1]);
+        Map<Class, WriteHandler<?, ?>> handlerProxy = getProxy();
         if (handlers == null) {
             writer = TransitFactory.writer(TransitFactory.Format.MSGPACK, output);
         } else {
-            writer = TransitFactory.writer(TransitFactory.Format.MSGPACK, output, handlers);
+            writer = TransitFactory.writer(TransitFactory.Format.MSGPACK, output, handlerProxy);
         }
     }
 

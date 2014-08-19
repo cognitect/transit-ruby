@@ -41,6 +41,11 @@ public abstract class Base extends RubyObject {
     private static final long serialVersionUID = -2693178195157618851L;
     protected Reader reader;
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
     public Base(final Ruby runtime, RubyClass rubyClass) {
         super(runtime, rubyClass);
     }

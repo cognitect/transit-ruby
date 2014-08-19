@@ -51,12 +51,13 @@ public class Json extends Base {
 
     private void init(ThreadContext context, IRubyObject[] args) {
         OutputStream output = convertRubyIOToOutputStream(context, args[0]);
-        this.convertDefaultRubyHandlersToJavaHandlers(context);
-        Map<Class, WriteHandler<?, ?>> handlers = convertRubyHandlersToJavaHandlers(context, args[1]);
+        convertDefaultRubyHandlersToJavaHandler(context);
+        convertUserDefinedRubyHandlersToJavaHandler(context, args[1]);
+        Map<Class, WriteHandler<?, ?>> handlerProxy = getProxy();
         if (handlers == null) {
             writer = TransitFactory.writer(TransitFactory.Format.JSON, output);
         } else {
-            writer = TransitFactory.writer(TransitFactory.Format.JSON, output, handlers);
+            writer = TransitFactory.writer(TransitFactory.Format.JSON, output, handlerProxy);
         }
     }
 
