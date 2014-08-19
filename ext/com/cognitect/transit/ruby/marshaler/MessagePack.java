@@ -50,6 +50,7 @@ public class MessagePack extends Base {
     }
 
     private void init(ThreadContext context, IRubyObject[] args) {
+        /*
         OutputStream output = convertRubyIOToOutputStream(context, args[0]);
         convertDefaultRubyHandlersToJavaHandler(context);
         convertUserDefinedRubyHandlersToJavaHandler(context, args[1]);
@@ -59,6 +60,7 @@ public class MessagePack extends Base {
         } else {
             writer = TransitFactory.writer(TransitFactory.Format.MSGPACK, output, handlerProxy);
         }
+        */
     }
 
     public IRubyObject write(ThreadContext context, IRubyObject arg) {
