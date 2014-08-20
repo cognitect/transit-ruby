@@ -158,7 +158,16 @@ public class Base extends RubyObject {
 
     protected IRubyObject write(ThreadContext context, IRubyObject arg) {
         System.out.println("ARG: " + arg + ", " + arg.getMetaClass() + ", " + arg.getClass());
-        writer.write(arg);
+        try {
+            writer.write(arg);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            if (e.getCause() != null) {
+                throw context.getRuntime().newRuntimeError(e.getCause().getMessage());
+            } else {
+                throw context.getRuntime().newRuntimeError(e.getMessage());
+            }
+        }
         return null;
     }
 }

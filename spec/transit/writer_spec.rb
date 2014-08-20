@@ -46,7 +46,16 @@ module Transit
       marshals_scalar("a Fixnum", 9007199254740999, "~i9007199254740999")
       marshals_scalar("a Bignum", 9223372036854775806, "~i9223372036854775806")
       marshals_scalar("a Very Bignum", 4256768765123454321897654321234567, "~n4256768765123454321897654321234567")
-      marshals_scalar("a ByteArray", ByteArray.new(bytes), "~b#{ByteArray.new(bytes).to_base64}")
+      # Ruby's base64 encoding adds line feed in every 60 encoded
+      # characters, while Java,
+      # org.apache.commons.codec.binary.Base64, doesn't add any. Java
+      # method has option to add line feed, but every 76 characters.
+      # this divergence may be inevitable
+      if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+        marshals_scalar("a ByteArray", ByteArray.new(bytes), "~b#{ByteArray.new(bytes).to_base64}".gsub(/\n/, ""))
+      else
+        marshals_scalar("a ByteArray", ByteArray.new(bytes), "~b#{ByteArray.new(bytes).to_base64}")
+      end
       marshals_scalar("an URI", Addressable::URI.parse("http://example.com/search"), "~rhttp://example.com/search")
       marshals_structure("a link",
                          Link.new(Addressable::URI.parse("http://example.com/search"), "search", nil, "link", nil),
