@@ -41,6 +41,10 @@ def jruby?
   defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
 end
 
+if jruby?
+  require 'transit/unmarshaler/jruby/messagepack'
+end
+
 RSpec.configure do |c|
   c.alias_example_to :fit, :focus => true
   c.filter_run_including :focus => true, :focused => true

@@ -12,26 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This is for a spec
 module Transit
-  module Unmarshaler
-    # Transit::Reader::MessagePackUnmarshaler is responsible to read data on CRuby
-    # @see https://github.com/cognitect/transit-format
-
-    # @api private
-    class MessagePack
-      def initialize(io, opts)
-        @decoder = Transit::Decoder.new(opts)
-        puts "JRUBY *WILL* INITIALIZE MESSAGEPACK UNMARSHALER. STAY TUNED"
-        @unpacker = StringIO.new
-        #@unpacker = Java::OrgMsgpackUnpacker::MessagePackUnpacker.new
+  module MessagePack
+    class Unpacker
+      def initialize(io)
+        @reader = 
+          Java::ComCognitectTransit::TransitFactory.reader(Java::ComCognitectTransit::TransitFactory::Format::MSGPACK, io.to_inputstream)
       end
 
-      # @see Reader#read
       def read
-        if block_given?
-          @unpacker.each {|v| yield @decoder.decode(v)}
+        v = @reader.read
+        if v.is_a?(Java::ComCognitectTransit::TaggedValue)
+          [v.tag, v.rep]
         else
-          @decoder.decode(@unpacker.read)
+          v
         end
       end
     end

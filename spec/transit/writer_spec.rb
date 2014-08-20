@@ -51,7 +51,7 @@ module Transit
       # org.apache.commons.codec.binary.Base64, doesn't add any. Java
       # method has option to add line feed, but every 76 characters.
       # this divergence may be inevitable
-      if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+      if jruby?
         marshals_scalar("a ByteArray", ByteArray.new(bytes), "~b#{ByteArray.new(bytes).to_base64}".gsub(/\n/, ""))
       else
         marshals_scalar("a ByteArray", ByteArray.new(bytes), "~b#{ByteArray.new(bytes).to_base64}")
@@ -76,7 +76,13 @@ module Transit
           def tag(_) nil end
         end
         writer = Writer.new(:json_verbose, io, :handlers => {Date => handler.new})
-        assert { rescuing { writer.write(Date.today) }.message =~ /must provide a non-nil tag/ }
+        # transit-java returns the error message "Not supported:
+        # 2014-08-20". JRuby tests the error will be raised
+        if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+          assert { rescuing { writer.write(Date.today) }.is_a?(RuntimeError) }
+        else
+          assert { rescuing { writer.write(Date.today) }.message =~ /must provide a non-nil tag/ }
+        end
       end
 
       it "supports custom handlers for core types" do
