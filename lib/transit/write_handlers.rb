@@ -336,7 +336,13 @@ module Transit
 
     class ByteArrayHandler
       def tag(_) "b" end
-      def rep(b) b.to_base64 end
+      def rep(b)
+        if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+          b.value.to_java_bytes
+        else
+          b.to_base64
+        end
+      end
       def string_rep(b) rep(b) end
     end
 
