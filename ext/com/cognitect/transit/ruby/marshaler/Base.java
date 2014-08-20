@@ -28,6 +28,7 @@ import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.javasupport.JavaUtil;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
@@ -56,75 +57,64 @@ public class Base extends RubyObject {
     }
 
     protected Map<Class, WriteHandler<?, ?>> convertDefaultRubyHandlersToJavaHandler(
-            final ThreadContext context) {
+            final ThreadContext context,
+            IRubyObject arg) {
         final Map<String, WriteHandler<Object, Object>> rubyHandlers = new HashMap<String, WriteHandler<Object, Object>>();
         Map<Class, WriteHandler<?, ?>> javaHandler = new HashMap<Class, WriteHandler<?, ?>>(1);
         Object ivar = this.getInstanceVariable("@handlers");
-        if (ivar instanceof RubyHash) {
-            RubyHash h = (RubyHash)ivar;
-            for (Map.Entry entry : (Set<Map.Entry>)h.entrySet()) {
-                System.out.println("KEY: " + entry.getKey());
-                rubyHandlers.put(((RubyModule)entry.getKey()).getName(),
-                            convertRubyToJava(context, (RubyObject)entry.getValue()));
-            }
-            javaHandler.put(RubyObject.class, new WriteHandler<Object, Object>() {
-                @Override
-                public <V> WriteHandler<Object, V> getVerboseHandler() {
-                    return null;
-                }
-
-                private WriteHandler<Object, Object> findHandler(Object o) {
-                    if (o instanceof RubyObject) {
-                        RubyArray ancestors = (RubyArray)((RubyObject)o).getMetaClass().callMethod(context, "ancestors");
-                        for (Object ancestor : ancestors) {
-                            WriteHandler<Object, Object> handler = rubyHandlers.get(((RubyModule)ancestor).getName());
-                            System.out.println("HANDLER NAME: " + ((RubyModule)ancestor).getName());
-                            if (handler != null) return handler;
-                        }
-                    }
-                    return null;
-                }
-
-                @Override
-                public Object rep(Object o) {
-                    System.out.println("REP");
-                    WriteHandler<Object, Object> handler = findHandler(o);
-                    if (handler != null) return handler.rep(o);
-                    return null;
-                }
-
-                @Override
-                public String stringRep(Object o) {
-                    System.out.println("STRINGREP");
-                    WriteHandler<Object, Object> handler = findHandler(o);
-                    if (handler != null) return handler.stringRep(o);
-                    return null;
-                }
-
-                @Override
-                public String tag(Object o) {
-                    System.out.println("TAG");
-                    WriteHandler<Object, Object> handler = findHandler(o);
-                    if (handler != null) return handler.tag(o);
-                    return null;
-                }
-            });
+        RubyHash h = (RubyHash)ivar;
+        IRubyObject customs = arg.callMethod(context, "[]", context.getRuntime().newSymbol("handlers"));
+        h.callMethod(context, "merge", new IRubyObject[]{customs}, Block.NULL_BLOCK);
+            
+        for (Map.Entry entry : (Set<Map.Entry>)h.entrySet()) {
+            System.out.println("KEY: " + entry.getKey());
+            rubyHandlers.put(((RubyModule)entry.getKey()).getName(),
+                    convertRubyToJava(context, (RubyObject)entry.getValue()));
         }
+        javaHandler.put(RubyObject.class, new WriteHandler<Object, Object>() {
+            @Override
+            public <V> WriteHandler<Object, V> getVerboseHandler() {
+                return null;
+            }
+
+            private WriteHandler<Object, Object> findHandler(Object o) {
+                if (o instanceof RubyObject) {
+                    RubyArray ancestors = (RubyArray)((RubyObject)o).getMetaClass().callMethod(context, "ancestors");
+                    for (Object ancestor : ancestors) {
+                        WriteHandler<Object, Object> handler = rubyHandlers.get(((RubyModule)ancestor).getName());
+                        System.out.println("HANDLER NAME: " + ((RubyModule)ancestor).getName());
+                        if (handler != null) return handler;
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            public Object rep(Object o) {
+                System.out.println("REP");
+                WriteHandler<Object, Object> handler = findHandler(o);
+                if (handler != null) return handler.rep(o);
+                return null;
+            }
+
+            @Override
+            public String stringRep(Object o) {
+                System.out.println("STRINGREP");
+                WriteHandler<Object, Object> handler = findHandler(o);
+                if (handler != null) return handler.stringRep(o);
+                return null;
+            }
+
+            @Override
+            public String tag(Object o) {
+                System.out.println("TAG");
+                WriteHandler<Object, Object> handler = findHandler(o);
+                if (handler != null) return handler.tag(o);
+                return null;
+            }
+        });
         return javaHandler;
     }
-/*
-    protected void convertUserDefinedRubyHandlersToJavaHandler(
-            final ThreadContext context, IRubyObject arg) {
-        if (!(arg instanceof RubyHash)) {
-            throw context.getRuntime().newArgumentError("The second argument is not Hash");
-        }
-        RubyHash opts = (RubyHash)arg;
-        IRubyObject h = opts.callMethod(context, "[]", context.getRuntime().newSymbol("handlers"));
-        if (h instanceof RubyHash) {
-            RubyHash userDefinedHandlers = (RubyHash)h;
-        }
-    }
-*/
 
     private WriteHandler<Object, Object> convertRubyToJava(final ThreadContext context, final RubyObject handler) {
         return new WriteHandler<Object, Object>() {
@@ -149,9 +139,13 @@ public class Base extends RubyObject {
 
             @Override
             public String tag(Object o) {
-                RubyString ret =
-                        (RubyString) handler.callMethod(context, "tag", JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), o));
-                return ret.asJavaString();
+                IRubyObject ret =
+                        handler.callMethod(context, "tag", JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), o));
+                if (ret.isNil()) {
+                    return null;
+                } else {
+                    return ((RubyString)ret).asJavaString();
+                }
             }
         };
     }
