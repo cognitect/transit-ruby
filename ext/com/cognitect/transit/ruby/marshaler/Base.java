@@ -67,7 +67,7 @@ public class Base extends RubyObject {
         h.callMethod(context, "merge", new IRubyObject[]{customs}, Block.NULL_BLOCK);
             
         for (Map.Entry entry : (Set<Map.Entry>)h.entrySet()) {
-            System.out.println("KEY: " + entry.getKey());
+            //System.out.println("KEY: " + entry.getKey());
             rubyHandlers.put(((RubyModule)entry.getKey()).getName(),
                     convertRubyToJava(context, (RubyObject)entry.getValue()));
         }
@@ -82,7 +82,7 @@ public class Base extends RubyObject {
                     RubyArray ancestors = (RubyArray)((RubyObject)o).getMetaClass().callMethod(context, "ancestors");
                     for (Object ancestor : ancestors) {
                         WriteHandler<Object, Object> handler = rubyHandlers.get(((RubyModule)ancestor).getName());
-                        System.out.println("HANDLER NAME: " + ((RubyModule)ancestor).getName());
+                        //System.out.println("HANDLER NAME: " + ((RubyModule)ancestor).getName());
                         if (handler != null) return handler;
                     }
                 }
@@ -91,7 +91,7 @@ public class Base extends RubyObject {
 
             @Override
             public Object rep(Object o) {
-                System.out.println("REP");
+                //System.out.println("REP");
                 WriteHandler<Object, Object> handler = findHandler(o);
                 if (handler != null) return handler.rep(o);
                 return null;
@@ -99,7 +99,7 @@ public class Base extends RubyObject {
 
             @Override
             public String stringRep(Object o) {
-                System.out.println("STRINGREP");
+                //System.out.println("STRINGREP");
                 WriteHandler<Object, Object> handler = findHandler(o);
                 if (handler != null) return handler.stringRep(o);
                 return null;
@@ -107,7 +107,7 @@ public class Base extends RubyObject {
 
             @Override
             public String tag(Object o) {
-                System.out.println("TAG");
+                //System.out.println("TAG");
                 WriteHandler<Object, Object> handler = findHandler(o);
                 if (handler != null) return handler.tag(o);
                 return null;
@@ -151,11 +151,12 @@ public class Base extends RubyObject {
     }
 
     protected IRubyObject write(ThreadContext context, IRubyObject arg) {
-        System.out.println("ARG: " + arg + ", " + arg.getMetaClass() + ", " + arg.getClass());
+        //System.out.println("ARG: " + arg + ", " + arg.getMetaClass() + ", " + arg.getClass());
         try {
             writer.write(arg);
         } catch (Throwable e) {
-            e.printStackTrace();
+            // TODO: use log api to spit out java exception
+            //e.printStackTrace();
             if (e.getCause() != null) {
                 throw context.getRuntime().newRuntimeError(e.getCause().getMessage());
             } else {

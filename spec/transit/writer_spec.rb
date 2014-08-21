@@ -78,7 +78,7 @@ module Transit
         writer = Writer.new(:json_verbose, io, :handlers => {Date => handler.new})
         # transit-java returns the error message "Not supported:
         # 2014-08-20". JRuby tests the error will be raised
-        if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+        if jruby?
           assert { rescuing { writer.write(Date.today) }.is_a?(RuntimeError) }
         else
           assert { rescuing { writer.write(Date.today) }.message =~ /must provide a non-nil tag/ }
@@ -221,17 +221,19 @@ module Transit
       describe "MESSAGE_PACK" do
         let(:writer) { Writer.new(:msgpack, io) }
 
-        it "writes a single-char tagged-value as a 2-element array" do
+        # JRuby skips these 3 examples since they use raw massage pack
+        # api. Also, JRuby doesn't hava good counterpart.
+        it "writes a single-char tagged-value as a 2-element array", :jruby => jruby? do
           writer.write(TaggedValue.new("a","bc"))
           assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == ["~#'", "~abc"] }
         end
 
-        it "writes a multi-char tagged-value as a 2-element array" do
+        it "writes a multi-char tagged-value as a 2-element array", :jruby => jruby? do
           writer.write(TaggedValue.new("abc","def"))
           assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == ["~#abc", "def"] }
         end
 
-        it "writes a top-level scalar as a quote-tagged value" do
+        it "writes a top-level scalar as a quote-tagged value", :jruby => jruby? do
           writer.write("this")
           assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == ["~#'", "this"] }
         end
@@ -286,7 +288,14 @@ module Transit
         it 'raises when there is no handler for the type' do
           type = Class.new
           obj = type.new
-          assert { rescuing { writer.write(obj) }.message =~ /Can not find a Write Handler/ }
+          # transit-java returns the error message "Not supported:
+          # #<#<Class:0x12d40609>:0x76437e9b>". JRuby tests error will
+          # be raised.
+          if jruby?
+            assert { rescuing { writer.write(obj) }.is_a?(RuntimeError) }
+          else
+            assert { rescuing { writer.write(obj) }.message =~ /Can not find a Write Handler/ }
+          end
         end
       end
     end

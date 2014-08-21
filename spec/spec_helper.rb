@@ -48,6 +48,7 @@ end
 RSpec.configure do |c|
   c.alias_example_to :fit, :focus => true
   c.filter_run_including :focus => true, :focused => true
+  c.filter_run_excluding :jruby => true
   c.run_all_when_everything_filtered = true
   c.mock_with :nothing
 
