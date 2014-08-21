@@ -64,7 +64,9 @@ public class Base extends RubyObject {
         Object ivar = this.getInstanceVariable("@handlers");
         RubyHash h = (RubyHash)ivar;
         IRubyObject customs = arg.callMethod(context, "[]", context.getRuntime().newSymbol("handlers"));
-        h.callMethod(context, "merge", new IRubyObject[]{customs}, Block.NULL_BLOCK);
+        if (!customs.isNil()) {
+            h.callMethod(context, "merge", new IRubyObject[]{customs}, Block.NULL_BLOCK);
+        }
             
         for (Map.Entry entry : (Set<Map.Entry>)h.entrySet()) {
             //System.out.println("KEY: " + entry.getKey());
@@ -154,15 +156,15 @@ public class Base extends RubyObject {
         //System.out.println("ARG: " + arg + ", " + arg.getMetaClass() + ", " + arg.getClass());
         try {
             writer.write(arg);
-        } catch (Throwable e) {
+        } catch (Throwable t) {
             // TODO: use log api to spit out java exception
             //e.printStackTrace();
-            if (e.getCause() != null) {
-                throw context.getRuntime().newRuntimeError(e.getCause().getMessage());
+            if (t.getCause() != null) {
+                throw context.getRuntime().newRuntimeError(t.getCause().getMessage());
             } else {
-                throw context.getRuntime().newRuntimeError(e.getMessage());
+                throw context.getRuntime().newRuntimeError(t.getMessage());
             }
         }
-        return null;
+        return context.getRuntime().getNil();
     }
 }

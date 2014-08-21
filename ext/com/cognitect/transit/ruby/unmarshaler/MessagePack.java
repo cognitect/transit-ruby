@@ -26,8 +26,11 @@ import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
+import com.cognitect.transit.ArrayReader;
+import com.cognitect.transit.DefaultReadHandler;
+import com.cognitect.transit.MapReader;
 import com.cognitect.transit.ReadHandler;
-import com.cognitect.transit.TransitFactory;
+import com.cognitect.transit.SPI.ReaderSPI;
 
 @JRubyClass(name="Transit::Unmarshaler::MessagePack")
 public class MessagePack extends Base {
@@ -45,18 +48,18 @@ public class MessagePack extends Base {
     public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
         RubyClass rubyClass = (RubyClass)context.getRuntime().getClassFromPath("Transit::Unmarshaler::MessagePack");
         MessagePack messagepack = (MessagePack)rubyClass.allocate();
+        messagepack.instance_variable_set(context.getRuntime().newString("@decoder"), newDecoder(context, args[1]));
         messagepack.init(context, args);
         return messagepack;
     }
 
     private void init(ThreadContext context, IRubyObject[] args) {
         InputStream input = convertRubyIOToInputStream(context, args[0]);
-        Map<String, ReadHandler<?, ?>> handlers = convertRubyHandlersToJavaHandlers(context, args[1]);
-        if (handlers == null) {
-            reader = TransitFactory.reader(TransitFactory.Format.MSGPACK, input);
-        } else {
-            reader = TransitFactory.reader(TransitFactory.Format.MSGPACK, input, handlers);
-        }
+        Map<String, ReadHandler<?, ?>> handlers = convertRubyHandlersToJavaHandlers(context);
+        DefaultReadHandler<IRubyObject> defaultHandler = convertRubyDefaultHandlerToJavaDefaultHandler(context);
+        reader = new RubyReaders.MsgPackReaderImpl(input, handlers, defaultHandler);
+        ((ReaderSPI)reader).setBuilders((MapReader)(new RubyMapReader(context.getRuntime())),
+                                        (ArrayReader)(new RubyArrayReader(context.getRuntime())));
     }
 
     @JRubyMethod

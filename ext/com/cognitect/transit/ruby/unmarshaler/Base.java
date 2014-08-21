@@ -16,13 +16,11 @@
 package com.cognitect.transit.ruby.unmarshaler;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyHash;
-import org.jruby.RubyNil;
 import org.jruby.RubyObject;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.Block;
@@ -32,10 +30,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 import com.cognitect.transit.DefaultReadHandler;
 import com.cognitect.transit.ReadHandler;
 import com.cognitect.transit.Reader;
-import com.cognitect.transit.ruby.TransitTypeConverters;
-import com.cognitect.transit.ruby.handler.CmapReadHandler;
-import com.cognitect.transit.ruby.handler.KeywordReadHandler;
-import com.cognitect.transit.ruby.handler.RatioReadHandler;
+import com.cognitect.transit.impl.ReaderFactory;
 
 public abstract class Base extends RubyObject {
     private static final long serialVersionUID = -2693178195157618851L;
@@ -51,12 +46,8 @@ public abstract class Base extends RubyObject {
     }
     
     protected static IRubyObject newDecoder(ThreadContext context, IRubyObject opts) {
-        try {
-            RubyClass decoderClass = (RubyClass) context.getRuntime().getClassFromPath("Transit::Decoder");
-            return decoderClass.callMethod(context, "new", opts);
-        } catch (Throwable t) {
-            throw context.getRuntime().newRuntimeError(t.getMessage());
-        }
+        RubyClass decoderClass = (RubyClass) context.getRuntime().getClassFromPath("Transit::Decoder");
+        return decoderClass.callMethod(context, "new", opts);
     }
 
     protected InputStream convertRubyIOToInputStream(ThreadContext context, IRubyObject rubyObject) {
@@ -68,59 +59,38 @@ public abstract class Base extends RubyObject {
     }
 
     protected Map<String, ReadHandler<?, ?>> convertRubyHandlersToJavaHandlers(
-            final ThreadContext context, IRubyObject rubyObject) {
-        if (!(rubyObject instanceof RubyHash)) {
-            throw context.getRuntime().newArgumentError("The second argument is not Hash");
+            final ThreadContext context) {
+        IRubyObject decoder = this.getInstanceVariable("@decoder");
+        IRubyObject ivar = decoder.callMethod(context.getRuntime().getCurrentContext(), "instance_variable_get", context.getRuntime().newString("@handlers"));
+        final RubyHash handlers = (RubyHash)ivar;
+        Map<String, ReadHandler<?, ?>> javaHandlers = ReaderFactory.defaultHandlers();
+        for (Object key : handlers.keySet()) {
+            final IRubyObject handler = (IRubyObject)handlers.get(key);
+            javaHandlers.put((String)key, new ReadHandler<IRubyObject, Object>() {
+                public IRubyObject fromRep(Object o) {
+                    return handler.callMethod(context, "from_rep",
+                            JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), o));
+                }
+            });
         }
-        Map<String, ReadHandler<?, ?>> javaHandlers = overrideJavaHandlers(context.getRuntime());
-        RubyHash opts = (RubyHash)rubyObject;
-        IRubyObject h = opts.callMethod(context, "[]", context.getRuntime().newSymbol("handlers"));
-        if (h instanceof RubyHash) {
-            RubyHash handlers = (RubyHash)h;
-            for (Object key : handlers.keySet()) {
-                final RubyObject handler = (RubyObject)handlers.get(key);
-                javaHandlers.put(
-                        key.toString(),
-                        new ReadHandler<IRubyObject, Object>() {
-                           public IRubyObject fromRep(Object o) {
-                               return handler.callMethod("from_rep",
-                                           JavaUtil.convertJavaToUsableRubyObjectWithConverter(context.getRuntime(), o, TransitTypeConverters.converter(o)));
-                           }
-                        });
+        return javaHandlers;
+    }
+
+    protected DefaultReadHandler<IRubyObject> convertRubyDefaultHandlerToJavaDefaultHandler(
+            final ThreadContext context) {
+        IRubyObject decoder = this.getInstanceVariable("@decoder");
+        IRubyObject ivar = decoder.callMethod(context.getRuntime().getCurrentContext(),
+                    "instance_variable_get",
+                    context.getRuntime().newString("@default_handler"));
+        final RubyObject handler = (RubyObject)ivar;
+        DefaultReadHandler<IRubyObject> javaHandler = new DefaultReadHandler<IRubyObject>() {
+            public IRubyObject fromRep(String tag, Object rep) {
+                return handler.callMethod("from_rep",
+                        context.getRuntime().newString(tag),
+                        JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), rep));
             }
-        }
-        return javaHandlers;
-    }
-
-    private Map<String, ReadHandler<?, ?>> overrideJavaHandlers(Ruby runtime) {
-        Map<String, ReadHandler<?, ?>> javaHandlers = new HashMap<String, ReadHandler<?, ?>>();
-        javaHandlers.put("cmap", new CmapReadHandler(runtime));
-        javaHandlers.put("ratio", new RatioReadHandler(runtime));
-        javaHandlers.put(":", new KeywordReadHandler(runtime));
-        return javaHandlers;
-    }
-
-    protected DefaultReadHandler<?> convertRubyDefaultHandlerToJavaDefaultHandler(
-            final ThreadContext context, IRubyObject rubyObject) {
-        if (!(rubyObject instanceof RubyHash)) {
-            throw context.getRuntime().newArgumentError("The second argument is not Hash");
-        }
-        RubyHash opts = (RubyHash)rubyObject;
-        IRubyObject c = opts.callMethod(context, "[]", context.getRuntime().newSymbol("default_handler"));
-        if (c instanceof RubyNil) {
-            return null;
-        } else {
-            final RubyObject default_handler = (RubyObject)c;
-            DefaultReadHandler<IRubyObject> javaDefaultHandler =
-                    new DefaultReadHandler<IRubyObject>() {
-                        public IRubyObject fromRep(String tag, Object rep) {
-                            return default_handler.callMethod("from_rep",
-                                        context.getRuntime().newString(tag),
-                                        JavaUtil.convertJavaToUsableRubyObjectWithConverter(context.getRuntime(), rep, TransitTypeConverters.converter(rep)));
-                        }
-            };
-            return javaDefaultHandler;
-        }
+        };
+        return javaHandler;
     }
 
     /**
@@ -129,18 +99,20 @@ public abstract class Base extends RubyObject {
     protected IRubyObject read(ThreadContext context, Block block) {
         try {
             Object o = reader.read();
-            IRubyObject value =
-                    JavaUtil.convertJavaToUsableRubyObjectWithConverter(context.getRuntime(), o, TransitTypeConverters.converter(o));
-            if (value != null) {
-                if (block.isGiven()) {
-                    return block.yield(context, value);
-                } else {
-                    return value;
-                }
+            //System.out.println("WHAT? " + o + ", " + o.getClass().getCanonicalName());
+            IRubyObject value;
+            if (o instanceof IRubyObject) {
+                value = (IRubyObject)o;
+            } else {
+                value = JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), o);
+            }
+            if ((value != null) && block.isGiven()) {
+                return block.yield(context, value);
+            } else {
+                return value;
             }
         } catch (Throwable t) {
             throw context.getRuntime().newRuntimeError(t.getMessage());
         }
-        return context.getRuntime().getNil();
     }
 }

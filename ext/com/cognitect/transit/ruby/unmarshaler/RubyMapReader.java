@@ -13,42 +13,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.cognitect.transit.ruby;
+package com.cognitect.transit.ruby.unmarshaler;
 
 import org.jruby.Ruby;
-import org.jruby.RubyArray;
+import org.jruby.RubyHash;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
-import com.cognitect.transit.ArrayReader;
+import com.cognitect.transit.MapReader;
 
-public class RubyArrayReader implements ArrayReader<RubyArray, IRubyObject, Object> {
+public class RubyMapReader implements MapReader<RubyHash, RubyHash, Object, Object> {
     private Ruby runtime;
 
-    public RubyArrayReader(Ruby runtime) {
+    public RubyMapReader(Ruby runtime) {
         this.runtime = runtime;
     }
 
     @Override
-    public RubyArray add(RubyArray array, Object item) {
-        JavaUtil.JavaConverter converter = TransitTypeConverters.converter(item);
-        IRubyObject value = JavaUtil.convertJavaToUsableRubyObjectWithConverter(runtime, item, converter);
-        array.callMethod(array.getRuntime().getCurrentContext(), "<<", value);
-        return array;
+    public RubyHash add(RubyHash hash, Object key, Object value) {
+        IRubyObject key_value = JavaUtil.convertJavaToUsableRubyObject(runtime, key);
+        IRubyObject value_value = JavaUtil.convertJavaToUsableRubyObject(runtime, value);
+        IRubyObject[] args = new IRubyObject[]{key_value, value_value};
+        hash.callMethod(runtime.getCurrentContext(), "[]=", args);
+        return hash;
     }
 
     @Override
-    public RubyArray complete(RubyArray array) {
-        return array;
+    public RubyHash complete(RubyHash hash) {
+        return hash;
     }
 
     @Override
-    public RubyArray init() {
-        return runtime.newArray();
+    public RubyHash init() {
+        return RubyHash.newHash(runtime);
     }
 
     @Override
-    public RubyArray init(int size) {
-        return runtime.newArray(size);
+    public RubyHash init(int size) {
+        return RubyHash.newHash(runtime);
     }
 }

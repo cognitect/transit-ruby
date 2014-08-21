@@ -42,11 +42,16 @@ public class Json extends Base {
      **/
     @JRubyMethod(name="new", meta=true, required=1, rest=true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
-        RubyClass rubyClass = (RubyClass)context.getRuntime().getClassFromPath("Transit::Marshaler::Json");
-        Json json = (Json)rubyClass.allocate();
-        json.callMethod(context, "initialize", args);
-        json.init(context, args);
-        return json;
+        try {
+            RubyClass rubyClass = (RubyClass)context.getRuntime().getClassFromPath("Transit::Marshaler::Json");
+            Json json = (Json)rubyClass.allocate();
+            json.callMethod(context, "initialize", args);
+            json.init(context, args);
+            return json;
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw context.getRuntime().newRuntimeError(t.getMessage());
+        }
     }
 
     private void init(ThreadContext context, IRubyObject[] args) {
