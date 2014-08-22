@@ -26,7 +26,7 @@ module Transit
       else
         raise "Don't know how to get millis from #{t.inspect}"
       end
-      (t.to_i * 1000) + (t.usec / 1000)
+      (t.to_i * 1000) + (t.usec / 1000.0).round
     end
 
     def from_millis(millis)
