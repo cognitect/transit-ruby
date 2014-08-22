@@ -22,7 +22,7 @@ module Transit
       when Date
         t = Time.gm(v.year, v.month, v.day)
       when Time
-        t = v.getutc
+        t = v
       else
         raise "Don't know how to get millis from #{t.inspect}"
       end
