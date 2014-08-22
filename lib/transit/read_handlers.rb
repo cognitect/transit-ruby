@@ -42,6 +42,16 @@ module Transit
     class BigDecimalHandler
       def from_rep(v) BigDecimal.new(v) end
     end
+    class SpecialNumbersHandler
+      def from_rep(v)
+        case v
+        when "nan"  then  Float::NAN
+        when "inf"  then  Float::INFINITY
+        when "-inf" then -Float::INFINITY
+        else raise ArgumentError.new("Don't know how to handle #{v.inspect} for the \"%\" tag")
+        end
+      end
+    end
     class IdentityHandler
       def from_rep(v) v end
     end
@@ -89,6 +99,7 @@ module Transit
       "u" => UuidHandler.new,
       "r" => UriHandler.new,
       "'" => IdentityHandler.new,
+      "%" => SpecialNumbersHandler.new,
       "set"     => SetHandler.new,
       "link"    => LinkHandler.new,
       "list"    => IdentityHandler.new,
