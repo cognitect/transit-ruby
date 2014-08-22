@@ -16,12 +16,14 @@
 package com.cognitect.transit.ruby.unmarshaler;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyHash;
 import org.jruby.RubyObject;
+import org.jruby.RubyString;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
@@ -63,13 +65,25 @@ public abstract class Base extends RubyObject {
         IRubyObject decoder = this.getInstanceVariable("@decoder");
         IRubyObject ivar = decoder.callMethod(context.getRuntime().getCurrentContext(), "instance_variable_get", context.getRuntime().newString("@handlers"));
         final RubyHash handlers = (RubyHash)ivar;
-        Map<String, ReadHandler<?, ?>> javaHandlers = ReaderFactory.defaultHandlers();
+        Map<String, ReadHandler<?, ?>> javaHandlers = new HashMap<String, ReadHandler<?, ?>>();
         for (Object key : handlers.keySet()) {
             final IRubyObject handler = (IRubyObject)handlers.get(key);
             javaHandlers.put((String)key, new ReadHandler<IRubyObject, Object>() {
                 public IRubyObject fromRep(Object o) {
                     return handler.callMethod(context, "from_rep",
                             JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), o));
+                }
+            });
+        }
+        // replaces TimeStringHandler to cover JRuby's bug in DateTime.iso8601() method
+        if (((RubyObject)handlers.get("t")).getMetaClass().getName().
+                equals("Transit::ReadHandlers::TimeStringHandler")) {
+            javaHandlers.put("t", new ReadHandler<IRubyObject, Object>() {
+                public IRubyObject fromRep(Object o) {
+                    RubyClass klazz = (RubyClass) context.getRuntime().getClassFromPath("DateTime");
+                    RubyString string = context.getRuntime().newString((String)o);
+                    RubyString format = context.getRuntime().newString("%Y-%m-%dT%H:%M:%S.%N%z");
+                    return klazz.callMethod(context, "strptime", new IRubyObject[]{string, format});
                 }
             });
         }
