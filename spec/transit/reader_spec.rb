@@ -119,7 +119,7 @@ module Transit
         it "delivers a UTC DateTime for a non-UTC date string" do
           io = StringIO.new(["~t2014-04-14T12:20:50.152-05:00"].to_json)
           reader = Reader.new(:json, io)
-          expect(reader.read).to eq([DateTime.new(2014,4,14,17,20,50.152,"Z")])
+          expect(Transit::DateTimeUtil.to_millis(reader.read.first)).to eq(Transit::DateTimeUtil.to_millis(DateTime.new(2014,4,14,17,20,50.152,"Z")))
         end
       end
 
