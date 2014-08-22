@@ -237,9 +237,26 @@ module Transit
     end
 
     class FloatHandler
-      def tag(_) "d" end
-      def rep(f) f end
-      def string_rep(f) f.to_s end
+      def tag(f)
+        return "%" if f.nan?
+        case f
+        when Float::INFINITY, -Float::INFINITY
+          "%"
+        else
+          "d"
+        end
+      end
+
+      def rep(f)
+        return "nan" if f.nan?
+        case f
+        when  Float::INFINITY then "inf"
+        when -Float::INFINITY then "-inf"
+        else f
+        end
+      end
+
+      def string_rep(f) rep(f).to_s end
     end
 
     class BigDecimalHandler

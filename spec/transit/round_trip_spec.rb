@@ -14,6 +14,10 @@
 
 require 'spec_helper'
 
+def nan?(obj)
+  obj.respond_to?(:nan?) and obj.nan?
+end
+
 def round_trip(obj, type, opts={})
   obj_before = obj
 
@@ -22,63 +26,48 @@ def round_trip(obj, type, opts={})
   writer.write(obj)
 
   # ensure that we don't modify the object being written
-  assert { obj == obj_before }
+  if nan?(obj_before)
+    assert { obj.nan? }
+  else
+    assert { obj == obj_before }
+  end
   reader = Transit::Reader.new(type, StringIO.new(io.string), :handlers => opts[:read_handlers])
   reader.read
 end
 
 def assert_equal_times(actual,expected)
+  return false unless expected.is_a?(Date) || expected.is_a?(Time) || expected.is_a?(DateTime)
   assert { Transit::DateTimeUtil.to_millis(actual) == Transit::DateTimeUtil.to_millis(expected) }
   assert { actual.zone == expected.zone }
+end
+
+def assert_nan(actual,expected)
+  return false unless nan?(expected)
+  expect(actual.respond_to?(:nan?)).to eq(true)
+  expect(actual.nan?).to eq(true)
+end
+
+def validate(expected, actual)
+  assert_equal_times(actual, expected) || assert_nan(actual, expected) || (expect(actual).to eq(expected))
 end
 
 def round_trips(label, obj, type, opts={})
   expected = opts[:expected] || obj
 
   it "round trips #{label} at top level", :focus => !!opts[:focus], :pending => opts[:pending] do
-    case obj
-    when Date, Time, DateTime
-      assert_equal_times(round_trip(obj, type), expected)
-    else
-      actual = round_trip(obj, type, opts)
-      expect(actual).to eq(expected)
-    end
+    validate(expected, round_trip(obj, type, opts))
   end
 
-  case obj
-  when Date, Time, DateTime
-    it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
-      after = round_trip({obj => 0}, type)
-      assert_equal_times(after.keys.first, expected)
-    end
-  else
-    it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
-      actual = round_trip({obj => 0}, type, opts)
-      wrapped_expected = {expected => 0}
-      assert { actual == wrapped_expected }
-    end
+  it "round trips #{label} as a map key", :focus => !!opts[:focus], :pending => opts[:pending] do
+    validate(expected, round_trip({obj => 0}, type, opts).keys.first)
   end
 
   it "round trips #{label} as a map value", :focus => !!opts[:focus], :pending => opts[:pending] do
-    case obj
-    when Date, Time, DateTime
-      after = round_trip({:a => obj}, type)
-      assert_equal_times(after.values.first, expected)
-    else
-      actual = round_trip({a: obj}, type, opts)
-      assert { actual == {a: expected} }
-    end
+    validate(expected, round_trip({a: obj}, type, opts).values.first)
   end
 
   it "round trips #{label} as an array value", :focus => !!opts[:focus], :pending => opts[:pending] do
-    case obj
-    when Date, Time, DateTime
-      after = round_trip([obj], type)
-      assert_equal_times(after.first, expected)
-    else
-      actual = round_trip([obj], type, opts)
-      assert { actual == [expected] }
-    end
+    validate(expected, round_trip([obj], type, opts).first)
   end
 end
 
@@ -118,6 +107,9 @@ module Transit
     round_trips("a big int", 123456789012345, type)
     round_trips("a very big int", 123456789012345679012345678890, type)
     round_trips("a float", 1234.56, type)
+    round_trips("NaN", Float::NAN, type)
+    round_trips("Infinity", Float::INFINITY, type)
+    round_trips("-Infinity", -Float::INFINITY, type)
     round_trips("a bigdec", BigDecimal.new("123.45"), type)
     round_trips("an instant (DateTime local)", DateTime.new(2014,1,2,3,4,5, "-5"), type,
                 :expected => DateTime.new(2014,1,2, (3+5) ,4,5, "+00:00"))
