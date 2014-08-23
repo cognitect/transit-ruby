@@ -12,7 +12,11 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 1.9.3'
 
+  spec.files         = `git ls-files -- lib/**/*.rb`.split("\n").
+    concat(["README.md","LICENSE",".yardopts",".yard_redcarpet_ext"])
+
   if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+    spec.files    = spec.files + ["lib/transit.jar"]
     spec.platform = 'java'
     spec.add_dependency "lock_jar",                   "~> 0.10.0"
     spec.add_development_dependency "rake-compiler",  "~> 0.9.2"
@@ -24,8 +28,6 @@ Gem::Specification.new do |spec|
     spec.add_development_dependency "yard-redcarpet-ext", "~> 0.0.3"
   end
 
-  spec.files         = `git ls-files -- lib/**/*.rb`.split("\n").
-    concat(["lib/transit.jar", "README.md","LICENSE",".yardopts",".yard_redcarpet_ext"])
   spec.test_files    = `git ls-files -- spec/*`.split("\n")
   spec.require_paths = ["lib"]
 
