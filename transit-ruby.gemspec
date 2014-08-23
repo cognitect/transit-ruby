@@ -24,7 +24,8 @@ Gem::Specification.new do |spec|
     spec.add_development_dependency "yard-redcarpet-ext", "~> 0.0.3"
   end
 
-  spec.files         = `git ls-files -- lib/*`.split("\n") + ["README.md","LICENSE",".yardopts",".yard_redcarpet_ext"]
+  spec.files         = `git ls-files -- lib/**/*.rb`.split("\n").
+    concat(["lib/transit.jar", "README.md","LICENSE",".yardopts",".yard_redcarpet_ext"])
   spec.test_files    = `git ls-files -- spec/*`.split("\n")
   spec.require_paths = ["lib"]
 
