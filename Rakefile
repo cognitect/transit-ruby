@@ -17,12 +17,7 @@ def project_name
 end
 
 def gemspec_filename
-  if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
-    platform = "jruby"
-  else
-    platform = "cruby"
-  end
-  @gemspec_filename ||= "#{platform}/#{project_name}.gemspec"
+  @gemspec_filename ||= "#{project_name}.gemspec"
 end
 
 def spec_version
