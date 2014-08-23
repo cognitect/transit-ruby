@@ -90,7 +90,7 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
   require 'lock_jar'
   LockJar.lock(File.join(File.dirname(__FILE__), "..", "Jarfile"))
   LockJar.load
-  require 'transit/transit_service.jar'
+  require 'transit.jar'
   require 'jruby'
   com.cognitect.transit.ruby.TransitService.new.basicLoad(JRuby.runtime)
   require 'transit/marshaler/jruby/json'
