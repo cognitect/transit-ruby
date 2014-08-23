@@ -1,7 +1,46 @@
-#!/bin/sh
+#!/bin/bash
 # Copyright (c) Cognitect, Inc.
 # All rights reserved.
 
 cd `dirname $0`/..
+
+# Load RVM into a shell session *as a function*
+if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then
+
+  # First try to load from a user install
+  source "$HOME/.rvm/scripts/rvm"
+
+elif [[ -s "/usr/local/rvm/scripts/rvm" ]] ; then
+
+  # Then try to load from a root install
+  source "/usr/local/rvm/scripts/rvm"
+
+else
+
+  printf "ERROR: An RVM installation was not found.\n"
+  exit
+fi
+type rvm | head -1 >> verify.log
+
+if [ -e "Gemfile.lock" ]; then
+    rm Gemfile.lock
+fi
+
+current_dir=${PWD##*/}
+count=`echo $current_dir | grep jruby | wc -c`
+
+if [ $count = '0' ]; then
+  rvm --create 2.1.1@verify-test >> verify.log
+  rvm gemset list >> verify.log
+  ruby -S gem install bundler >> verify.log
+  ruby -S bundle install >> verify.log
+else
+  rvm --create jruby@verify-test >> verify.log
+  rvm gemset list >> verify.log
+  export JAVA_OPTS="-Xmx1g"
+  ruby -S gem install bundler >> verify.log
+  ruby -S bundle install >> verify.log
+  ruby -S bundle exec rake compile >> verify.log
+fi
 
 exec bin/read-write "$@"
