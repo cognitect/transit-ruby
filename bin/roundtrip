@@ -20,27 +20,14 @@ else
   printf "ERROR: An RVM installation was not found.\n"
   exit
 fi
-type rvm | head -1 >> verify.log
-
-if [ -e "Gemfile.lock" ]; then
-    rm Gemfile.lock
-fi
 
 current_dir=${PWD##*/}
 count=`echo $current_dir | grep jruby | wc -c`
 
 if [ $count = '0' ]; then
-  rvm --create 2.1.1@verify-test >> verify.log
-  rvm gemset list >> verify.log
-  ruby -S gem install bundler >> verify.log
-  ruby -S bundle install >> verify.log
+  rvm 2.1.1@verify-test
 else
-  rvm --create jruby@verify-test >> verify.log
-  rvm gemset list >> verify.log
-  export JAVA_OPTS="-Xmx1g"
-  ruby -S gem install bundler >> verify.log
-  ruby -S bundle install >> verify.log
-  ruby -S bundle exec rake compile >> verify.log
+  rvm jruby-1.7.13@verify-test
 fi
 
 exec bin/read-write "$@"
