@@ -21,6 +21,7 @@ import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
 import com.cognitect.transit.MapReader;
+import com.cognitect.transit.ruby.TransitTypeConverter;
 
 public class RubyMapReader implements MapReader<RubyHash, RubyHash, Object, Object> {
     private Ruby runtime;
@@ -31,11 +32,19 @@ public class RubyMapReader implements MapReader<RubyHash, RubyHash, Object, Obje
 
     @Override
     public RubyHash add(RubyHash hash, Object key, Object value) {
-        IRubyObject key_value = JavaUtil.convertJavaToUsableRubyObject(runtime, key);
-        IRubyObject value_value = JavaUtil.convertJavaToUsableRubyObject(runtime, value);
-        IRubyObject[] args = new IRubyObject[]{key_value, value_value};
+        IRubyObject ruby_key = convertJavaToRuby(key);
+        IRubyObject ruby_value = convertJavaToRuby(value);
+        IRubyObject[] args = new IRubyObject[]{ruby_key, ruby_value};
         hash.callMethod(runtime.getCurrentContext(), "[]=", args);
         return hash;
+    }
+
+    private IRubyObject convertJavaToRuby(Object o) {
+        if (TransitTypeConverter.needsCostomConverter(o)) {
+            return TransitTypeConverter.convertStringToFloat(runtime, o);
+        } else {
+            return JavaUtil.convertJavaToUsableRubyObject(runtime, o);
+        }
     }
 
     @Override

@@ -21,6 +21,7 @@ import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
 import com.cognitect.transit.ArrayReader;
+import com.cognitect.transit.ruby.TransitTypeConverter;
 
 public class RubyArrayReader implements ArrayReader<RubyArray, IRubyObject, Object> {
     private Ruby runtime;
@@ -31,7 +32,12 @@ public class RubyArrayReader implements ArrayReader<RubyArray, IRubyObject, Obje
 
     @Override
     public RubyArray add(RubyArray array, Object item) {
-        IRubyObject value = JavaUtil.convertJavaToUsableRubyObject(runtime, item);
+        IRubyObject value;
+        if (TransitTypeConverter.needsCostomConverter(item)) {
+            value = TransitTypeConverter.convertStringToFloat(runtime, item);
+        } else {
+            value = JavaUtil.convertJavaToUsableRubyObject(runtime, item);
+        }
         array.callMethod(array.getRuntime().getCurrentContext(), "<<", value);
         return array;
     }

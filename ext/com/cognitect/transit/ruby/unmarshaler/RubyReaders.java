@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.msgpack.MessagePack;
+
 import com.cognitect.transit.ArrayReader;
 import com.cognitect.transit.DefaultReadHandler;
 import com.cognitect.transit.MapReader;
@@ -18,13 +20,11 @@ import com.cognitect.transit.impl.MsgpackParser;
 import com.cognitect.transit.impl.ReadCache;
 import com.fasterxml.jackson.core.JsonFactory;
 
-import org.msgpack.MessagePack;
-
 public class RubyReaders {
     private abstract static class ReaderImpl implements Reader, ReaderSPI {
         InputStream in;
         Map<String, ReadHandler<?,?>> handlers;
-        DefaultReadHandler defaultHandler;
+        DefaultReadHandler<?> defaultHandler;
         MapReader<?, Map<Object, Object>, Object, Object> mapBuilder;
         ArrayReader<?, List<Object>, Object> listBuilder;
         ReadCache cache;
@@ -83,7 +83,9 @@ public class RubyReaders {
         protected AbstractParser createParser() {
             try {
                 JsonFactory jf = new JsonFactory();
-                return new JsonParser(jf.createParser(in), handlers, defaultHandler,
+                com.fasterxml.jackson.core.JsonParser json_parser = jf.createParser(in);
+                json_parser.enable(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+                return new JsonParser(json_parser, handlers, defaultHandler,
                         mapBuilder, listBuilder);
             } catch (Throwable e) {
                 throw new RuntimeException(e);
