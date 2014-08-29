@@ -1,4 +1,6 @@
+# -*- ruby -*-
 #!/usr/bin/env rake
+
 require 'bundler'
 Bundler.setup
 
@@ -31,7 +33,11 @@ def build_version
 end
 
 def gem_filename
-  @gem_filename ||= "#{project_name}-#{build_version}.gem"
+  if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+    @gem_filename ||= "#{project_name}-#{build_version}-java.gem"
+  else
+    @gem_filename ||= "#{project_name}-#{build_version}.gem"
+  end
 end
 
 def gem_path
@@ -41,7 +47,7 @@ end
 task :foo => [:ensure_committed]
 
 desc "Build #{gem_filename}.gem into the pkg directory"
-task :build do
+task :build => [:compile] do
   begin
     gemspec_content = File.read(gemspec_filename)
     File.open(gemspec_filename, 'w+') do |f|
@@ -96,5 +102,26 @@ end
 
 desc "Clean up generated files"
 task :clobber do
-  sh "rm -rf ./tmp ./pkg ./.yardoc doc"
+  sh "rm -rf ./tmp ./pkg ./.yardoc doc lib/transit.jar"
+end
+
+# rake compiler
+if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+  require 'rake/javaextensiontask'
+  Rake::JavaExtensionTask.new('transit') do |ext|
+    require 'lock_jar'
+    LockJar.lock
+    locked_jars = LockJar.load(['default', 'development'])
+
+    ext.name = 'transit'
+    ext.ext_dir = 'ext'
+    ext.lib_dir = 'lib'
+    ext.source_version = '1.6'
+    ext.target_version = '1.6'
+    ext.classpath = locked_jars.map {|x| File.expand_path x}.join ':'
+  end
+else
+  task :compile do
+    # no-op for C Ruby
+  end
 end

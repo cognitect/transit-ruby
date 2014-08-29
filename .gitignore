@@ -1,5 +1,6 @@
 *.gem
 *.rbc
+*.log
 .bundle
 .config
 coverage
@@ -20,5 +21,14 @@ doc/
 .rvm
 Gemfile.lock
 .ruby-version
+.ruby-gemset
 spec_helper-local.rb
 Gemfile-custom
+
+# lock_jar
+Jarfile.lock
+
+# IDE
+.classpath
+.project
+transit.jar

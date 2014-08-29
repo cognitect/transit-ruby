@@ -81,6 +81,23 @@ require 'transit/transit_types'
 require 'transit/rolling_cache'
 require 'transit/write_handlers'
 require 'transit/read_handlers'
+require 'transit/marshaler/base'
 require 'transit/writer'
 require 'transit/decoder'
 require 'transit/reader'
+
+if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+  require 'lock_jar'
+  LockJar.lock(File.join(File.dirname(__FILE__), "..", "Jarfile"))
+  LockJar.load
+  require 'transit.jar'
+  require 'jruby'
+  com.cognitect.transit.ruby.TransitService.new.basicLoad(JRuby.runtime)
+  require 'transit/marshaler/jruby/json'
+  require 'transit/marshaler/jruby/messagepack'
+else
+  require 'transit/marshaler/cruby/json'
+  require 'transit/marshaler/cruby/messagepack'
+  require 'transit/unmarshaler/cruby/json'
+  require 'transit/unmarshaler/cruby/messagepack'
+end

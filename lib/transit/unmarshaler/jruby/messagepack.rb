@@ -1,0 +1,34 @@
+# Copyright 2014 Cognitect. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS-IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This is for a spec
+module Transit
+  module MessagePack
+    class Unpacker
+      def initialize(io)
+        @reader = 
+          Java::ComCognitectTransit::TransitFactory.reader(Java::ComCognitectTransit::TransitFactory::Format::MSGPACK, io.to_inputstream)
+      end
+
+      def read
+        v = @reader.read
+        if v.is_a?(Java::ComCognitectTransit::TaggedValue)
+          [v.tag, v.rep]
+        else
+          v
+        end
+      end
+    end
+  end
+end

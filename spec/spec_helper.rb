@@ -37,11 +37,29 @@ require 'wrong/adapters/rspec'
 require 'transit'
 require 'spec_helper-local' if File.exist?(File.expand_path('../spec_helper-local.rb', __FILE__))
 
+def jruby?
+  defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+end
+
+if jruby?
+  require 'transit/unmarshaler/jruby/messagepack'
+end
+
 RSpec.configure do |c|
   c.alias_example_to :fit, :focus => true
   c.filter_run_including :focus => true, :focused => true
+  c.filter_run_excluding :jruby => true
   c.run_all_when_everything_filtered = true
   c.mock_with :nothing
+
+  c.before(:suite) do
+    # TODO: make it work later
+    #if jruby?
+    #  require 'rake'
+    #  load File.expand_path("Rakefile")
+    #  Rake::Task['compile'].invoke
+    #end
+  end
 end
 
 ALPHA_NUM = 'abcdefghijklmnopqrstuvwxyzABCDESFHIJKLMNOPQRSTUVWXYZ_0123456789'
