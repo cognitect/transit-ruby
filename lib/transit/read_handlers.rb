@@ -48,7 +48,7 @@ module Transit
         when "nan"  then  Float::NAN
         when "inf"  then  Float::INFINITY
         when "-inf" then -Float::INFINITY
-        else raise ArgumentError.new("Don't know how to handle #{v.inspect} for the \"%\" tag")
+        else raise ArgumentError.new("Don't know how to handle #{v.inspect} for the \"z\" tag")
         end
       end
     end
@@ -99,7 +99,7 @@ module Transit
       "u" => UuidHandler.new,
       "r" => UriHandler.new,
       "'" => IdentityHandler.new,
-      "%" => SpecialNumbersHandler.new,
+      "z" => SpecialNumbersHandler.new,
       "set"     => SetHandler.new,
       "link"    => LinkHandler.new,
       "list"    => IdentityHandler.new,

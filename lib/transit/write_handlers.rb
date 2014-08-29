@@ -238,10 +238,10 @@ module Transit
 
     class FloatHandler
       def tag(f)
-        return "%" if f.nan?
+        return "z" if f.nan?
         case f
         when Float::INFINITY, -Float::INFINITY
-          "%"
+          "z"
         else
           "d"
         end
