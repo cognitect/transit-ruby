@@ -45,9 +45,9 @@ module Transit
     class SpecialNumbersHandler
       def from_rep(v)
         case v
-        when "nan"  then  Float::NAN
-        when "inf"  then  Float::INFINITY
-        when "-inf" then -Float::INFINITY
+        when "NaN"  then  Float::NAN
+        when "INF"  then  Float::INFINITY
+        when "-INF" then -Float::INFINITY
         else raise ArgumentError.new("Don't know how to handle #{v.inspect} for the \"z\" tag")
         end
       end

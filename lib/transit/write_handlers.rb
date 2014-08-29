@@ -248,10 +248,10 @@ module Transit
       end
 
       def rep(f)
-        return "nan" if f.nan?
+        return "NaN" if f.nan?
         case f
-        when  Float::INFINITY then "inf"
-        when -Float::INFINITY then "-inf"
+        when  Float::INFINITY then "INF"
+        when -Float::INFINITY then "-INF"
         else f
         end
       end
