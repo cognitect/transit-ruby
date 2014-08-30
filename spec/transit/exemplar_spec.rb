@@ -112,7 +112,8 @@ EXEMPLARS = [
   Exemplar.new("vector_unrecognized_vals", ["~Unrecognized"]),
   Exemplar.new("vector_1935_keywords_repeated_twice", array_of_symbols(1935, 3870)),
   Exemplar.new("vector_1936_keywords_repeated_twice", array_of_symbols(1936, 3872)),
-  Exemplar.new("vector_1937_keywords_repeated_twice", array_of_symbols(1937, 3874))
+  Exemplar.new("vector_1937_keywords_repeated_twice", array_of_symbols(1937, 3874)),
+  Exemplar.new("vector_special_numbers", [Float::NAN, Float::INFINITY, -Float::INFINITY])
   ]
 
 [10, 1935, 1936, 1937].each do |i|
