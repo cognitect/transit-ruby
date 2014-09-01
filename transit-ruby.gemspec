@@ -1,5 +1,9 @@
 # coding: utf-8
 
+files = `git ls-files -- lib/*`.split("\n") + ["README.md","LICENSE",".yardopts",".yard_redcarpet_ext"]
+cruby_files = files.grep /cruby/
+jruby_files = files.grep(/jruby/) + ["lib/transit.jar"]
+
 Gem::Specification.new do |spec|
   spec.name          = "transit-ruby"
   spec.version       = "0.8.dev"
@@ -12,15 +16,13 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 1.9.3'
 
-  spec.files         = `git ls-files -- lib/**/*.rb`.split("\n").
-    concat(["README.md","LICENSE",".yardopts",".yard_redcarpet_ext"])
-
   if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
-    spec.files    = spec.files + ["lib/transit.jar"]
+    spec.files    = files - cruby_files
     spec.platform = 'java'
     spec.add_dependency "lock_jar",                   "~> 0.10.0"
     spec.add_development_dependency "rake-compiler",  "~> 0.9.2"
   else
+    spec.files    = files - jruby_files
     spec.add_dependency "oj",                             "~> 2.10.1"
     spec.add_dependency "msgpack",                        "~> 0.5.8"
     spec.add_development_dependency "yard",               "~> 0.8.7.4"
