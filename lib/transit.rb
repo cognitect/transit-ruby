@@ -66,6 +66,11 @@ module Transit
 
   JSON_MAX_INT = 2**53 - 1
   JSON_MIN_INT = -JSON_MAX_INT
+
+  def jruby?
+    defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+  end
+  module_function :jruby?
 end
 
 require 'set'
@@ -86,7 +91,7 @@ require 'transit/writer'
 require 'transit/decoder'
 require 'transit/reader'
 
-if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+if Transit::jruby?
   require 'lock_jar'
   LockJar.lock(File.join(File.dirname(__FILE__), "..", "Jarfile"))
   LockJar.load

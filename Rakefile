@@ -3,6 +3,7 @@
 
 require 'bundler'
 Bundler.setup
+require 'transit'
 
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
@@ -33,7 +34,7 @@ def build_version
 end
 
 def gem_filename
-  if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+  if Transit::jruby?
     @gem_filename ||= "#{project_name}-#{build_version}-java.gem"
   else
     @gem_filename ||= "#{project_name}-#{build_version}.gem"
@@ -106,7 +107,7 @@ task :clobber do
 end
 
 # rake compiler
-if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+if Transit::jruby?
   require 'rake/javaextensiontask'
   Rake::JavaExtensionTask.new('transit') do |ext|
     require 'lock_jar'

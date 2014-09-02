@@ -64,10 +64,12 @@ module Transit
     # @example
     #   writer = Transit::Writer.new(:json, io)
     #   writer.write(Date.new(2014,7,22))
-    def write(obj)
-      if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+    if Transit::jruby?
+      def write(obj)
         @marshaler.write(obj)
-      else
+      end
+    else
+      def write(obj)
         @marshaler.marshal_top(obj)
       end
     end

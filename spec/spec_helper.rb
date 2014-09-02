@@ -37,11 +37,7 @@ require 'wrong/adapters/rspec'
 require 'transit'
 require 'spec_helper-local' if File.exist?(File.expand_path('../spec_helper-local.rb', __FILE__))
 
-def jruby?
-  defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
-end
-
-if jruby?
+if Transit::jruby?
   require 'transit/unmarshaler/jruby/messagepack'
 end
 
@@ -54,7 +50,7 @@ RSpec.configure do |c|
 
   c.before(:suite) do
     # TODO: make it work later
-    #if jruby?
+    #if Transit::jruby?
     #  require 'rake'
     #  load File.expand_path("Rakefile")
     #  Rake::Task['compile'].invoke
