@@ -69,11 +69,13 @@ task :build => [:compile] do
 end
 
 task :set_signed do
-  key  = "~/.gem/transit-ruby-private_key.pem"
-  cert = "~/.gem/transit-ruby-public_cert.pem"
-  raise "#{cert} and #{key} must both be present to sign the gem" unless
-    File.exists?(File.expand_path(cert)) && File.exists?(File.expand_path(key))
-  ENV['SIGN'] = 'true'
+  unless ENV['SIGN'] == 'false'
+    key  = "~/.gem/transit-ruby-private_key.pem"
+    cert = "~/.gem/transit-ruby-public_cert.pem"
+    raise "#{cert} and #{key} must both be present to sign the gem" unless
+      File.exists?(File.expand_path(cert)) && File.exists?(File.expand_path(key))
+    ENV['SIGN'] = 'true'
+   end
 end
 
 desc "Build and install #{gem_filename}"
@@ -85,7 +87,7 @@ task :ensure_committed do
   raise "Can not release with uncommitted changes." unless `git status` =~ /clean/
 end
 
-task :publish => [:set_signed, :build] do
+task :publish => [:build] do
   sh "git tag v#{build_version}"
   puts "Ready to publish #{gem_filename} to rubygems. Enter 'Y' to publish, anything else to stop:"
   input = STDIN.gets.chomp
