@@ -32,3 +32,4 @@ Jarfile.lock
 .classpath
 .project
 transit.jar
+/target/

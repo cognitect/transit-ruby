@@ -112,19 +112,21 @@ public abstract class Base extends RubyObject {
      **/
     protected IRubyObject read(ThreadContext context, Block block) {
         try {
-            Object o = reader.read();
-            //System.out.println("WHAT? " + o + ", " + o.getClass().getCanonicalName());
-            IRubyObject value;
-            if (o instanceof IRubyObject) {
-                value = (IRubyObject)o;
-            } else {
-                value = JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), o);
+            Object o;
+            while ((o = reader.read()) != null) {
+                IRubyObject value;
+                if (o instanceof IRubyObject) {
+                    value = (IRubyObject)o;
+                } else {
+                    value = JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), o);
+                }
+                if ((value != null) && block.isGiven()) {
+                    block.yield(context, value);
+                } else {
+                    return value;
+                }
             }
-            if ((value != null) && block.isGiven()) {
-                return block.yield(context, value);
-            } else {
-                return value;
-            }
+            return context.getRuntime().getNil();
         } catch (Throwable t) {
             throw context.getRuntime().newRuntimeError(t.getMessage());
         }
