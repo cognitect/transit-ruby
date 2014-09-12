@@ -16,19 +16,47 @@ require 'spec_helper'
 
 module Transit
   describe Reader do
-    def read(value, &block)
-      reader = Reader.new(:json, StringIO.new(value.to_json, 'r+'))
-      reader.read &block
+    shared_examples "read without a block" do |type|
+      it "reads a single top-level #{type} element" do
+        input = {:this => [1,2,3,{:that => "the other"}]}
+
+        io = StringIO.new('', 'w+')
+        writer = Transit::Writer.new(type, io)
+        writer.write(input)
+
+        reader = Transit::Reader.new(type, StringIO.new(io.string))
+        assert { reader.read == input }
+      end
     end
 
-    it 'reads without a block' do
-      assert { read([1,2,3]) == [1,2,3] }
+    describe "reading without a block" do
+      include_examples "read without a block", :json
+      include_examples "read without a block", :json_verbose
+      include_examples "read without a block", :msgpack
     end
 
-    it 'reads with a block' do
-      result = nil
-      read([1,2,3]) {|v| result = v}
-      assert { result == [1,2,3] }
+    shared_examples "read with a block" do |type|
+      it "reads multiple top-level #{type} elements from a single IO" do
+        inputs = ["abc",
+                  123456789012345678901234567890,
+                  [:this, :that],
+                  {:this => [1,2,3,{:that => "the other"}]}]
+        outputs = []
+
+        io = StringIO.new('', 'w+')
+        writer = Transit::Writer.new(type, io)
+        inputs.each {|i| writer.write(i)}
+        reader = Transit::Reader.new(type, StringIO.new(io.string))
+        reader.read {|val| outputs << val}
+
+        assert { outputs == inputs }
+      end
+    end
+
+    describe "reading with a block" do
+      include_examples "read with a block", :json
+      include_examples "read with a block", :json_verbose
+      include_examples "read with a block", :msgpack
     end
 
     describe 'handler registration' do
