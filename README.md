@@ -153,6 +153,7 @@ for more info.
 ## Supported Rubies
 
 * MRI 1.9.3, 2.0.0, 2.1.0, 2.1.1, 2.1.2
+* JRuby 1.7.13, 1.7.14, 1.7.15
 
 ## Copyright and License
 
