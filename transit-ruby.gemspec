@@ -1,6 +1,7 @@
 # coding: utf-8
 
-files = `git ls-files -- lib/*`.split("\n") + ["README.md","LICENSE",".yardopts",".yard_redcarpet_ext", "lib/transit.jar", "Jarfile"]
+files = `git ls-files -- lib/*`.split("\n") +
+      ["README.md","LICENSE",".yardopts",".yard_redcarpet_ext", "lib/transit.jar", "Jarfile"]
 cruby_files = files.grep /cruby/
 jruby_files = files.grep(/jruby/) + ["lib/transit.jar", "Jarfile"]
 
