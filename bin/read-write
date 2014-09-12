@@ -10,15 +10,4 @@ transport = (ARGV[0] || "json").gsub("-","_").to_sym
 r = Transit::Reader.new(transport, STDIN)
 w = Transit::Writer.new(transport, STDOUT)
 
-if Transit::jruby?
-  begin
-    while true do
-      o = r.read
-      w.write(o)
-    end
-  rescue
-    # exit
-  end
-else
-  r.read {|o| w.write o}
-end
+r.read {|o| w.write o}
