@@ -22,6 +22,8 @@ Gem::Specification.new do |spec|
     spec.platform = 'java'
     spec.add_dependency "lock_jar",                   "~> 0.10.0"
     spec.add_development_dependency "rake-compiler",  "~> 0.9.2"
+    private_key = File.expand_path(File.join(ENV['HOME'], '.gem/transit-jruby-private_key.pem'))
+    public_cert = File.expand_path(File.join(ENV['HOME'], '.gem/transit-jruby-public_cert.pem'))
   else
     spec.files    = files - jruby_files
     spec.add_dependency "oj",                             "~> 2.10.1"
@@ -29,6 +31,8 @@ Gem::Specification.new do |spec|
     spec.add_development_dependency "yard",               "~> 0.8.7.4"
     spec.add_development_dependency "redcarpet",          "~> 3.1.1"
     spec.add_development_dependency "yard-redcarpet-ext", "~> 0.0.3"
+    private_key = File.expand_path(File.join(ENV['HOME'], '.gem/transit-ruby-private_key.pem'))
+    public_cert = File.expand_path(File.join(ENV['HOME'], '.gem/transit-ruby-public_cert.pem'))
   end
 
   spec.test_files    = `git ls-files -- spec/*`.split("\n")
@@ -39,9 +43,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "wrong", "~> 0.7.1"
 
-  private_key = File.expand_path('~/.gem/transit-ruby-private_key.pem')
   if File.exist?(private_key) && ENV['SIGN'] == 'true'
     spec.signing_key = private_key
-    spec.cert_chain = [File.expand_path('~/.gem/transit-ruby-public_cert.pem')]
+    spec.cert_chain = [public_cert]
   end
 end
