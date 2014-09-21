@@ -1,3 +1,8 @@
+### 0.8.560 (java platform only) / 2014-09-12
+
+* Bump dependency on transit-java to 0.8.269
+** fixes bug which turned an empty set into an array
+
 ### 0.8.552 (java platform only) / 2014-09-12
 
 * Support JRuby!
