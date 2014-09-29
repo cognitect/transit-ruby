@@ -46,18 +46,16 @@ module Transit
         if cache.has_key?(node)
           cache.read(node)
         else
-          parsed = begin
-                     if !node.start_with?(ESC)
-                       node
-                     elsif node.start_with?(TAG)
-                       Tag.new(node[2..-1])
-                     elsif handler = @handlers[node[1]]
-                       handler.from_rep(node[2..-1])
-                     elsif node.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
-                       node[1..-1]
-                     else
-                       @default_handler.from_rep(node[1], node[2..-1])
-                     end
+          parsed = if !node.start_with?(ESC)
+                     node
+                   elsif node.start_with?(TAG)
+                     Tag.new(node[2..-1])
+                   elsif handler = @handlers[node[1]]
+                     handler.from_rep(node[2..-1])
+                   elsif node.start_with?(ESC_ESC, ESC_SUB, ESC_RES)
+                     node[1..-1]
+                   else
+                     @default_handler.from_rep(node[1], node[2..-1])
                    end
           if cache.cacheable?(node, as_map_key)
             cache.write(parsed)
