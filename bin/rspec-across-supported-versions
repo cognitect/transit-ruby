@@ -6,6 +6,7 @@ for r in 1.9.3-p547 2.0.0-p353 2.1.0 2.1.1 2.1.2 jruby-1.7.13 jruby-1.7.14 jruby
 do
   eval "rbenv local $r"
   echo `ruby -v`
+  rake compile
   rspec
 done
 
