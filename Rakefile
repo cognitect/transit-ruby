@@ -49,8 +49,6 @@ def gem_path
   @gem_path ||= "pkg/#{gem_filename}"
 end
 
-task :foo => [:ensure_committed]
-
 desc "Build #{gem_filename}.gem into the pkg directory"
 task :build => [:compile] do
   begin
