@@ -26,7 +26,7 @@ module Transit
       end
 
       def initialize(io, opts)
-        @oj = Oj::StreamWriter.new(io)
+        @oj = Oj::StreamWriter.new(io,opts.delete(:oj_opts) || {})
         parse_options(default_opts.merge(opts))
         @state = []
       end
