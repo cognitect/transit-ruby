@@ -134,27 +134,30 @@ module Transit
       end
 
       def marshal(obj, as_map_key, cache)
-        handler = find_handler(obj)
-        tag = handler.tag(obj)
-        case tag
-        when "_"
-          emit_nil(as_map_key, cache)
-        when "?"
-          emit_boolean(handler, obj, as_map_key, cache)
-        when "s"
-          emit_string(nil, nil, escape(handler.rep(obj)), as_map_key, cache)
-        when "i"
-          emit_int(tag, handler.rep(obj), as_map_key, cache)
-        when "d"
-          emit_double(handler.rep(obj), as_map_key, cache)
-        when "'"
-          emit_tagged_value(tag, handler.rep(obj), cache)
-        when "array"
-          emit_array(handler.rep(obj), cache)
-        when "map"
-          emit_map(handler.rep(obj), cache)
+        if handler = find_handler(obj)
+          tag = handler.tag(obj)
+          case tag
+          when "_"
+            emit_nil(as_map_key, cache)
+          when "?"
+            emit_boolean(handler, obj, as_map_key, cache)
+          when "s"
+            emit_string(nil, nil, escape(handler.rep(obj)), as_map_key, cache)
+          when "i"
+            emit_int(tag, handler.rep(obj), as_map_key, cache)
+          when "d"
+            emit_double(handler.rep(obj), as_map_key, cache)
+          when "'"
+            emit_tagged_value(tag, handler.rep(obj), cache)
+          when "array"
+            emit_array(handler.rep(obj), cache)
+          when "map"
+            emit_map(handler.rep(obj), cache)
+          else
+            emit_encoded(handler, tag, obj, as_map_key, cache)
+          end
         else
-          emit_encoded(handler, tag, obj, as_map_key, cache)
+          raise "Can not find a Write Handler for #{obj.inspect}."
         end
       end
 

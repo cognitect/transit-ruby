@@ -283,11 +283,19 @@ module Transit
           assert { JSON.parse(io.string).first == "~`~hello" }
         end
 
-        it 'raises when there is no handler for the type' do
+        it 'raises when there is no handler for the type at the top level' do
           if Transit::jruby?
             assert { rescuing { writer.write(Class.new.new) }.message =~ /Not supported/ }
           else
             assert { rescuing { writer.write(Class.new.new) }.message =~ /Can not find a Write Handler/ }
+          end
+        end
+
+        it 'raises when there is no handler for the type' do
+          if Transit::jruby?
+            assert { rescuing { writer.write([Class.new.new]) }.message =~ /Not supported/ }
+          else
+            assert { rescuing { writer.write([Class.new.new]) }.message =~ /Can not find a Write Handler/ }
           end
         end
       end
