@@ -75,7 +75,6 @@ abc
 Implement `tag`, `rep(obj)` and `string_rep(obj)` methods. For example:
 
 ```ruby
-require 'ostruct'
 Point = Struct.new(:x,:y) do
   def to_a; [x,y] end
 end
