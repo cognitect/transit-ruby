@@ -133,4 +133,12 @@ module Transit
       assert { Link.new("/path", "the-rel").to_h.frozen? }
     end
   end
+
+  describe ByteArray do
+    it 'uses the default_external encoding for to_s' do
+      src = ByteArray.new("foo".force_encoding("ascii")).to_base64
+      target = ByteArray.from_base64(src)
+      assert { target.to_s.encoding == Encoding.default_external }
+    end
+  end
 end

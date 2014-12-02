@@ -67,8 +67,15 @@ module Transit
       Base64.encode64(@value)
     end
 
+    # For human-readable display only. Use value() for programmatic
+    # consumption of the decoded value.
+    #
+    # Forces the platform's default external encoding, which is
+    # potentially lossy, but also guarantees that something will be
+    # printed instead of raising an error when there is no encoding
+    # information provided.
     def to_s
-      @value
+      @value.dup.force_encoding(Encoding.default_external)
     end
   end
 
