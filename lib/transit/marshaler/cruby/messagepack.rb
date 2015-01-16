@@ -47,6 +47,14 @@ module Transit
         # no-op
       end
 
+      def emit_int(tag, i, as_map_key, cache)
+        if i > @max_int || i < @min_int
+          emit_string(ESC, tag, i, as_map_key, cache)
+        else
+          emit_value(i, as_map_key)
+        end
+      end
+
       def emit_value(obj, as_map_key=:ignore)
         @packer.write(obj)
       end

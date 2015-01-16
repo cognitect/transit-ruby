@@ -175,6 +175,11 @@ module Transit
           writer.write("this")
           assert { JSON.parse(io.string) == ["~#'", "this"] }
         end
+
+        it "writes an int map-key as an encoded string" do
+          writer.write({1 => :one})
+          assert { io.string =~ /~i1/ }
+        end
       end
 
       describe "JSON_VERBOSE" do
@@ -214,10 +219,15 @@ module Transit
           writer.write("this")
           assert { JSON.parse(io.string) == {"~#'" => "this"} }
         end
+
+        it "writes an int map-key as an encoded string" do
+          writer.write({1 => :one})
+          assert { io.string =~ /~i1/ }
+        end
       end
 
       # JRuby skips these 3 examples since they use raw massage pack
-      # api. Also, JRuby doesn't hava good counterpart.
+      # api. Also, JRuby doesn't have good counterpart.
       describe "MESSAGE_PACK", :unless => Transit::jruby? do
         let(:writer) { Writer.new(:msgpack, io) }
 
@@ -234,6 +244,11 @@ module Transit
         it "writes a top-level scalar as a quote-tagged value" do
           writer.write("this")
           assert { MessagePack::Unpacker.new(StringIO.new(io.string)).read == ["~#'", "this"] }
+        end
+
+        it "writes an int map-key as an int" do
+          writer.write({1 => :one})
+          assert { io.string.each_char.drop(1).first == "\u0001" }
         end
       end
 

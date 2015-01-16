@@ -51,6 +51,14 @@ module Transit
         @oj.pop
       end
 
+      def emit_int(tag, i, as_map_key, cache)
+        if as_map_key || i > @max_int || i < @min_int
+          emit_string(ESC, tag, i, as_map_key, cache)
+        else
+          emit_value(i, as_map_key)
+        end
+      end
+
       def emit_value(obj, as_map_key=false)
         if @state.last == :array
           @oj.push_value(obj)

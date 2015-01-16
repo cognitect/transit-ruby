@@ -78,14 +78,6 @@ module Transit
         as_map_key ? emit_string(ESC, "?", handler.string_rep(b), true, cache) : emit_value(b)
       end
 
-      def emit_int(tag, i, as_map_key, cache)
-        if as_map_key || i > @max_int || i < @min_int
-          emit_string(ESC, tag, i, as_map_key, cache)
-        else
-          emit_value(i, as_map_key)
-        end
-      end
-
       def emit_double(d, as_map_key, cache)
         as_map_key ? emit_string(ESC, "d", d, true, cache) : emit_value(d)
       end
