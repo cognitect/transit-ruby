@@ -1,3 +1,7 @@
+### 0.8.572 / 2015-01-15
+
+* Marshal int map keys as ints in msgpack
+
 ### 0.8.569 / 2014-12-03
 
 * ByteArray#to_s forces default encoding for platform
