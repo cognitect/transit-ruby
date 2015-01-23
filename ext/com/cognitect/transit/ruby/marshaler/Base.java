@@ -56,24 +56,23 @@ public class Base extends RubyObject {
         }
     }
 
-    protected Map<Class, WriteHandler<?, ?>> convertDefaultRubyHandlersToJavaHandler(
+    /**
+     * Converts the handlers defined in Ruby to java and wraps them in a single java handler
+     * that delegates to the correct handler. Assumes that @handlers includes custom handlers
+     * and any verbose handlers.
+     */
+    protected Map<Class, WriteHandler<?, ?>> convertRubyHandlersToJavaHandler(
             final ThreadContext context,
             IRubyObject arg) {
-        final Map<String, WriteHandler<Object, Object>> rubyHandlers = new HashMap<String, WriteHandler<Object, Object>>();
-        Map<Class, WriteHandler<?, ?>> javaHandler = new HashMap<Class, WriteHandler<?, ?>>(1);
-        Object ivar = this.getInstanceVariable("@handlers");
-        RubyHash h = (RubyHash)ivar;
-        IRubyObject customs = arg.callMethod(context, "[]", context.getRuntime().newSymbol("handlers"));
-        if (!customs.isNil()) {
-            h.callMethod(context, "merge", new IRubyObject[]{customs}, Block.NULL_BLOCK);
-        }
-            
-        for (Map.Entry entry : (Set<Map.Entry>)h.entrySet()) {
-            //System.out.println("KEY: " + entry.getKey());
-            rubyHandlers.put(((RubyModule)entry.getKey()).getName(),
+        Map<Class, WriteHandler<?, ?>> result = new HashMap<Class, WriteHandler<?, ?>>(1);
+        RubyHash rubyHandlers = (RubyHash)this.getInstanceVariable("@handlers");
+        final Map<String, WriteHandler<Object, Object>> javaHandlers = new HashMap<String, WriteHandler<Object, Object>>();
+
+        for (Map.Entry entry : (Set<Map.Entry>)rubyHandlers.entrySet()) {
+            javaHandlers.put(((RubyModule)entry.getKey()).getName(),
                     convertRubyToJava(context, (RubyObject)entry.getValue()));
         }
-        javaHandler.put(RubyObject.class, new WriteHandler<Object, Object>() {
+        result.put(RubyObject.class, new WriteHandler<Object, Object>() {
             @Override
             public <V> WriteHandler<Object, V> getVerboseHandler() {
                 return null;
@@ -83,8 +82,7 @@ public class Base extends RubyObject {
                 if (o instanceof RubyObject) {
                     RubyArray ancestors = (RubyArray)((RubyObject)o).getMetaClass().callMethod(context, "ancestors");
                     for (Object ancestor : ancestors) {
-                        WriteHandler<Object, Object> handler = rubyHandlers.get(((RubyModule)ancestor).getName());
-                        //System.out.println("HANDLER NAME: " + ((RubyModule)ancestor).getName());
+                        WriteHandler<Object, Object> handler = javaHandlers.get(((RubyModule)ancestor).getName());
                         if (handler != null) return handler;
                     }
                 }
@@ -93,7 +91,6 @@ public class Base extends RubyObject {
 
             @Override
             public Object rep(Object o) {
-                //System.out.println("REP");
                 WriteHandler<Object, Object> handler = findHandler(o);
                 if (handler != null) return handler.rep(o);
                 return null;
@@ -101,7 +98,6 @@ public class Base extends RubyObject {
 
             @Override
             public String stringRep(Object o) {
-                //System.out.println("STRINGREP");
                 WriteHandler<Object, Object> handler = findHandler(o);
                 if (handler != null) return handler.stringRep(o);
                 return null;
@@ -109,13 +105,12 @@ public class Base extends RubyObject {
 
             @Override
             public String tag(Object o) {
-                //System.out.println("TAG");
                 WriteHandler<Object, Object> handler = findHandler(o);
                 if (handler != null) return handler.tag(o);
                 return null;
             }
         });
-        return javaHandler;
+        return result;
     }
 
     private WriteHandler<Object, Object> convertRubyToJava(final ThreadContext context, final RubyObject handler) {
@@ -153,7 +148,6 @@ public class Base extends RubyObject {
     }
 
     protected IRubyObject write(ThreadContext context, IRubyObject arg) {
-        //System.out.println("ARG: " + arg + ", " + arg.getMetaClass() + ", " + arg.getClass());
         try {
             writer.write(arg);
         } catch (Throwable t) {
