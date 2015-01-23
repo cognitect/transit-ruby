@@ -47,7 +47,12 @@ module Transit
         writer = Transit::Writer.new(type, io)
         inputs.each {|i| writer.write(i)}
         reader = Transit::Reader.new(type, StringIO.new(io.string))
-        reader.read {|val| outputs << val}
+        if Transit::jruby?
+          # Ignore expected EOFException raised after the StringIO is exhausted
+          reader.read {|val| outputs << val} rescue nil
+        else
+          reader.read {|val| outputs << val}
+        end
 
         assert { outputs == inputs }
       end
