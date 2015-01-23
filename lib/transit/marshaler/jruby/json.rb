@@ -29,7 +29,6 @@ module Transit
       include Transit::Marshaler::JsonBase
 
       def initialize(io, opts)
-        super
         parse_options(default_opts.merge(opts))
       end
     end
@@ -41,7 +40,6 @@ module Transit
       include Transit::Marshaler::VerboseHandlers
 
       def initialize(io, opts)
-        super
         parse_options(default_opts.merge(opts))
       end
     end

@@ -20,7 +20,6 @@ module Transit
       include Transit::Marshaler::Base
 
       def initialize(io, opts)
-        super
         @oj = Oj::StreamWriter.new(io,opts.delete(:oj_opts) || {})
         parse_options(default_opts.merge(opts))
         @state = []

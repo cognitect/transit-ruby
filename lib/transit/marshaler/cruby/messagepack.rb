@@ -20,7 +20,6 @@ module Transit
       include Transit::Marshaler::Base
 
       def initialize(io, opts)
-        super
         @io = io
         @packer = ::MessagePack::Packer.new(io)
         parse_options(default_opts.merge(opts))

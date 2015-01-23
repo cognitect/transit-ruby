@@ -19,6 +19,7 @@ module Transit
 
     HANDLER_CACHE = {}
     VERBOSE_HANDLER_CACHE = {}
+    MUTEX = Mutex.new
 
     # @api private
     # Included in JsonVerbose subclasses. Defined here to make it
@@ -44,16 +45,12 @@ module Transit
 
     # @api private
     module Base
-      def initialize(*)
-        @mutex = Mutex.new
-      end
-
       def parse_options(opts)
         @prefer_strings = opts[:prefer_strings]
         @max_int        = opts[:max_int]
         @min_int        = opts[:min_int]
 
-        @mutex.synchronize do
+        MUTEX.synchronize do
           @handlers = build_handlers(opts[:handlers])
         end
         @handlers.values.each { |h| h.handlers=(@handlers) if h.respond_to?(:handlers=) }
