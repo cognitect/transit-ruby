@@ -40,20 +40,17 @@ module Transit
       @marshaler = case format
                    when :json
                      Marshaler::Json.new(io,
-                                       {:prefer_strings => true,
-                                        :verbose        => false,
-                                        :handlers       => {},
-                                        :oj_opts        => {:indent => -1}}.merge(opts))
+                                         {:prefer_strings => true,
+                                          :handlers       => {},
+                                          :oj_opts        => {:indent => -1}}.merge(opts))
                    when :json_verbose
                      Marshaler::VerboseJson.new(io,
                                                 {:prefer_strings => true,
-                                                  :verbose        => true,
-                                                  :handlers       => {}}.merge(opts))
+                                                 :handlers       => {}}.merge(opts))
                    else
                      Marshaler::MessagePack.new(io,
                                                 {:prefer_strings => false,
-                                                  :verbose        => false,
-                                                  :handlers       => {}}.merge(opts))
+                                                 :handlers       => {}}.merge(opts))
                    end
     end
 

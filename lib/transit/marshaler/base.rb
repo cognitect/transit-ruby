@@ -18,20 +18,40 @@ module Transit
   module Marshaler
 
     # @api private
+    # Included in JsonVerbose subclasses. Defined here to make it
+    # available in CRuby and JRuby environments.
+    module VerboseHandlers
+      def build_handlers(custom_handlers)
+        super(custom_handlers).reduce({}) do |handlers, (k,v)|
+          if v.respond_to?(:verbose_handler) && vh = v.verbose_handler
+            handlers.store(k, vh)
+          else
+            handlers.store(k, v)
+          end
+          handlers
+        end
+      end
+    end
+
+    # @api private
     module Base
       def parse_options(opts)
         @prefer_strings = opts[:prefer_strings]
         @max_int        = opts[:max_int]
         @min_int        = opts[:min_int]
 
-        handlers = WriteHandlers::DEFAULT_WRITE_HANDLERS.dup
-        handlers = handlers.merge!(opts[:handlers]) if opts[:handlers]
-        @handlers = (opts[:verbose] ? verbose_handlers(handlers) : handlers)
+        @handlers = build_handlers(opts[:handlers])
         @handlers.values.each do |h|
           if h.respond_to?(:handlers=)
             h.handlers=(@handlers)
           end
         end
+      end
+
+      def build_handlers(custom_handlers)
+        handlers = WriteHandlers::DEFAULT_WRITE_HANDLERS.dup
+        handlers = handlers.merge!(custom_handlers) if custom_handlers
+        handlers
       end
 
       def find_handler(obj)
@@ -41,15 +61,6 @@ module Transit
           end
         end
         nil
-      end
-
-      def verbose_handlers(handlers)
-        handlers.each do |k, v|
-          if v.respond_to?(:verbose_handler) && vh = v.verbose_handler
-            handlers.store(k, vh)
-          end
-        end
-        handlers
       end
 
       def escape(s)

@@ -37,6 +37,7 @@ module Transit
     class VerboseJson
       include Transit::Marshaler::Base
       include Transit::Marshaler::JsonBase
+      include Transit::Marshaler::VerboseHandlers
 
       def initialize(io, opts)
         parse_options(default_opts.merge(opts))

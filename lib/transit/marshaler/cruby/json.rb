@@ -87,6 +87,8 @@ module Transit
 
     # @api private
     class VerboseJson < BaseJson
+      include Transit::Marshaler::VerboseHandlers
+
       def emit_string(prefix, tag, value, as_map_key, cache)
         emit_value("#{prefix}#{tag}#{value}", as_map_key)
       end
