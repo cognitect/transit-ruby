@@ -16,6 +16,9 @@ module Transit
   # Converts a transit value to an instance of a type
   # @api private
   class Decoder
+    MUTEX = Mutex.new
+    HANDLER_CACHE = {}
+
     ESC_ESC  = "#{ESC}#{ESC}"
     ESC_SUB  = "#{ESC}#{SUB}"
     ESC_RES  = "#{ESC}#{RES}"
@@ -27,7 +30,14 @@ module Transit
     def initialize(options={})
       custom_handlers = options[:handlers] || {}
       custom_handlers.each {|k,v| validate_handler(k,v)}
-      @handlers = ReadHandlers::DEFAULT_READ_HANDLERS.merge(custom_handlers)
+      MUTEX.synchronize do
+        if HANDLER_CACHE.has_key?(custom_handlers)
+          @handlers = HANDLER_CACHE[custom_handlers]
+        else
+          @handlers = ReadHandlers::DEFAULT_READ_HANDLERS.merge(custom_handlers)
+        end
+
+      end
       @default_handler = options[:default_handler] || ReadHandlers::DEFAULT_READ_HANDLER
     end
 
