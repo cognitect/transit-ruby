@@ -20,7 +20,6 @@ module Transit
     # @api private
     module Base
       def parse_options(opts)
-        @cache_enabled  = !opts[:verbose]
         @prefer_strings = opts[:prefer_strings]
         @max_int        = opts[:max_int]
         @min_int        = opts[:min_int]
@@ -67,7 +66,7 @@ module Transit
 
       def emit_string(prefix, tag, value, as_map_key, cache)
         encoded = "#{prefix}#{tag}#{value}"
-        if @cache_enabled && cache.cacheable?(encoded, as_map_key)
+        if cache.cacheable?(encoded, as_map_key)
           emit_value(cache.write(encoded), as_map_key)
         else
           emit_value(encoded, as_map_key)
