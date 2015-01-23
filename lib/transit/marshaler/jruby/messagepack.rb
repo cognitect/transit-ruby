@@ -24,6 +24,7 @@ module Transit
       end
 
       def initialize(io, opts)
+        super
         parse_options(default_opts.merge(opts))
       end
     end

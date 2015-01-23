@@ -17,17 +17,26 @@ module Transit
   # @see https://github.com/cognitect/transit-format
   module Marshaler
 
+    HANDLER_CACHE = {}
+    VERBOSE_HANDLER_CACHE = {}
+
     # @api private
     # Included in JsonVerbose subclasses. Defined here to make it
     # available in CRuby and JRuby environments.
     module VerboseHandlers
       def build_handlers(custom_handlers)
-        super(custom_handlers).reduce({}) do |handlers, (k,v)|
-          if v.respond_to?(:verbose_handler) && vh = v.verbose_handler
-            handlers.store(k, vh)
-          else
-            handlers.store(k, v)
+        if VERBOSE_HANDLER_CACHE.has_key?(custom_handlers)
+          VERBOSE_HANDLER_CACHE[custom_handlers]
+        else
+          handlers = super(custom_handlers).reduce({}) do |h, (k,v)|
+            if v.respond_to?(:verbose_handler) && vh = v.verbose_handler
+              h.store(k, vh)
+            else
+              h.store(k, v)
+            end
+            h
           end
+          VERBOSE_HANDLER_CACHE[custom_handlers] = handlers
           handlers
         end
       end
@@ -35,23 +44,30 @@ module Transit
 
     # @api private
     module Base
+      def initialize(*)
+        @mutex = Mutex.new
+      end
+
       def parse_options(opts)
         @prefer_strings = opts[:prefer_strings]
         @max_int        = opts[:max_int]
         @min_int        = opts[:min_int]
 
-        @handlers = build_handlers(opts[:handlers])
-        @handlers.values.each do |h|
-          if h.respond_to?(:handlers=)
-            h.handlers=(@handlers)
-          end
+        @mutex.synchronize do
+          @handlers = build_handlers(opts[:handlers])
         end
+        @handlers.values.each { |h| h.handlers=(@handlers) if h.respond_to?(:handlers=) }
       end
 
       def build_handlers(custom_handlers)
-        handlers = WriteHandlers::DEFAULT_WRITE_HANDLERS.dup
-        handlers = handlers.merge!(custom_handlers) if custom_handlers
-        handlers
+        if HANDLER_CACHE.has_key?(custom_handlers)
+          HANDLER_CACHE[custom_handlers]
+        else
+          handlers = WriteHandlers::DEFAULT_WRITE_HANDLERS.dup
+          handlers.merge!(custom_handlers) if custom_handlers
+          HANDLER_CACHE[custom_handlers] = handlers
+          handlers
+        end
       end
 
       def find_handler(obj)

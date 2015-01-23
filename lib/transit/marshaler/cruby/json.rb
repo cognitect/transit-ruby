@@ -19,16 +19,17 @@ module Transit
     class BaseJson
       include Transit::Marshaler::Base
 
+      def initialize(io, opts)
+        super
+        @oj = Oj::StreamWriter.new(io,opts.delete(:oj_opts) || {})
+        parse_options(default_opts.merge(opts))
+        @state = []
+      end
+
       def default_opts
         {:prefer_strings => true,
           :max_int       => JSON_MAX_INT,
           :min_int       => JSON_MIN_INT}
-      end
-
-      def initialize(io, opts)
-        @oj = Oj::StreamWriter.new(io,opts.delete(:oj_opts) || {})
-        parse_options(default_opts.merge(opts))
-        @state = []
       end
 
       def emit_array_start(size)
