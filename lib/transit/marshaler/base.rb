@@ -22,7 +22,7 @@ module Transit
     MUTEX = Mutex.new
 
     # @api private
-    # Included in JsonVerbose subclasses. Defined here to make it
+    # Included in VerboseJson subclasses. Defined here to make it
     # available in CRuby and JRuby environments.
     module VerboseHandlers
       def build_handlers(custom_handlers)
@@ -46,10 +46,6 @@ module Transit
     # @api private
     module Base
       def parse_options(opts)
-        @prefer_strings = opts[:prefer_strings]
-        @max_int        = opts[:max_int]
-        @min_int        = opts[:min_int]
-
         MUTEX.synchronize do
           @handlers = build_handlers(opts[:handlers])
         end

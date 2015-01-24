@@ -17,14 +17,8 @@ module Transit
     class MessagePack
       include Transit::Marshaler::Base
 
-      def default_opts
-        {:prefer_strings => false,
-          :max_int       => MAX_INT,
-          :min_int       => MIN_INT}
-      end
-
       def initialize(io, opts)
-        parse_options(default_opts.merge(opts))
+        parse_options(opts)
       end
     end
   end

@@ -21,14 +21,11 @@ module Transit
 
       def initialize(io, opts)
         @oj = Oj::StreamWriter.new(io,opts.delete(:oj_opts) || {})
-        parse_options(default_opts.merge(opts))
         @state = []
-      end
-
-      def default_opts
-        {:prefer_strings => true,
-          :max_int       => JSON_MAX_INT,
-          :min_int       => JSON_MIN_INT}
+        @max_int = JSON_MAX_INT
+        @min_int = JSON_MIN_INT
+        @prefer_strings = true
+        parse_options(opts)
       end
 
       def emit_array_start(size)

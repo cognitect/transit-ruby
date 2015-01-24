@@ -15,11 +15,10 @@
 module Transit
   module Marshaler
 
+    # @api private
     module JsonBase
-      def default_opts
-        {:prefer_strings => true,
-          :max_int       => JSON_MAX_INT,
-          :min_int       => JSON_MIN_INT}
+      def initialize(io, opts)
+        parse_options(opts)
       end
     end
 
@@ -27,10 +26,6 @@ module Transit
     class Json
       include Transit::Marshaler::Base
       include Transit::Marshaler::JsonBase
-
-      def initialize(io, opts)
-        parse_options(default_opts.merge(opts))
-      end
     end
 
     # @api private
@@ -38,10 +33,6 @@ module Transit
       include Transit::Marshaler::Base
       include Transit::Marshaler::JsonBase
       include Transit::Marshaler::VerboseHandlers
-
-      def initialize(io, opts)
-        parse_options(default_opts.merge(opts))
-      end
     end
   end
 end

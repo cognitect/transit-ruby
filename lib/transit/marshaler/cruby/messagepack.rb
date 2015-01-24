@@ -22,13 +22,10 @@ module Transit
       def initialize(io, opts)
         @io = io
         @packer = ::MessagePack::Packer.new(io)
-        parse_options(default_opts.merge(opts))
-      end
-
-      def default_opts
-        {:prefer_strings => false,
-          :max_int       => MAX_INT,
-          :min_int       => MIN_INT}
+        @max_int = MAX_INT
+        @min_int = MIN_INT
+        @prefer_strings = false
+        parse_options(opts)
       end
 
       def emit_array_start(size)

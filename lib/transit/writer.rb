@@ -39,18 +39,12 @@ module Transit
     def initialize(format, io, opts={})
       @marshaler = case format
                    when :json
-                     Marshaler::Json.new(io,
-                                         {:prefer_strings => true,
-                                          :handlers       => {},
-                                          :oj_opts        => {:indent => -1}}.merge(opts))
+                     Marshaler::Json.new(io, {:handlers => {},
+                                              :oj_opts => {:indent => -1}}.merge(opts))
                    when :json_verbose
-                     Marshaler::VerboseJson.new(io,
-                                                {:prefer_strings => true,
-                                                 :handlers       => {}}.merge(opts))
+                     Marshaler::VerboseJson.new(io, {:handlers => {}}.merge(opts))
                    else
-                     Marshaler::MessagePack.new(io,
-                                                {:prefer_strings => false,
-                                                 :handlers       => {}}.merge(opts))
+                     Marshaler::MessagePack.new(io, {:handlers => {}}.merge(opts))
                    end
     end
 
