@@ -1,3 +1,8 @@
+### 0.8.586 / 2015-03-13
+
+* Add handler caching for MRI
+* Bump to transit-java-0.8.285 for handler caching in JRuby
+
 ### 0.8.572 / 2015-01-15
 
 * Marshal int map keys as ints in msgpack
