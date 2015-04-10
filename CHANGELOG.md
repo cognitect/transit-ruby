@@ -1,3 +1,7 @@
+### 0.8.588 / 2015-04-10
+
+* Update to transit-java-0.8.287 for json int boundary fix in JRuby
+
 ### 0.8.586 / 2015-03-13
 
 * Add handler caching for MRI
