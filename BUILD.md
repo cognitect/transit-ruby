@@ -36,6 +36,7 @@ them, start by placing the pubic and private keys in ~/.gem:
 
 Then:
 
-    rake release
+    ./build/release
 
-You'll be prompted for the password during this build.
+You'll be prompted to confirm MRI and JRuby releases and for cert
+passwords.
