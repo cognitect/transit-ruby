@@ -1,3 +1,7 @@
+### 0.8.591 / 2015-05-03
+
+* Bump lock_jar dependency to ~> 0.12.0 #17
+
 ### 0.8.588 / 2015-04-10
 
 * Update to transit-java-0.8.287 for json int boundary fix in JRuby
