@@ -8,6 +8,8 @@ def jruby?
   defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
 end
 
+jruby_version=File.read("build/jruby_version").chomp
+
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
 Rake::Task[:spec].prerequisites << :compile
@@ -37,6 +39,19 @@ def build_version
   @build_version ||= "#{spec_version}.#{revision}"
 end
 
+def published?
+  gem_search = `gem q -rn "^transit-ruby$"`
+  if jruby?
+    gem_search =~ /\(#{revision}.*java.*\)/
+  else
+    gem_search =~ /\(#{revision}.*ruby.*\)/
+  end
+end
+
+def tagged?
+  `git tag` =~ /#{revision}/
+end
+
 def gem_filename
   if jruby?
     @gem_filename ||= "#{project_name}-#{build_version}-java.gem"
@@ -47,6 +62,10 @@ end
 
 def gem_path
   @gem_path ||= "pkg/#{gem_filename}"
+end
+
+task :use_jruby do
+  sh "rbenv local jruby-#{jruby_version}"
 end
 
 desc "Build #{gem_filename}.gem into the pkg directory"
@@ -82,11 +101,17 @@ task :install => [:build] do
 end
 
 task :ensure_committed do
-  raise "Can not release with uncommitted changes." unless `git status` =~ /clean/
+  raise "Cannot release with uncommitted changes." unless `git status` =~ /clean/
 end
 
 task :publish => [:build] do
-  sh "git tag v#{build_version}"
+  unless tagged?
+    sh "git tag v#{build_version}"
+  end
+  if published?
+    puts "Already published #{gem_filename}"
+    exit
+  end
   puts "Ready to publish #{gem_filename} to rubygems. Enter 'Y' to publish, anything else to stop:"
   input = STDIN.gets.chomp
   if input.downcase == 'y'

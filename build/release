@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Returns the revision number used for deployment.
+
+rbenv local --unset
+rake release
+rake use_jruby
+rake release
