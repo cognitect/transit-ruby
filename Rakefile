@@ -4,12 +4,6 @@
 require 'bundler'
 Bundler.setup
 
-def jruby?
-  defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
-end
-
-jruby_version=File.read("build/jruby_version").chomp
-
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
 Rake::Task[:spec].prerequisites << :compile
@@ -29,6 +23,14 @@ end
 
 def spec_version
   @spec_version ||= /"(\d+\.\d+).dev"/.match(File.read(gemspec_filename))[1]
+end
+
+def jruby?
+  defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+end
+
+def jruby_version
+  @jruby_version ||= `cat build/jruby_version`.chomp
 end
 
 def revision
@@ -64,6 +66,7 @@ def gem_path
   @gem_path ||= "pkg/#{gem_filename}"
 end
 
+desc "Use JRuby"
 task :use_jruby do
   sh "rbenv local jruby-#{jruby_version}"
 end
@@ -85,16 +88,6 @@ task :build => [:compile] do
   end
 end
 
-task :set_signed do
-  unless ENV['SIGN'] == 'false'
-    key  = "~/.gem/transit-ruby-private_key.pem"
-    cert = "~/.gem/transit-ruby-public_cert.pem"
-    raise "#{cert} and #{key} must both be present to sign the gem" unless
-      File.exists?(File.expand_path(cert)) && File.exists?(File.expand_path(key))
-    ENV['SIGN'] = 'true'
-   end
-end
-
 desc "Build and install #{gem_filename}"
 task :install => [:build] do
   sh "gem install #{gem_path}"
@@ -102,6 +95,21 @@ end
 
 task :ensure_committed do
   raise "Cannot release with uncommitted changes." unless `git status` =~ /clean/
+end
+
+desc "Prepare to sign the gem"
+task :prepare_to_sign do
+  if jruby?
+    puts "Gem signing is disabled for transit-ruby for JRuby"
+  else
+    private_key_path = File.expand_path(File.join(ENV['HOME'], '.gem', 'transit-ruby', 'private-key.pem'))
+    public_key_path  = File.expand_path(File.join(ENV['HOME'], '.gem', 'transit-ruby', 'public-key.pem'))
+    if File.exist?(public_key_path) and File.exist?(private_key_path)
+      ENV['SIGN_GEM'] = 'true'
+    else
+      raise "Missing one or both key files: #{public_key_path}, #{private_key_path}"
+    end
+  end
 end
 
 task :publish => [:build] do
@@ -123,7 +131,7 @@ task :publish => [:build] do
 end
 
 desc "Create tag v#{build_version} and build and push #{gem_filename} to Rubygems"
-task :release => [:ensure_committed, :publish]
+task :release => [:ensure_committed, :prepare_to_sign, :publish]
 
 desc "Uninstall #{project_name}"
 task :uninstall do

@@ -26,17 +26,21 @@ To build api documentation:
 
 ### Release
 
-Assuming you have permission to publish the gem and access to the
-public and private keys, as well as the password used to generate
-them, start by placing the pubic and private keys in ~/.gem:
+#### Pre-requisites:
 
-    $ ls ~/.gem | grep transit-ruby
-    transit-ruby-private_key.pem
-    transit-ruby-public_cert.pem
+* permission to push gems to https://rubygems.org/gems/transit-ruby
+* public and private key files for MRI
 
-Then:
+To sign the gem for MRI (currently disabled for JRuby), you'll need
+to generate public and private keys. Follow the directions from `gem
+cert -h` to generate the following files:
+
+    ~/.gem/transit-ruby/private-key.pem
+    ~/.gem/transit-ruby/public-key.pem
+
+Once those are in place, you can run:
 
     ./build/release
 
 You'll be prompted to confirm MRI and JRuby releases and for cert
-passwords.
+passwords for the MRI version.
