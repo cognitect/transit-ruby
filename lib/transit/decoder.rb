@@ -68,7 +68,7 @@ module Transit
                      @default_handler.from_rep(node[1], node[2..-1])
                    end
           if cache.cacheable?(node, as_map_key)
-            cache.write(parsed)
+            cache.write(node)
           end
           parsed
         end
