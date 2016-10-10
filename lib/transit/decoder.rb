@@ -54,7 +54,7 @@ module Transit
       case node
       when String
         if cache.has_key?(node)
-          cache.read(node)
+          decode(cache.read(node), cache, as_map_key)
         else
           parsed = if !node.start_with?(ESC)
                      node
