@@ -56,5 +56,12 @@ module Transit
         end
       end
     end
+
+    describe "Tag" do
+      # Regression example for https://github.com/cognitect/transit-ruby/pull/19
+      it "is does not == its String value" do
+        assert { Decoder::Tag.new("foo") != "foo" }
+      end
+    end
   end
 end

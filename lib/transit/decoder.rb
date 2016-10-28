@@ -42,7 +42,12 @@ module Transit
     end
 
     # @api private
-    class Tag < String; end
+    class Tag
+      attr_reader :value
+      def initialize(value)
+        @value = value
+      end
+    end
 
     # Decodes a transit value to a corresponding object
     #
@@ -79,10 +84,10 @@ module Transit
           decode(Hash[*node], cache)
         elsif Tag === e0
           v = decode(node.shift, cache)
-          if handler = @handlers[e0]
+          if handler = @handlers[e0.value]
             handler.from_rep(v)
           else
-            @default_handler.from_rep(e0,v)
+            @default_handler.from_rep(e0.value,v)
           end
         else
           [e0] + node.map {|e| decode(e, cache, as_map_key)}
@@ -92,10 +97,10 @@ module Transit
           k = decode(node.keys.first,   cache, true)
           v = decode(node.values.first, cache, false)
           if Tag === k
-            if handler = @handlers[k]
+            if handler = @handlers[k.value]
               handler.from_rep(v)
             else
-              @default_handler.from_rep(k,v)
+              @default_handler.from_rep(k.value,v)
             end
           else
             {k => v}
