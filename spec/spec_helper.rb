@@ -33,6 +33,7 @@ end
 
 require 'json'
 require 'rspec'
+require 'date' # because wrong expects it but doesn't load it :/
 require 'wrong/adapters/rspec'
 require 'transit'
 require 'spec_helper-local' if File.exist?(File.expand_path('../spec_helper-local.rb', __FILE__))
