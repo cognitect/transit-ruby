@@ -48,7 +48,7 @@ module Transit
         else
           @parse_handler.each {|v| return @decoder.decode(v)}
         end
-        Oj.sc_parse(@parse_handler, @io)
+        Oj.sc_parse(@parse_handler, @io) {|_stack|}
       end
     end
   end
