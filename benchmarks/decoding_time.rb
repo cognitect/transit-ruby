@@ -17,87 +17,79 @@ require 'transit'
 require 'benchmark'
 
 decoder = Transit::Decoder.new
-custom_decoder = Transit::Decoder.new
-custom_decoder.register("t") {|t| Transit::Util.date_time_from_millis(t.to_i)}
+
+custom_t = Class.new do
+  def from_rep(t)
+    Transit::DateTimeUtil.from_millis(t.to_i)
+  end
+end
+
+custom_decoder = Transit::Decoder.new(handlers: {"t" => custom_t.new})
 
 n = 10000
 
 t = Time.now
-m = Transit::Util.date_time_to_millis(t)
+m = Transit::DateTimeUtil.to_millis(t)
 m_to_s = m.to_s
-s = t.utc.iso8601(3)
+s = t.utc.iso8601
 
 results = [Time.parse(s).utc,
-           Transit::Util.date_time_from_millis(m),
-           Transit::Util.date_time_from_millis(m_to_s.to_i),
+           Transit::DateTimeUtil.from_millis(m),
+           Transit::DateTimeUtil.from_millis(m_to_s.to_i),
            decoder.decode("~t#{s}"),
-           decoder.decode({"~#t" => m}),
+           decoder.decode({"~#m" => m}),
            custom_decoder.decode("~t#{m}")]
 
-as_millis = results.map {|r| Transit::Util.date_time_to_millis(r)}
+as_millis = results.map {|r| Transit::DateTimeUtil.to_millis(r)}
 
 if Set.new(as_millis).length > 1
   warn "Not all methods returned the same values:"
   warn as_millis.to_s
 end
 
-Benchmark.benchmark do |bm|
-  puts "Time.parse(#{s.inspect}).utc"
-  3.times do
-    bm.report do
-      n.times do
-        Time.parse(s).utc
-      end
+puts
+puts "Time.parse            => (Time.parse(#{s.inspect}).utc)"
+puts "from_millis(int)      => Transit::DateTimeUtil.from_millis(#{m.inspect})"
+puts "from_millis(str.to_i) => Transit::DateTimeUtil.from_millis(#{m_to_s.inspect}.to_i)"
+puts "decode ~t             => decoder.decode(\"~t#{s}\")"
+puts "decode ~#m            => decoder.decode({\"~#m\" => #{m}})"
+puts "custom_decoder        => custom_decoder.decode(\"~t#{m}\"})"
+puts
+
+Benchmark.bmbm do |bm|
+  bm.report "Time.parse" do
+    n.times do
+      Time.parse(s).utc
     end
   end
 
-  puts
-  puts "Transit::Util.date_time_from_millis(#{m.inspect})"
-  3.times do
-    bm.report do
-      n.times do
-        Transit::Util.date_time_from_millis(m)
-      end
+  bm.report "from_millis(int)" do
+    n.times do
+      Transit::DateTimeUtil.from_millis(m)
     end
   end
 
-  puts
-  puts "Transit::Util.date_time_from_millis(#{m_to_s.inspect}.to_i)"
-  3.times do
-    bm.report do
-      n.times do
-        Transit::Util.date_time_from_millis(m_to_s.to_i)
-      end
+  bm.report "from_millis(str.to_i)" do
+    n.times do
+      Transit::DateTimeUtil.from_millis(m_to_s.to_i)
     end
   end
 
-  puts
-  puts "decoder.decode(\"~t#{s}\")"
-  3.times do
-    bm.report do
-      n.times do
-        decoder.decode("~t#{s}")
-      end
+  bm.report "decode ~t" do
+    n.times do
+      decoder.decode("~t#{s}")
     end
   end
 
-  puts
-  puts "decoder.decode({\"~#t\" => #{m}})"
-  3.times do
-    bm.report do
-      n.times do
-        decoder.decode({"~#t" => m})
-      end
+  bm.report "decode ~#m" do
+    n.times do
+      decoder.decode({"~#m" => m})
     end
   end
 
-  puts
-  puts "custom_decoder.decode(\"~t#{m}\")"
-  3.times do
-    bm.report do
-      n.times do
-        custom_decoder.decode("~t#{m}")
-      end
+  bm.report "custom_decoder" do
+    n.times do
+      custom_decoder.decode("~t#{m}")
     end
   end
 end
