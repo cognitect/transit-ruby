@@ -59,7 +59,7 @@ module Transit
       case node
       when String
         if cache.has_key?(node)
-          cache.read(node)
+          decode(cache.read(node), cache, as_map_key)
         else
           parsed = if !node.start_with?(ESC)
                      node
@@ -73,7 +73,7 @@ module Transit
                      @default_handler.from_rep(node[1], node[2..-1])
                    end
           if cache.cacheable?(node, as_map_key)
-            cache.write(parsed)
+            cache.write(node)
           end
           parsed
         end
