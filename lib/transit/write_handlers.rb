@@ -409,14 +409,23 @@ module Transit
       def string_rep(_) nil end
     end
 
-    DEFAULT_WRITE_HANDLERS = {
+    # Ruby >= 2.4 uses Integer for any integer
+    # Ruby < 2.4 uses Fixnum and Bignum, which are subs of Integer
+    # See: https://bugs.ruby-lang.org/issues/12005
+    DEFAULT_INTEGER_HANDLERS =
+      if 1.class == Integer
+        {Integer => IntHandler.new}
+      else
+        {(Module.const_get "Fixnum") => IntHandler.new,
+         (Module.const_get "Bignum") => IntHandler.new}
+      end
+
+    DEFAULT_WRITE_HANDLERS = DEFAULT_INTEGER_HANDLERS.merge({
       NilClass         => NilHandler.new,
       ::Symbol         => KeywordHandler.new,
       String           => StringHandler.new,
       TrueClass        => TrueHandler.new,
       FalseClass       => FalseHandler.new,
-      Fixnum           => IntHandler.new,
-      Bignum           => IntHandler.new,
       Float            => FloatHandler.new,
       BigDecimal       => BigDecimalHandler.new,
       Rational         => RationalHandler.new,
@@ -433,6 +442,6 @@ module Transit
       Hash             => MapHandler.new,
       Set              => SetHandler.new,
       TaggedValue      => TaggedValueHandler.new
-    }.freeze
+    }).freeze
   end
 end
