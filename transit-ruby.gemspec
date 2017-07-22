@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = "http://github.com/cognitect/transit-ruby"
   spec.license       = "Apache License 2.0"
 
-  spec.required_ruby_version = '>= 1.9.3'
+  spec.required_ruby_version = '>= 2.1.10'
 
   if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
     spec.files    = files - cruby_files

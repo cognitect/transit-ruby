@@ -126,12 +126,12 @@ for more info.
 |null|nil|nil|nil|nil|
 |string|String|String|"abc"|"abc"|
 |boolean|true, false|true, false|false|false|
-|integer|Fixnum, Bignum|Fixnum, Bignum|123|123|
+|integer|Integer|Integer|123|123|
 |decimal|Float|Float|123.456|123.456|
 |keyword|Symbol|Symbol|:abc|:abc|
 |symbol|Transit::Symbol|Transit::Symbol|Transit::Symbol.new("foo")|`#<Transit::Symbol "foo">`|
 |big decimal|BigDecimal|BigDecimal|BigDecimal.new("2**64")|`#<BigDecimal:7f9e6d33c558>`|
-|big integer|Fixnum, Bignum|Fixnum, Bignum|2**128|340282366920938463463374607431768211456|
+|big integer|Integer|Integer|2**128|340282366920938463463374607431768211456|
 |time|DateTime, Date, Time|DateTime|DateTime.now|`#<DateTime: 2014-07-15T15:52:27+00:00 ((2456854j,57147s,23000000n),+0s,2299161j)>`|
 |uri|Addressable::URI, URI|Addressable::URI|Addressable::URI.parse("http://example.com")|`#<Addressable::URI:0x3fc0e20390d4 URI:http://example.com>`|
 |uuid|Transit::UUID|Transit::UUID|Transit::UUID.new|`#<Transit::UUID "defa1cce-f70b-4ddb-bb6e-b6ac817d8bc8">`|
@@ -149,9 +149,9 @@ for more info.
 |------------|-------------|------------|--------------|-------------|
 |ratio|Rational|Rational|Rational(1, 3)|Rational(1, 3)|
 
-## Supported Rubies
+## Tested Ruby Versions
 
-* MRI 1.9.3, 2.0.0, 2.1.0, 2.1.1, 2.1.2
+* MRI 2.1.10, 2.2.7, 2.3.4, 2.4.0, 2.4.1
 * JRuby 1.7.13..16
 
 ## Copyright and License
