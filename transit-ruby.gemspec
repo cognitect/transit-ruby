@@ -38,7 +38,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = `git ls-files -- spec/*`.split("\n")
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "addressable",       "~> 2.3.6"
+  spec.add_dependency "addressable",       "~> 2.3"
   spec.add_development_dependency "rake",  "~> 10.1"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "wrong", "~> 0.7.1"
