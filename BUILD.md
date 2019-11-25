@@ -35,8 +35,8 @@ To sign the gem for MRI (currently disabled for JRuby), you'll need
 to generate public and private keys. Follow the directions from `gem
 cert -h` to generate the following files:
 
-    ~/.gem/transit-ruby/private-key.pem
-    ~/.gem/transit-ruby/public-key.pem
+    ~/.gem/transit-ruby/gem-private_key.pem
+    ~/.gem/transit-ruby/gem-public_cert.pem
 
 Once those are in place, you can run:
 
