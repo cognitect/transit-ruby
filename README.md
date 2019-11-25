@@ -33,7 +33,7 @@ gem install transit-ruby
 ```ruby
 # io can be any Ruby IO
 
-writer = Transit::Writer.new(:json, io) # or :json-verbose, :msgpack
+writer = Transit::Writer.new(:json, io) # or :json_verbose, :msgpack
 writer.write(value)
 
 reader = Transit::Reader.new(:json, io) # or :msgpack
