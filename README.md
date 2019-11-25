@@ -147,7 +147,7 @@ for more info.
 
 ## Tested Ruby Versions
 
-* MRI 2.1.10, 2.2.7, 2.3.4, 2.4.0, 2.4.1
+* MRI 2.1.10, 2.2.7, 2.3.4, 2.4.0, 2.4.1, 2.6.0..3
 * JRuby 1.7.13..16
 
 ## Copyright and License
