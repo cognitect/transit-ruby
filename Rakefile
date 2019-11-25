@@ -102,8 +102,8 @@ task :prepare_to_sign do
   if jruby?
     puts "Gem signing is disabled for transit-ruby for JRuby"
   else
-    private_key_path = File.expand_path(File.join(ENV['HOME'], '.gem', 'transit-ruby', 'private-key.pem'))
-    public_key_path  = File.expand_path(File.join(ENV['HOME'], '.gem', 'transit-ruby', 'public-key.pem'))
+    private_key_path = File.expand_path(File.join(ENV['HOME'], '.gem', 'transit-ruby', 'gem-private_key.pem'))
+    public_key_path  = File.expand_path(File.join(ENV['HOME'], '.gem', 'transit-ruby', 'gem-public_cert.pem'))
     if File.exist?(public_key_path) and File.exist?(private_key_path)
       ENV['SIGN_GEM'] = 'true'
     else
