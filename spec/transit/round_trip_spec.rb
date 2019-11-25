@@ -110,7 +110,7 @@ module Transit
     round_trips("NaN", Float::NAN, type)
     round_trips("Infinity", Float::INFINITY, type)
     round_trips("-Infinity", -Float::INFINITY, type)
-    round_trips("a bigdec", BigDecimal.new("123.45"), type)
+    round_trips("a bigdec", BigDecimal("123.45"), type)
     round_trips("an instant (DateTime local)", DateTime.new(2014,1,2,3,4,5, "-5"), type,
                 :expected => DateTime.new(2014,1,2, (3+5) ,4,5, "+00:00"))
     round_trips("an instant (DateTime gmt)", DateTime.new(2014,1,2,3,4,5), type)

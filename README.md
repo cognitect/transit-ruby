@@ -126,7 +126,7 @@ for more info.
 |decimal|Float|Float|123.456|123.456|
 |keyword|Symbol|Symbol|:abc|:abc|
 |symbol|Transit::Symbol|Transit::Symbol|Transit::Symbol.new("foo")|`#<Transit::Symbol "foo">`|
-|big decimal|BigDecimal|BigDecimal|BigDecimal.new("2**64")|`#<BigDecimal:7f9e6d33c558>`|
+|big decimal|BigDecimal|BigDecimal|BigDecimal("2**64")|`#<BigDecimal:7f9e6d33c558>`|
 |big integer|Integer|Integer|2**128|340282366920938463463374607431768211456|
 |time|DateTime, Date, Time|DateTime|DateTime.now|`#<DateTime: 2014-07-15T15:52:27+00:00 ((2456854j,57147s,23000000n),+0s,2299161j)>`|
 |uri|Addressable::URI, URI|Addressable::URI|Addressable::URI.parse("http://example.com")|`#<Addressable::URI:0x3fc0e20390d4 URI:http://example.com>`|

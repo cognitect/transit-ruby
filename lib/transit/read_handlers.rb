@@ -40,7 +40,7 @@ module Transit
       def from_rep(v) v.to_i end
     end
     class BigDecimalHandler
-      def from_rep(v) BigDecimal.new(v) end
+      def from_rep(v) BigDecimal(v) end
     end
     class SpecialNumbersHandler
       def from_rep(v)
