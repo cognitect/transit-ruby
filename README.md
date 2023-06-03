@@ -1,3 +1,6 @@
+# This library is no longer maintained. If you are interested in using or maintaining, please fork it and update according to the license.
+
+
 transit-ruby
 ===================
 
